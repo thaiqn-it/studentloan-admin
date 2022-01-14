@@ -2,6 +2,7 @@ import { Icon } from '@iconify/react';
 import pieChart2Fill from '@iconify/icons-eva/pie-chart-2-fill';
 import peopleFill from '@iconify/icons-eva/people-fill';
 import clockOutline from '@iconify/icons-eva/clock-fill';
+import fileContract from '@iconify/icons-fa-solid/file-contract';
 import schoolFill from '@iconify/icons-ion/school';
 import transactionFill from '@iconify/icons-ant-design/transaction-outlined';
 
@@ -34,6 +35,11 @@ const sidebarConfig = [
     title: 'quản lý trường đại học',
     path: '/dashboard/manageschool',
     icon: getIcon(schoolFill)
+  },
+  {
+    title: 'quản lý hợp đồng',
+    path: '/dashboard/managecontract',
+    icon: getIcon(fileContract)
   },
   // {
   //   title: 'register',

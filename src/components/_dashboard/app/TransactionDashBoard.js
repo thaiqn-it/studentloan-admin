@@ -4,8 +4,11 @@ import ReactApexChart from 'react-apexcharts';
 import { Card, CardHeader, Box, Grid, Autocomplete, TextField } from '@mui/material';
 //
 import { BaseOptionChart } from '../../charts';
+import {useEffect, useState} from 'react';
 
 // ----------------------------------------------------------------------
+
+
 
 const CHART_DATA = [
   {
@@ -27,7 +30,47 @@ const CHART_DATA = [
 
 const YEAR_DATA =["2019","2020","2021"];
 
+
+
 export default function TransactionDashBoard() {
+
+
+
+  const [data, setdata] = useState([
+    {
+      name: 'Students',
+      type: 'column',
+      data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 11]
+    },
+    {
+      name: 'Backers',
+      type: 'area',
+      data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43, 98]
+    },
+  ])
+
+  // useEffect(() => {
+  //   alert("data change")
+  // }, [data])
+
+  const changeYear = (e,v)=>{
+    if(v==='2019'){
+      setdata([
+        {
+          name: 'Students',
+          type: 'column',
+          data: [23, 10, 23, 27, 13, 22, 90, 21, 44, 22, 30, 11]
+        },
+        {
+          name: 'Backers',
+          type: 'area',
+          data: [44, 37, 41, 67, 80, 43, 21, 41, 56, 10, 43, 98]
+        },
+      ]
+      )
+    }
+  }
+
   const chartOptions = merge(BaseOptionChart(), {
     stroke: { width: [0, 2, 3] },
     plotOptions: { bar: { columnWidth: '11%', borderRadius: 4 } },
@@ -63,8 +106,6 @@ export default function TransactionDashBoard() {
 
   return (
     <Card>
-
-      
       <Grid
   container
   direction="row"
@@ -78,11 +119,12 @@ export default function TransactionDashBoard() {
       disableClearable={true}
       options={YEAR_DATA}
       defaultValue={new Date().getFullYear()}
+      onChange={changeYear}
       renderInput={(params) => <TextField {...params} style={{width:100}}/>}
     />
     </Grid>
       <Box sx={{ p: 3, pb: 1 }} dir="ltr">
-        <ReactApexChart type="line" series={CHART_DATA} options={chartOptions} height={364} />
+        <ReactApexChart type="line" series={data} options={chartOptions} height={364} />
       </Box>
     </Card>
   );
