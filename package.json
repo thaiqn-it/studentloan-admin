@@ -18,7 +18,6 @@
     "@testing-library/jest-dom": "^5.14.1",
     "apexcharts": "^3.28.3",
     "axios": "^0.24.0",
-    "caniuse-lite": "^1.0.30001299",
     "change-case": "^4.1.2",
     "date-fns": "^2.24.0",
     "dotenv": "^12.0.3",

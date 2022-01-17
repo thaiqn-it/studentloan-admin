@@ -88,10 +88,6 @@ export default function Profile() {
   return (
     <RootStyle title="Profile page">
       <AuthLayout>
-        {/* Already have an account? &nbsp;
-        <Link underline="none" variant="subtitle2" component={RouterLink} to="/login">
-          Login
-        </Link> */}
       </AuthLayout>
 
       <MHidden width="mdDown">

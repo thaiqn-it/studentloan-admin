@@ -35,10 +35,23 @@ const ChartWrapperStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 
-const YEAR_DATA =["2019","2020","2021"];
-const CHART_DATA = [8372, 5435, 1443, 3201];
+const YEAR_DATA =["2020","2021","2022"];
+// const CHART_DATA = [8372, 5435, 1443, 3201];
 
 export default function AppCurrentVisits() {
+  const [data, setdata] = useState([8372, 5435, 1443, 3201])
+
+  const changeYear = (e,v)=>{
+    if(v==='2020'){
+      setdata([8323, 6435, 1243, 3209])
+    }
+    if(v==='2021'){
+      setdata([1833, 8435, 2243, 7309])
+    }
+    else{
+      setdata([8372, 5435, 1443, 3201])
+    }
+  }
 
   const theme = useTheme();
 
@@ -81,12 +94,13 @@ export default function AppCurrentVisits() {
       id="combo-box-demo"
       disableClearable={true}
       options={YEAR_DATA}
+      onChange={changeYear}
       defaultValue={new Date().getFullYear()}
       renderInput={(params) => <TextField {...params} style={{width:100}}/>}
     />
     </Grid>
       <ChartWrapperStyle dir="ltr">
-        <ReactApexChart type="pie" series={CHART_DATA} options={chartOptions} height={280} />
+        <ReactApexChart type="pie" series={data} options={chartOptions} height={280} />
       </ChartWrapperStyle>
     </Card>
   );

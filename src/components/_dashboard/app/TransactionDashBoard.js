@@ -4,7 +4,7 @@ import ReactApexChart from 'react-apexcharts';
 import { Card, CardHeader, Box, Grid, Autocomplete, TextField } from '@mui/material';
 //
 import { BaseOptionChart } from '../../charts';
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ const CHART_DATA = [
   // }
 ];
 
-const YEAR_DATA =["2019","2020","2021"];
+const YEAR_DATA = ["2020", "2021", "2022"];
 
 
 
@@ -40,12 +40,12 @@ export default function TransactionDashBoard() {
     {
       name: 'Students',
       type: 'column',
-      data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 11]
+      data: [23, 11, 22, 27]
     },
     {
       name: 'Backers',
       type: 'area',
-      data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43, 98]
+      data: [44, 55, 41, 67]
     },
   ])
 
@@ -53,21 +53,49 @@ export default function TransactionDashBoard() {
   //   alert("data change")
   // }, [data])
 
-  const changeYear = (e,v)=>{
-    if(v==='2019'){
+  const changeYear = (e, v) => {
+    if (v === '2020') {
       setdata([
         {
           name: 'Students',
           type: 'column',
-          data: [23, 10, 23, 27, 13, 22, 90, 21, 44, 22, 30, 11]
+          data: [23, 10, 23, 27]
         },
         {
           name: 'Backers',
           type: 'area',
-          data: [44, 37, 41, 67, 80, 43, 21, 41, 56, 10, 43, 98]
+          data: [44, 37, 41, 67]
         },
       ]
       )
+    }
+    if (v === '2021') {
+      setdata([
+        {
+          name: 'Students',
+          type: 'column',
+          data: [23, 11, 22, 27]
+        },
+        {
+          name: 'Backers',
+          type: 'area',
+          data: [44, 55, 41, 67]
+        },
+      ])
+    }
+    else {
+      setdata([
+        {
+          name: 'Students',
+          type: 'column',
+          data: [10, 31, 21, 78]
+        },
+        {
+          name: 'Backers',
+          type: 'area',
+          data: [19, 55, 60, 51]
+        },
+      ])
     }
   }
 
@@ -76,20 +104,12 @@ export default function TransactionDashBoard() {
     plotOptions: { bar: { columnWidth: '11%', borderRadius: 4 } },
     fill: { type: ['solid', 'gradient', 'solid'] },
     labels: [
-      '01/02/2003',
-      '02/02/2003',
-      '03/02/2003',
-      '04/02/2003',
-      '05/02/2003',
-      '06/02/2003',
-      '07/02/2003',
-      '08/02/2003',
-      '09/02/2003',
-      '10/02/2003',
-      '11/02/2003',
-      '12/02/2003'
+      'Quý 1',
+      'Quý 2',
+      'Quý 3',
+      'Quý 4',
     ],
-    xaxis: { type: 'datetime' },
+    xaxis: { type: 'string' },
     tooltip: {
       shared: true,
       intersect: false,
@@ -107,22 +127,22 @@ export default function TransactionDashBoard() {
   return (
     <Card>
       <Grid
-  container
-  direction="row"
-  justifyContent="flex-start"
-  alignItems="center"
->
-<CardHeader title="Transactions" sx={{marginBottom:1.8}} subheader="(+43%) than last year" />
-      <Autocomplete
-      disablePortal
-      id="combo-box-demo"
-      disableClearable={true}
-      options={YEAR_DATA}
-      defaultValue={new Date().getFullYear()}
-      onChange={changeYear}
-      renderInput={(params) => <TextField {...params} style={{width:100}}/>}
-    />
-    </Grid>
+        container
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+      >
+        <CardHeader title="Transactions" sx={{ marginBottom: 1.8 }} subheader="(+43%) than last year" />
+        <Autocomplete
+          disablePortal
+          id="combo-box-demo"
+          disableClearable={true}
+          options={YEAR_DATA}
+          defaultValue={new Date().getFullYear()}
+          onChange={changeYear}
+          renderInput={(params) => <TextField {...params} style={{ width: 100 }} />}
+        />
+      </Grid>
       <Box sx={{ p: 3, pb: 1 }} dir="ltr">
         <ReactApexChart type="line" series={data} options={chartOptions} height={364} />
       </Box>
