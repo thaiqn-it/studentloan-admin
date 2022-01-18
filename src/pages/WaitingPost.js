@@ -2,7 +2,7 @@
 // import plusFill from '@iconify/icons-eva/plus-fill';
 // import { Link as RouterLink } from 'react-router-dom';
 // material
-import { Grid, Button, Container, Stack, Typography } from '@mui/material';
+import { Grid, Container, Stack, Typography } from '@mui/material';
 // components
 import Page from '../components/Page';
 import { PostCard, PostsSort, PostsSearch } from '../components/_dashboard/post';
@@ -26,14 +26,6 @@ export default function WaitingPost() {
           <Typography variant="h4" gutterBottom>
             Waiting Post
           </Typography>
-          {/* <Button
-            variant="contained"
-            component={RouterLink}
-            to="#"
-            startIcon={<Icon icon={plusFill} />}
-          >
-            New Post
-          </Button> */}
         </Stack>
 
         <Stack mb={5} direction="row" alignItems="center" justifyContent="space-between">

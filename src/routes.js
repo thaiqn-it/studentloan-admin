@@ -13,6 +13,8 @@ import NotFound from './pages/Page404';
 import ManageSchool from './pages/ManageSchool';
 import ViewTransactions from './pages/ViewTransactions';
 import DetailSchool from './pages/DetailSchool';
+import ViewPost from './pages/ViewPost';
+import ViewListContract from './pages/ViewListContract';
 
 // ----------------------------------------------------------------------
 
@@ -27,7 +29,9 @@ export default function Router() {
         { path: 'user', element: <User /> },
         { path: 'waitingpost', element: <WaitingPost /> },
         { path: 'manageschool', element: <ManageSchool /> },
+        { path: 'viewlistcontract', element: <ViewListContract /> },
         { path: 'viewtransactions', element: <ViewTransactions /> },
+        { path: 'viewPost', element: <ViewPost /> },
         { path: '', element: <DashboardApp /> },
       ]
     },
@@ -38,7 +42,7 @@ export default function Router() {
         { path: 'login', element: <Login /> },
         { path: 'register', element: <Register /> },
         { path: 'profile', element: <Profile /> },
-        { path: 'detailschool', element: <DetailSchool /> },
+        { path: 'detailschool/:id', element: <DetailSchool /> },
         { path: '404', element: <NotFound /> },
         { path: '/', element: <Navigate to="/dashboard" /> },
         { path: '*', element: <Navigate to="/404" /> }

@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 // layouts
 import AuthLayout from '../layouts/AuthLayout';
-import Pdf from "react-to-pdf";
 // components
 import Page from '../components/Page';
 import { MHidden } from '../components/@material-extend';
@@ -67,7 +66,7 @@ const ColoredLine = ({ color }) => (
 
 // ----------------------------------------------------------------------
 
-export default function Profile() {
+export default function DetailProfile() {
 
   const [date, setDate] = React.useState(new Date());
 
@@ -94,21 +93,8 @@ export default function Profile() {
     event.preventDefault();
   };
 
-  const ref = React.createRef();
   return (
     <RootStyle title="Profile page">
-      <AuthLayout>
-      </AuthLayout>
-
-      <MHidden width="mdDown">
-        <SectionStyle>
-          <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-            Chỉnh sửa thông tin cá nhân của bạn tại đây
-          </Typography>
-          <img alt="register" src="/static/illustrations/illustration_register.png" />
-        </SectionStyle>
-      </MHidden>
-
       <Container>
         <ContentStyle>
 
@@ -236,6 +222,7 @@ export default function Profile() {
                 }
               />
             </FormControl>
+
 
           </Card>
           <ColoredLine color="#00FF9D" />
@@ -366,7 +353,7 @@ export default function Profile() {
               </Grid>
             </Grid>
           </Paper>
-          
+
 
           <ColoredLine color="#00FF9D" />
           <Grid

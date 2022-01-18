@@ -38,7 +38,7 @@ const sidebarConfig = [
   },
   {
     title: 'quản lý hợp đồng',
-    path: '/dashboard/managecontract',
+    path: '/dashboard/viewlistcontract',
     icon: getIcon(fileContract)
   },
   // {

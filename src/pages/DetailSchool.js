@@ -1,7 +1,7 @@
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useSearchParams, useParams } from 'react-router-dom';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // material
 import PropTypes from 'prop-types';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -12,23 +12,10 @@ import Collapse from '@mui/material/Collapse';
 // web.cjs is required for IE11 support
 import { useSpring, animated } from 'react-spring'
 import {
-  Grid, TextField, FormControl, OutlinedInput,
-  InputAdornment,
-  IconButton
-} from '@mui/material';
-import {
+  Grid, TextField,
   Card,
-  Table,
-  Stack,
-  Avatar,
-  Checkbox,
-  TableRow,
-  TableBody,
-  TableCell,
   Container,
   Typography,
-  TableContainer,
-  TablePagination
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
@@ -80,17 +67,6 @@ const ColoredLine = ({ color }) => (
     }}
   />
 );
-
-
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
 
 // ----------------------------------------------------------------------
 function MinusSquare(props) {
@@ -217,7 +193,12 @@ const isEdit = (subId) => {
 // ----------------------------------------------------------------------
 
 export default function DetailSchool() {
+  // const [searchParams, setSearchParams] = useParams({});
+  const {id} = useParams();
 
+  useEffect(() => {
+    console.log(id)
+  }, [])
   return (
     <RootStyle title="Chi tiết về trường">
       <AuthLayout />
