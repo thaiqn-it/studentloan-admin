@@ -15,6 +15,7 @@ import ViewTransactions from './pages/ViewTransactions';
 import DetailSchool from './pages/DetailSchool';
 import ViewPost from './pages/ViewPost';
 import ViewListContract from './pages/ViewListContract';
+import CreateSchool from './pages/CreateSchool';
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +33,7 @@ export default function Router() {
         { path: 'viewlistcontract', element: <ViewListContract /> },
         { path: 'viewtransactions', element: <ViewTransactions /> },
         { path: 'viewPost', element: <ViewPost /> },
+        { path: 'createschool', element: <CreateSchool /> },
         { path: '', element: <DashboardApp /> },
       ]
     },

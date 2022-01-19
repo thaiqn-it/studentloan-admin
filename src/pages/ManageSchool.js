@@ -7,17 +7,18 @@ import {
   Card,
   Table,
   Stack,
-  Checkbox,
   TableRow,
   TableBody,
   TableCell,
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  Button,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import Edit from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 // components
 import Page from '../components/Page';
 import Label from '../components/Label';
@@ -76,13 +77,8 @@ export default function ManageSchool() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [dataSchool, setdataSchool] = useState([])
   useEffect(() => {
-    // axios
-    //   .get("http://localhost:3000/api/school")
-    //   .then(response => setdataSchool(response.data));
     schoolApi.getAll().then(res => {
-      // let JsonData = JSON.stringify(res.data)
       setdataSchool(res.data)
-      console.log(dataSchool)
     })
   }, [])
 
@@ -118,6 +114,14 @@ export default function ManageSchool() {
           <Typography variant="h4" gutterBottom>
             Danh Sách Các Trường Đại Học
           </Typography>
+          <Button
+            variant="contained"
+            component={RouterLink}
+            to="../createschool"
+            startIcon={<AddIcon />}
+          >
+            New School
+          </Button>
         </Stack>
 
         <Card>

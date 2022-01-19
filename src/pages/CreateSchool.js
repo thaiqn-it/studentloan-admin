@@ -1,7 +1,4 @@
-import { Link as RouterLink, useSearchParams, useParams } from 'react-router-dom';
-import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
-import { useState, useEffect } from 'react';
+import * as React from 'react';
 // material
 import PropTypes from 'prop-types';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -16,37 +13,20 @@ import {
   Card,
   Container,
   Typography,
-  Button,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import AddIcon from '@mui/icons-material/Add';
 // components
 import Page from '../components/Page';
-import { MHidden } from '../components/@material-extend';
-// layouts
-import AuthLayout from '../layouts/AuthLayout';
-// components
-import * as React from 'react';
 import Edit from '@mui/icons-material/Edit';
 import Add from '@mui/icons-material/Add';
-import { schoolApi } from '../apis/school';
-// import { RegisterForm } from '../components/authentication/register';
-// import AuthSocial from '../components/authentication/AuthSocial';
-
+import faker from "faker";
 // ----------------------------------------------------------------------
 
 const RootStyle = styled(Page)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
     display: 'flex'
   }
-}));
-
-const SectionStyle = styled(Card)(({ theme }) => ({
-  width: '100%',
-  maxWidth: 464,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  margin: theme.spacing(2, 0, 2, 2)
 }));
 
 const ContentStyle = styled('div')(({ theme }) => ({
@@ -138,6 +118,7 @@ const StyledTreeItem = styled((props) => (
       subId = props.nodeId;
       console.log(subId);
     }
+      // console.log('delete',props.nodeId)
     }
     TransitionComponent={TransitionComponent} />
 ))(({ theme }) => ({
@@ -191,128 +172,51 @@ const isEdit = (subId) => {
   }
 }
 
-
-
 // ----------------------------------------------------------------------
 
-export default function DetailSchool() {
-  const {id} = useParams();
-  const [schoolData, setschoolData] = useState([])
-  const [name, setname] = useState('')
-  const [city, setcity] = useState('')
-  const [district, setdistrict] = useState('')
-
-  useEffect(() => {
-    schoolApi.getOne(id).then(res=>{
-      setschoolData(res.data)
-      setname(res.data.name)
-      setcity(res.data.city)
-    })
-  }, [])
-
-  const onChangeName = (event) =>{
-    setname(event.target.value)
-    console.log(name)
-  }
-
-  function updateSchool(id, data){
-    schoolApi.update(id,data).then(res=>{
-      console.log('thanh cong')
-    }).catch(
-      console.log('that bai')
-    )
-  }
-
+export default function CreateSchool() {
+  // const [searchParams, setSearchParams] = useParams({});
   return (
     <RootStyle title="Chi tiết về trường">
-      <AuthLayout />
-      <MHidden width="mdDown">
-        <SectionStyle>
-          <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-            Chỉnh sửa thông tin về trường đại học
-          </Typography>
-          <img alt="editschool" src="/static/illustrations/illutrastion_editschool.png" />
-        </SectionStyle>
-      </MHidden>
-
       <Container>
         <ContentStyle>
           <Typography variant='h3'>Thông Tin Trường</Typography>
-
           <Card
             style={{
               padding: 30,
             }}>
-            <Typography>Tên</Typography>
-            <TextField fullWidth onChange={onChangeName} defaultValue={schoolData.name} />
+            <Typography>ID</Typography>
+            <TextField fullWidth value={faker.datatype.uuid()} disabled />
 
+
+            <Typography style={{
+              marginTop: 30
+            }}>Tên</Typography>
+            <TextField fullWidth value={""}  />
 
             <Typography style={{
               marginTop: 30
             }}>Thành Phố</Typography>
-            <TextField fullWidth defaultValue={schoolData.city} />
+            <TextField fullWidth value={""} disabled />
 
             <Typography style={{
               marginTop: 30
             }}>Quận/Huyện</Typography>
-            <TextField fullWidth defaultValue={schoolData.district} />
-           
-            <Button
-              fullWidth
-              onClick={updateSchool(id,schoolData)}
+            <TextField fullWidth value={""} disabled />
+
+            <LoadingButton
               size="large"
               style={{
                 marginTop: 30,
-                width: "20%",
+                width: "15%",
               }}
               type="submit"
               variant="contained"
-              endIcon={<Edit />}
-              
+              startIcon={<AddIcon />}
+            // loading={isSubmitting}
             >
-              Edit
-            </Button>
-
-          </Card>
-          <ColoredLine color="#00FF9D" />
-          <Typography variant='h3'>Danh sách các chuyên ngành</Typography>
-
-          <TreeView
-            aria-label="customized"
-            defaultExpanded={['1']}
-            defaultCollapseIcon={<MinusSquare />}
-            defaultExpandIcon={<PlusSquare />}
-            defaultEndIcon={<CloseSquare />}
-            sx={{ flexGrow: 1, maxWidth: 500, overflowY: 'auto' }}
-          >
-            <StyledTreeItem onClick nodeId="1" label="Information Technology">
-              <StyledTreeItem onClick nodeId="11" label="Artificial Intelligence" />
-              <StyledTreeItem onClick nodeId="12" label="Graphic Design" />
-              <StyledTreeItem onClick nodeId="13" label="Safety Information" />
-            </StyledTreeItem>
-
-            <StyledTreeItem onClick nodeId="2" label="Business Administration">
-              <StyledTreeItem onClick nodeId="21" label="Hospitality Management" />
-            </StyledTreeItem>
-          </TreeView>
-
-          <Typography style={{
-            marginTop: 30,
-          }} variant='h3'>Thông tin chuyên ngành</Typography>
-          <Card
-            style={{
-              padding: 30,
-            }}>
-            <Typography>Loại</Typography>
-            <TextField fullWidth defaultValue={""} />
-
-            <Typography style={{
-              marginTop: 30,
-            }}>Tên</Typography>
-            <TextField fullWidth defaultValue={""} />
-
-            {isEdit(subId)}
-
+              Create
+            </LoadingButton>
           </Card>
         </ContentStyle>
       </Container>
