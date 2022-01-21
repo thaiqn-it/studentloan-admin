@@ -1,7 +1,6 @@
-import { Link as RouterLink, useSearchParams, useParams } from 'react-router-dom';
-import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import faker from "faker";
 // material
 import PropTypes from 'prop-types';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -12,13 +11,20 @@ import Collapse from '@mui/material/Collapse';
 // web.cjs is required for IE11 support
 import { useSpring, animated } from 'react-spring'
 import {
-  Grid, TextField,
+  TextField,
   Card,
   Container,
   Typography,
   Button,
+  Autocomplete,
+  Snackbar,
+  Alert,
+  Grid,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import ArrowBack from '@mui/icons-material/ArrowBack';
 // components
 import Page from '../components/Page';
 import { MHidden } from '../components/@material-extend';
@@ -29,8 +35,6 @@ import * as React from 'react';
 import Edit from '@mui/icons-material/Edit';
 import Add from '@mui/icons-material/Add';
 import { schoolApi } from '../apis/school';
-// import { RegisterForm } from '../components/authentication/register';
-// import AuthSocial from '../components/authentication/AuthSocial';
 
 // ----------------------------------------------------------------------
 
@@ -134,11 +138,6 @@ let subId = '';
 
 const StyledTreeItem = styled((props) => (
   <TreeItem {...props}
-    onClick={() => {
-      subId = props.nodeId;
-      console.log(subId);
-    }
-    }
     TransitionComponent={TransitionComponent} />
 ))(({ theme }) => ({
   [`& .${treeItemClasses.iconContainer}`]: {
@@ -196,31 +195,118 @@ const isEdit = (subId) => {
 // ----------------------------------------------------------------------
 
 export default function DetailSchool() {
-  const {id} = useParams();
-  const [schoolData, setschoolData] = useState([])
+  const navigate = useNavigate()
+  const { id } = useParams();
   const [name, setname] = useState('')
   const [city, setcity] = useState('')
   const [district, setdistrict] = useState('')
+  const [status, setstatus] = useState('')
+  const [open, setOpen] = React.useState(false);
+  const [message, setmessage] = React.useState('')
+  const [majorSchool, setmajorSchool] = useState([])
+  const [selectedMajorSchool, setselectedMajorSchool] = useState([])
+  const [inputValue, setInputValue] = useState('')
+  const option = ['active', 'banned']
+  const [colorMessage, setcolorMessage] = useState('')
+  const vertical = 'bottom'
+  const horizontal = 'right'
+  const [tab, settab] = React.useState(0);
+
+  const handleChangeTabs = (event, newValue) => {
+    settab(newValue);
+  };
 
   useEffect(() => {
-    schoolApi.getOne(id).then(res=>{
-      setschoolData(res.data)
+    schoolApi.getOne(id).then(res => {
       setname(res.data.name)
       setcity(res.data.city)
+      setdistrict(res.data.district)
+      setstatus(res.data.status)
     })
+
+    setmajorSchool([
+      {
+        id: faker.datatype.uuid(),
+        name: "English",
+        children: [
+          {
+            id: faker.datatype.uuid(),
+            name: "Spring",
+            children: []
+          }
+        ]
+      },
+      {
+        id: faker.datatype.uuid(),
+        name: "Italian",
+        children: [
+          {
+            id: faker.datatype.uuid(),
+            name: "Level A",
+            children: []
+          }
+        ]
+      },
+      {
+        id: faker.datatype.uuid(),
+        name: "Japanese",
+      }
+    ])
   }, [])
 
-  const onChangeName = (event) =>{
+  const onChangeName = (event) => {
     setname(event.target.value)
-    console.log(name)
+  }
+  const onChangeCity = (event) => {
+    setcity(event.target.value)
+  }
+  const onChangeDistrict = (event) => {
+    setdistrict(event.target.value)
   }
 
-  function updateSchool(id, data){
-    schoolApi.update(id,data).then(res=>{
-      console.log('thanh cong')
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
+  function updateSchool(id) {
+    schoolApi.update(id, {
+      name,
+      city,
+      district,
+      status,
+    }
+    ).then(res => {
+      setOpen(true);
+      setcolorMessage('success')
+      setmessage('Tạo mới thành công!')
     }).catch(
-      console.log('that bai')
+      (e) => {
+        console.log(e);
+        setcolorMessage('error')
+        setmessage('Tạo mới thất bại!')
+      }
     )
+  }
+
+  const getTreeList = (majors) => {
+    return majors.map(majorData => {
+      let dataChildren = undefined;
+      if (majorData.children && majorData.children.length > 0) {
+        dataChildren = getTreeList(majorData.children);
+      }
+      return (
+        <StyledTreeItem
+          onClick={() => {
+            setselectedMajorSchool(majorData)
+            console.log(selectedMajorSchool)
+          }}
+          key={majorData.id}
+          nodeId={majorData.id} label={majorData.name} children={dataChildren} />
+      )
+    })
   }
 
   return (
@@ -237,29 +323,73 @@ export default function DetailSchool() {
 
       <Container>
         <ContentStyle>
-          <Typography variant='h3'>Thông Tin Trường</Typography>
+          <LoadingButton
+            onClick={() => navigate(-1)}
+            size="large"
+            type="submit"
+            sx={{
+              borderColor: '#ABB5B1',
+              color: '#ABB5B1',
+              width: '15%'
+            }}
+            variant="outlined"
+            startIcon={<ArrowBack />}
+          >
+            Back
+          </LoadingButton>
+          <Tabs value={tab} onChange={handleChangeTabs} centered>
+            <Tab label="Thông tin cơ bản" />
+            <Tab label="Chỉnh sửa ngành/chuyên ngành" />
+            <Tab label="tạo ngành/chuyên ngành" />
+          </Tabs>
 
+          <Typography sx={{
+            margin: '10px'
+          }} variant='h3'>Thông Tin Trường</Typography>
           <Card
             style={{
               padding: 30,
             }}>
-            <Typography>Tên</Typography>
-            <TextField fullWidth onChange={onChangeName} defaultValue={schoolData.name} />
+            <Typography>ID</Typography>
+            <TextField fullWidth defaultValue={id} disabled />
 
+            <Typography style={{
+              marginTop: 30
+            }}>Tên</Typography>
+            <TextField fullWidth onChange={onChangeName} value={name} />
 
             <Typography style={{
               marginTop: 30
             }}>Thành Phố</Typography>
-            <TextField fullWidth defaultValue={schoolData.city} />
+            <TextField fullWidth onChange={onChangeCity} value={city} />
 
             <Typography style={{
               marginTop: 30
             }}>Quận/Huyện</Typography>
-            <TextField fullWidth defaultValue={schoolData.district} />
-           
+            <TextField fullWidth onChange={onChangeDistrict} value={district} />
+
+            <Typography style={{
+              marginTop: 30
+            }}>Trạng Thái</Typography>
+            <Autocomplete
+              value={status}
+              onChange={(event, newValue) => {
+                setstatus(newValue);
+              }}
+              inputValue={inputValue}
+              onInputChange={(event, newInputValue) => {
+                setInputValue(newInputValue);
+              }}
+              id="controllable-states-demo"
+              disableClearable={true}
+              options={option}
+              sx={{ width: 300 }}
+              renderInput={(params) => <TextField {...params} />}
+            />
+
             <Button
               fullWidth
-              onClick={updateSchool(id,schoolData)}
+              onClick={() => updateSchool(id)}
               size="large"
               style={{
                 marginTop: 30,
@@ -268,7 +398,6 @@ export default function DetailSchool() {
               type="submit"
               variant="contained"
               endIcon={<Edit />}
-              
             >
               Edit
             </Button>
@@ -285,15 +414,7 @@ export default function DetailSchool() {
             defaultEndIcon={<CloseSquare />}
             sx={{ flexGrow: 1, maxWidth: 500, overflowY: 'auto' }}
           >
-            <StyledTreeItem onClick nodeId="1" label="Information Technology">
-              <StyledTreeItem onClick nodeId="11" label="Artificial Intelligence" />
-              <StyledTreeItem onClick nodeId="12" label="Graphic Design" />
-              <StyledTreeItem onClick nodeId="13" label="Safety Information" />
-            </StyledTreeItem>
-
-            <StyledTreeItem onClick nodeId="2" label="Business Administration">
-              <StyledTreeItem onClick nodeId="21" label="Hospitality Management" />
-            </StyledTreeItem>
+            {getTreeList(majorSchool)}
           </TreeView>
 
           <Typography style={{
@@ -303,17 +424,27 @@ export default function DetailSchool() {
             style={{
               padding: 30,
             }}>
-            <Typography>Loại</Typography>
-            <TextField fullWidth defaultValue={""} />
+            <Typography>ID</Typography>
+            <TextField fullWidth value={selectedMajorSchool.id} disabled />
+
+            <Typography style={{
+              marginTop: 30
+            }}>Ngành</Typography>
+            <TextField fullWidth value={selectedMajorSchool.parent} />
 
             <Typography style={{
               marginTop: 30,
-            }}>Tên</Typography>
-            <TextField fullWidth defaultValue={""} />
+            }}>Tên Chuyên Ngành</Typography>
+            <TextField fullWidth value={selectedMajorSchool.name} />
 
             {isEdit(subId)}
 
           </Card>
+          <Snackbar open={open} anchorOrigin={{ vertical, horizontal }} autoHideDuration={3000} onClose={handleClose}>
+            <Alert onClose={handleClose} severity={colorMessage} sx={{ width: '100%' }}>
+              {message}
+            </Alert>
+          </Snackbar>
         </ContentStyle>
       </Container>
     </RootStyle>

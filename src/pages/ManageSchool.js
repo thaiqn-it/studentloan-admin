@@ -80,7 +80,7 @@ export default function ManageSchool() {
     schoolApi.getAll().then(res => {
       setdataSchool(res.data)
     })
-  }, [])
+  }, [dataSchool])
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
