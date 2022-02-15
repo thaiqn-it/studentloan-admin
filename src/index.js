@@ -14,7 +14,7 @@ import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <HelmetProvider>
-    <BrowserRouter basename="/admin">
+    <BrowserRouter>
       <App />
     </BrowserRouter>
   </HelmetProvider>,
