@@ -12,15 +12,15 @@ const getOne = (id) =>{
 }
 
 const create = (data) => {
-    return defaultInstance.post("/school", {
+    return defaultInstance.post("/school", 
         data
-    });
+    );
 };
 
 const update = (id,data) =>{
-    return defaultInstance.put(`/school/${id}`, {
+    return defaultInstance.put(`/school/${id}`, 
         data
-    });
+    );
 }
 
 export const schoolApi = {

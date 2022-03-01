@@ -1,36 +1,32 @@
-import { Link as RouterLink, useSearchParams, useParams } from 'react-router-dom';
-import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 // material
-import PropTypes from 'prop-types';
-import SvgIcon from '@mui/material/SvgIcon';
-import { alpha, styled } from '@mui/material/styles';
-import TreeView from '@mui/lab/TreeView';
-import TreeItem, { treeItemClasses } from '@mui/lab/TreeItem';
-import Collapse from '@mui/material/Collapse';
-// web.cjs is required for IE11 support
-import { useSpring, animated } from 'react-spring'
+import { styled } from '@mui/material/styles';
 import {
-  Grid, TextField,
+  TextField,
   Card,
   Container,
   Typography,
   Button,
+  Autocomplete,
+  Snackbar,
+  Alert,
+  Tab,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import ArrowBack from '@mui/icons-material/ArrowBack';
 // components
 import Page from '../components/Page';
-import { MHidden } from '../components/@material-extend';
-// layouts
-import AuthLayout from '../layouts/AuthLayout';
 // components
 import * as React from 'react';
 import Edit from '@mui/icons-material/Edit';
 import Add from '@mui/icons-material/Add';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
+//faker
+import faker from 'faker';
+//Api
 import { schoolApi } from '../apis/school';
-// import { RegisterForm } from '../components/authentication/register';
-// import AuthSocial from '../components/authentication/AuthSocial';
+import { majorApi } from '../apis/major';
+import MajorHandle from '../components/major/MajorHandle';
 
 // ----------------------------------------------------------------------
 
@@ -40,280 +36,181 @@ const RootStyle = styled(Page)(({ theme }) => ({
   }
 }));
 
-const SectionStyle = styled(Card)(({ theme }) => ({
-  width: '100%',
-  maxWidth: 464,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  margin: theme.spacing(2, 0, 2, 2)
-}));
-
 const ContentStyle = styled('div')(({ theme }) => ({
   margin: 'auto',
   display: 'flex',
   minHeight: '100vh',
-  maxWidth: "85%",
   flexDirection: 'column',
   justifyContent: 'center',
-  padding: theme.spacing(12, 0)
 }));
 
-const ColoredLine = ({ color }) => (
-  <hr
-    style={{
-      color: color,
-      backgroundColor: color,
-      margin: 30,
-      height: 1.5
-    }}
-  />
-);
-
-// ----------------------------------------------------------------------
-function MinusSquare(props) {
-  return (
-    <SvgIcon fontSize="inherit" style={{ width: 14, height: 14 }} {...props}>
-      {/* tslint:disable-next-line: max-line-length */}
-      <path d="M22.047 22.074v0 0-20.147 0h-20.12v0 20.147 0h20.12zM22.047 24h-20.12q-.803 0-1.365-.562t-.562-1.365v-20.147q0-.776.562-1.351t1.365-.575h20.147q.776 0 1.351.575t.575 1.351v20.147q0 .803-.575 1.365t-1.378.562v0zM17.873 11.023h-11.826q-.375 0-.669.281t-.294.682v0q0 .401.294 .682t.669.281h11.826q.375 0 .669-.281t.294-.682v0q0-.401-.294-.682t-.669-.281z" />
-    </SvgIcon>
-  );
-}
-
-function PlusSquare(props) {
-  return (
-    <SvgIcon fontSize="inherit" style={{ width: 14, height: 14 }} {...props}>
-      {/* tslint:disable-next-line: max-line-length */}
-      <path d="M22.047 22.074v0 0-20.147 0h-20.12v0 20.147 0h20.12zM22.047 24h-20.12q-.803 0-1.365-.562t-.562-1.365v-20.147q0-.776.562-1.351t1.365-.575h20.147q.776 0 1.351.575t.575 1.351v20.147q0 .803-.575 1.365t-1.378.562v0zM17.873 12.977h-4.923v4.896q0 .401-.281.682t-.682.281v0q-.375 0-.669-.281t-.294-.682v-4.896h-4.923q-.401 0-.682-.294t-.281-.669v0q0-.401.281-.682t.682-.281h4.923v-4.896q0-.401.294-.682t.669-.281v0q.401 0 .682.281t.281.682v4.896h4.923q.401 0 .682.281t.281.682v0q0 .375-.281.669t-.682.294z" />
-    </SvgIcon>
-  );
-}
-
-function CloseSquare(props) {
-  return (
-    <SvgIcon
-      className="close"
-      fontSize="inherit"
-      style={{ width: 14, height: 14 }}
-      {...props}
-    >
-      {/* tslint:disable-next-line: max-line-length */}
-      <path d="M17.485 17.512q-.281.281-.682.281t-.696-.268l-4.12-4.147-4.12 4.147q-.294.268-.696.268t-.682-.281-.281-.682.294-.669l4.12-4.147-4.12-4.147q-.294-.268-.294-.669t.281-.682.682-.281.696 .268l4.12 4.147 4.12-4.147q.294-.268.696-.268t.682.281 .281.669-.294.682l-4.12 4.147 4.12 4.147q.294.268 .294.669t-.281.682zM22.047 22.074v0 0-20.147 0h-20.12v0 20.147 0h20.12zM22.047 24h-20.12q-.803 0-1.365-.562t-.562-1.365v-20.147q0-.776.562-1.351t1.365-.575h20.147q.776 0 1.351.575t.575 1.351v20.147q0 .803-.575 1.365t-1.378.562v0z" />
-    </SvgIcon>
-  );
-}
-
-function TransitionComponent(props) {
-  const style = useSpring({
-    from: {
-      opacity: 0,
-      transform: 'translate3d(20px,0,0)',
-    },
-    to: {
-      opacity: props.in ? 1 : 0,
-      transform: `translate3d(${props.in ? 0 : 20}px,0,0)`,
-    },
-  });
-
-  return (
-    <animated.div style={style}>
-      <Collapse {...props} />
-    </animated.div>
-  );
-}
-
-
-TransitionComponent.propTypes = {
-  /**
-   * Show the component; triggers the enter or exit states
-   */
-  in: PropTypes.bool,
-};
-
-let subId = '';
-
-const StyledTreeItem = styled((props) => (
-  <TreeItem {...props}
-    onClick={() => {
-      subId = props.nodeId;
-      console.log(subId);
-    }
-    }
-    TransitionComponent={TransitionComponent} />
-))(({ theme }) => ({
-  [`& .${treeItemClasses.iconContainer}`]: {
-    '& .close': {
-      opacity: 0.3,
-    },
-  },
-  [`& .${treeItemClasses.group}`]: {
-    marginLeft: 15,
-    paddingLeft: 20,
-    borderLeft: `1px dashed ${alpha(theme.palette.text.primary, 0.4)}`,
-  },
-}));
-
-const isEdit = (subId) => {
-  if (subId !== '') {
-    return (
-      <LoadingButton
-        fullWidth
-        size="large"
-        style={{
-          marginTop: 30,
-          width: "20%",
-        }}
-        type="submit"
-        variant="contained"
-        endIcon={<Edit />}
-      // loading={isSubmitting}
-      >
-        Edit
-      </LoadingButton>
-    )
-  } else {
-    return (
-      <LoadingButton
-        fullWidth
-        size="large"
-        style={{
-          marginTop: 30,
-          width: "20%",
-        }}
-        type="submit"
-        variant="contained"
-        endIcon={<Add />}
-      // loading={isSubmitting}
-      >
-        Create
-      </LoadingButton>
-    )
-  }
-}
-
-
-
-// ----------------------------------------------------------------------
 
 export default function DetailSchool() {
-  const {id} = useParams();
-  const [schoolData, setschoolData] = useState([])
+  const navigate = useNavigate()
+  //school info
+  const { id } = useParams();
   const [name, setname] = useState('')
   const [city, setcity] = useState('')
   const [district, setdistrict] = useState('')
+  const [status, setstatus] = useState('')
+  const [open, setOpen] = React.useState(false);
+  //init data for major
+  const [majorSchool, setmajorSchool] = useState([])
+  //message out for user
+  const [message, setmessage] = React.useState('')
+  //option autocomplete
+  const option = ['ACTIVE', 'INACTIVE']
+  //tabs
+  const [colorMessage, setcolorMessage] = useState('')
+  const vertical = 'bottom'
+  const horizontal = 'right'
+  const [tab, settab] = React.useState(1);
+  //action ischange
+  const [isChange, setisChange] = useState()
+
+  const handleChangeTabs = (event, newValue) => {
+    settab(newValue);
+    setisChange(faker.datatype.number({
+      'min': 1,
+      'max': 10000,
+    }))
+  };
 
   useEffect(() => {
-    schoolApi.getOne(id).then(res=>{
-      setschoolData(res.data)
+    schoolApi.getOne(id).then(res => {
       setname(res.data.name)
       setcity(res.data.city)
+      setdistrict(res.data.district)
+      setstatus(res.data.status)
     })
-  }, [])
 
-  const onChangeName = (event) =>{
-    setname(event.target.value)
-    console.log(name)
+    majorApi.getAll(id).then(res => {
+      setmajorSchool(res.data)
+    })
+
+  }, [isChange])
+
+  const onBack = () => {
+    navigate("/dashboard/manageschool")
   }
 
-  function updateSchool(id, data){
-    schoolApi.update(id,data).then(res=>{
-      console.log('thanh cong')
+  const onChangeName = (event) => {
+    setname(event.target.value)
+  }
+  const onChangeCity = (event) => {
+    setcity(event.target.value)
+  }
+  const onChangeDistrict = (event) => {
+    setdistrict(event.target.value)
+  }
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
+  function updateSchool(id) {
+    schoolApi.update(id, {
+      name,
+      city,
+      district,
+      status,
+    }
+    ).then(res => {
+      setOpen(true);
+      setcolorMessage('success')
+      setmessage('Chỉnh sửa thành công!')
     }).catch(
-      console.log('that bai')
+      (e) => {
+        setcolorMessage('error')
+        setmessage('Chỉnh sửa thất bại!')
+      }
     )
   }
 
   return (
     <RootStyle title="Chi tiết về trường">
-      <AuthLayout />
-      <MHidden width="mdDown">
-        <SectionStyle>
-          <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-            Chỉnh sửa thông tin về trường đại học
-          </Typography>
-          <img alt="editschool" src="/static/illustrations/illutrastion_editschool.png" />
-        </SectionStyle>
-      </MHidden>
-
       <Container>
         <ContentStyle>
-          <Typography variant='h3'>Thông Tin Trường</Typography>
+          <Typography variant='h4' onClick={onBack}>
+            <ArrowBack />
+          </Typography>
+          <TabContext value={tab}>
+            <TabList value={tab} onChange={handleChangeTabs} centered>
+              <Tab label="Thông tin cơ bản" value={1} />
+              <Tab label="Chỉnh sửa ngành/chuyên ngành" value={2} />
+            </TabList>
+            <TabPanel value={1}>
+              <Typography sx={{
+                margin: '10px'
+              }} variant='h3'>Thông Tin Trường</Typography>
+              <Card
+                style={{
+                  padding: 30,
+                }}>
+                <Typography>ID</Typography>
+                <TextField fullWidth defaultValue={id} disabled />
 
-          <Card
-            style={{
-              padding: 30,
-            }}>
-            <Typography>Tên</Typography>
-            <TextField fullWidth onChange={onChangeName} defaultValue={schoolData.name} />
+                <Typography style={{
+                  marginTop: 30
+                }}>Tên</Typography>
+                <TextField fullWidth onChange={onChangeName} value={name} />
 
+                <Typography style={{
+                  marginTop: 30
+                }}>Thành Phố</Typography>
+                <TextField fullWidth onChange={onChangeCity} value={city} />
 
-            <Typography style={{
-              marginTop: 30
-            }}>Thành Phố</Typography>
-            <TextField fullWidth defaultValue={schoolData.city} />
+                <Typography style={{
+                  marginTop: 30
+                }}>Quận/Huyện</Typography>
+                <TextField fullWidth onChange={onChangeDistrict} value={district} />
 
-            <Typography style={{
-              marginTop: 30
-            }}>Quận/Huyện</Typography>
-            <TextField fullWidth defaultValue={schoolData.district} />
-           
-            <Button
-              fullWidth
-              onClick={updateSchool(id,schoolData)}
-              size="large"
-              style={{
-                marginTop: 30,
-                width: "20%",
-              }}
-              type="submit"
-              variant="contained"
-              endIcon={<Edit />}
-              
-            >
-              Edit
-            </Button>
+                <Typography style={{
+                  marginTop: 30
+                }}>Trạng Thái</Typography>
+                <Autocomplete
+                  value={status}
+                  onChange={(event, newValue) => {
+                    setstatus(newValue);
+                  }}
+                  inputValue={status}
+                  id="controllable-states-demo"
+                  disableClearable={true}
+                  options={option}
+                  sx={{ width: "50%" }}
+                  renderInput={(params) => <TextField {...params} />}
+                />
 
-          </Card>
-          <ColoredLine color="#00FF9D" />
-          <Typography variant='h3'>Danh sách các chuyên ngành</Typography>
+                <Button
+                  fullWidth
+                  onClick={() => updateSchool(id)}
+                  size="large"
+                  style={{
+                    marginTop: 30,
+                    width: "29%",
+                  }}
+                  type="submit"
+                  variant="contained"
+                  endIcon={<Edit />}
+                >
+                  Chỉnh sửa
+                </Button>
+              </Card>
+            </TabPanel>
 
-          <TreeView
-            aria-label="customized"
-            defaultExpanded={['1']}
-            defaultCollapseIcon={<MinusSquare />}
-            defaultExpandIcon={<PlusSquare />}
-            defaultEndIcon={<CloseSquare />}
-            sx={{ flexGrow: 1, maxWidth: 500, overflowY: 'auto' }}
-          >
-            <StyledTreeItem onClick nodeId="1" label="Information Technology">
-              <StyledTreeItem onClick nodeId="11" label="Artificial Intelligence" />
-              <StyledTreeItem onClick nodeId="12" label="Graphic Design" />
-              <StyledTreeItem onClick nodeId="13" label="Safety Information" />
-            </StyledTreeItem>
-
-            <StyledTreeItem onClick nodeId="2" label="Business Administration">
-              <StyledTreeItem onClick nodeId="21" label="Hospitality Management" />
-            </StyledTreeItem>
-          </TreeView>
-
-          <Typography style={{
-            marginTop: 30,
-          }} variant='h3'>Thông tin chuyên ngành</Typography>
-          <Card
-            style={{
-              padding: 30,
-            }}>
-            <Typography>Loại</Typography>
-            <TextField fullWidth defaultValue={""} />
-
-            <Typography style={{
-              marginTop: 30,
-            }}>Tên</Typography>
-            <TextField fullWidth defaultValue={""} />
-
-            {isEdit(subId)}
-
-          </Card>
+            <TabPanel
+            value={2}>
+              <MajorHandle majorSchool={majorSchool} schoolId = {id}/>
+            </TabPanel>
+          </TabContext>
+          <Snackbar open={open} anchorOrigin={{ vertical, horizontal }} autoHideDuration={3000} onClose={handleClose}>
+            <Alert onClose={handleClose} severity={colorMessage} sx={{ width: '100%' }}>
+              {message}
+            </Alert>
+          </Snackbar>
         </ContentStyle>
       </Container>
     </RootStyle>
