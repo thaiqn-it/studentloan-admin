@@ -33,7 +33,9 @@ export default function Router() {
         { path: 'viewlistcontract', element: <ViewListContract /> },
         { path: 'viewtransactions', element: <ViewTransactions /> },
         { path: 'viewPost', element: <ViewPost /> },
+        { path: 'detailschool/:id', element: <DetailSchool /> },
         { path: 'createschool', element: <CreateSchool /> },
+        { path: 'profile', element: <Profile /> },
         { path: '', element: <DashboardApp /> },
       ]
     },
@@ -43,8 +45,6 @@ export default function Router() {
       children: [
         { path: 'login', element: <Login /> },
         { path: 'register', element: <Register /> },
-        { path: 'profile', element: <Profile /> },
-        { path: 'detailschool/:id', element: <DetailSchool /> },
         { path: '404', element: <NotFound /> },
         { path: '/', element: <Navigate to="/dashboard" /> },
         { path: '*', element: <Navigate to="/404" /> }

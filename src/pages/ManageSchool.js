@@ -19,6 +19,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 import Edit from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
+
 // components
 import Page from '../components/Page';
 import Label from '../components/Label';
@@ -168,7 +169,7 @@ export default function ManageSchool() {
                           <TableCell align="left">
                             <Label
                               variant="ghost"
-                              color={(status === 'banned' && 'error') || 'success'}
+                              color={(status === 'INACTIVE' && 'error') || 'success'}
                             >
                               {sentenceCase(status)}
                             </Label>
@@ -179,7 +180,7 @@ export default function ManageSchool() {
                               fullWidth
                               size="small"
                               type="submit"
-                              href={`/detailschool/${id}`}
+                              href={`/dashboard/detailschool/${id}`}
                               variant="contained"
                               endIcon={<Edit />}
                             >
