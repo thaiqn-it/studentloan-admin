@@ -4,6 +4,7 @@ import peopleFill from '@iconify/icons-eva/people-fill';
 import clockOutline from '@iconify/icons-eva/clock-fill';
 import fileContract from '@iconify/icons-fa-solid/file-contract';
 import schoolFill from '@iconify/icons-ion/school';
+import authenticationiconFill from '@iconify/icons-ant-design/idcard-filled'
 import transactionFill from '@iconify/icons-ant-design/transaction-outlined';
 
 // ----------------------------------------------------------------------
@@ -30,6 +31,11 @@ const sidebarConfig = [
     title: 'các giao dịch',
     path: '/dashboard/viewtransactions',
     icon: getIcon(transactionFill)
+  },
+  {
+    title: 'các yêu cầu xác thực từ học sinh',
+    path: '/dashboard/authenticatestudent',
+    icon: getIcon(authenticationiconFill)
   },
   {
     title: 'quản lý trường đại học',

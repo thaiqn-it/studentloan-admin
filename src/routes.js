@@ -16,6 +16,7 @@ import DetailSchool from './pages/DetailSchool';
 import ViewPost from './pages/ViewPost';
 import ViewListContract from './pages/ViewListContract';
 import CreateSchool from './pages/CreateSchool';
+import DetailStudent from './pages/DetailStudent';
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +29,7 @@ export default function Router() {
         { element: <Navigate to="/dashboard/app" replace /> },
         { path: 'app', element: <DashboardApp /> },
         { path: 'user', element: <User /> },
+        { path: 'detailstudent/:id', element: <DetailStudent /> },
         { path: 'waitingpost', element: <WaitingPost /> },
         { path: 'manageschool', element: <ManageSchool /> },
         { path: 'viewlistcontract', element: <ViewListContract /> },

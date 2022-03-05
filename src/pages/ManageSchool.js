@@ -32,10 +32,9 @@ import { schoolApi } from '../apis/school';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'subject', label: 'Subject', alignRight: false },
-  { id: 'subsubject', label: 'Sub-Subject', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'city', label: 'Thành phố/Tỉnh', alignRight: false },
+  { id: 'district', label: 'Quận/Huyện', alignRight: false },
+  { id: 'isVerified', label: 'Trạng thái', alignRight: false },
   { id: '' }
 ];
 

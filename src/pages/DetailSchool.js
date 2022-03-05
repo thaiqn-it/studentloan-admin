@@ -11,6 +11,9 @@ import {
   Autocomplete,
   Snackbar,
   Alert,
+  Grid,
+  MenuItem,
+  Select,
   Tab,
 } from '@mui/material';
 import ArrowBack from '@mui/icons-material/ArrowBack';
@@ -27,6 +30,7 @@ import faker from 'faker';
 import { schoolApi } from '../apis/school';
 import { majorApi } from '../apis/major';
 import MajorHandle from '../components/major/MajorHandle';
+import { cityApi } from '../apis/city';
 
 // ----------------------------------------------------------------------
 
@@ -67,6 +71,8 @@ export default function DetailSchool() {
   const [tab, settab] = React.useState(1);
   //action ischange
   const [isChange, setisChange] = useState()
+  const [listCity, setListCity] = useState([])
+  const [listDistrict, setListDistrict] = useState([])
 
   const handleChangeTabs = (event, newValue) => {
     settab(newValue);
@@ -76,19 +82,35 @@ export default function DetailSchool() {
     }))
   };
 
+  const getAllDistrict = (code) => {
+    cityApi.getAllDistrict(code).then(res => {
+      setListDistrict(res.data.districts)
+    })
+  }
+
   useEffect(() => {
-    schoolApi.getOne(id).then(res => {
-      setname(res.data.name)
-      setcity(res.data.city)
-      setdistrict(res.data.district)
-      setstatus(res.data.status)
-    })
+    const fetchData = async () => {
+      const schoolRes = await schoolApi.getOne(id)
+      const school = schoolRes.data
+      setname(school.name)
+      setcity(school.city)
+      setdistrict(school.district)
+      setstatus(school.status)
 
-    majorApi.getAll(id).then(res => {
-      setmajorSchool(res.data)
-    })
+      const majorsRes = await majorApi.getAll(id)
+      const majors = majorsRes.data
+      setmajorSchool(majors)
 
-  }, [isChange])
+      const listCitiesRes = await cityApi.getAllCity()
+      const listCities = listCitiesRes.data
+      setListCity(listCities)
+
+      const listDistrictsRes = await cityApi.getAllDistrictInit(school.city)
+      const listDistricts = listDistrictsRes.data
+      listDistricts.map(item => item.name === school.city ? getAllDistrict(item.code) : "")
+    }
+    fetchData()
+  }, [])
 
   const onBack = () => {
     navigate("/dashboard/manageschool")
@@ -97,11 +119,24 @@ export default function DetailSchool() {
   const onChangeName = (event) => {
     setname(event.target.value)
   }
-  const onChangeCity = (event) => {
-    setcity(event.target.value)
+
+  const getListCity = (list) => {
+    return list.map(item =>
+      <MenuItem onClick={() => {
+        getAllDistrict(item.code)
+        setcity(item.name)
+      }
+      } key={item.code} value={item.name}>{item.name}</MenuItem>
+    )
   }
-  const onChangeDistrict = (event) => {
-    setdistrict(event.target.value)
+
+  const getListDistrict = (list) => {
+    return list.map(item =>
+      <MenuItem onClick={() => {
+        setdistrict(item.name)
+      }
+      } key={item.code} value={item.name}>{item.name}</MenuItem>
+    )
   }
 
   const handleClose = (event, reason) => {
@@ -158,16 +193,40 @@ export default function DetailSchool() {
                 }}>Tên</Typography>
                 <TextField fullWidth onChange={onChangeName} value={name} />
 
-                <Typography style={{
-                  marginTop: 30
-                }}>Thành Phố</Typography>
-                <TextField fullWidth onChange={onChangeCity} value={city} />
+                <Grid
+                  container
+                  fullWidth
+                  spacing={2}>
+                  <Grid
+                    item
+                    xs={6}>
+                    <Typography style={{
+                      marginTop: 30
+                    }}>Thành Phố/Tỉnh</Typography>
+                    <Select
+                      id="slcity"
+                      fullWidth
+                      value={city}
+                    >
+                      {getListCity(listCity)}
+                    </Select>
+                  </Grid>
 
-                <Typography style={{
-                  marginTop: 30
-                }}>Quận/Huyện</Typography>
-                <TextField fullWidth onChange={onChangeDistrict} value={district} />
-
+                  <Grid
+                    item
+                    xs={6}>
+                    <Typography style={{
+                      marginTop: 30
+                    }}>Quận/Huyện</Typography>
+                    <Select
+                      id="sldistrict"
+                      fullWidth
+                      value={district}
+                    >
+                      {getListDistrict(listDistrict)}
+                    </Select>
+                  </Grid>
+                </Grid>
                 <Typography style={{
                   marginTop: 30
                 }}>Trạng Thái</Typography>
@@ -202,8 +261,8 @@ export default function DetailSchool() {
             </TabPanel>
 
             <TabPanel
-            value={2}>
-              <MajorHandle majorSchool={majorSchool} schoolId = {id}/>
+              value={2}>
+              <MajorHandle majorSchool={majorSchool} schoolId={id} />
             </TabPanel>
           </TabContext>
           <Snackbar open={open} anchorOrigin={{ vertical, horizontal }} autoHideDuration={3000} onClose={handleClose}>
