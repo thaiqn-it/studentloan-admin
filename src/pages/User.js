@@ -1,7 +1,8 @@
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 // material
 import {
   Card,
@@ -25,20 +26,22 @@ import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
 import { ListHead, ListToolbar } from '../components/_dashboard/user';
 //
-import USERLIST from '../_mocks_/user';
+import { userApi } from '../apis/user';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'university', label: 'University', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'name', label: 'Tên', alignRight: false },
+  { id: 'phoneNum', label: 'Số điện thoại', alignRight: false },
+  { id: 'email', label: 'Thư điện tử', alignRight: false },
+  { id: 'type', label: 'Loại', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' }
 ];
 
 // ----------------------------------------------------------------------
+
+
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -64,7 +67,11 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => {
+      var name = _user.Student.firstName +" "+_user.Student.lastName
+      return name.toLowerCase().indexOf(query.toLowerCase()) !== -1
+    }
+    );
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -76,6 +83,14 @@ export default function User() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [userList, setUserList] = useState([]);
+
+  useEffect(() => {
+    userApi.getAll().then(res => {
+      setUserList(res.data)
+      console.log(res.data)
+    })
+  }, [])
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -85,36 +100,39 @@ export default function User() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
+      const newSelecteds = userList.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const isBanned = (kindOfStatus)=>{
-    if(kindOfStatus==='Banned'){
-      return(
+  const isStudent = (type, id) => {
+    if (type === 'STUDENT') {
+      return (
         <LoadingButton
-        fullWidth
-        size="small"
-        type="submit"
-        variant="contained"
-      >
-        Active
-      </LoadingButton>
+          fullWidth
+          size="small"
+          type="submit"
+          href={`detailstudent/${id}`}
+          variant="contained"
+          endIcon={<VisibilityIcon />}
+        >
+          View
+        </LoadingButton>
       )
-    }else{
-      return(
+    } else {
+      return (
         <LoadingButton
-        fullWidth
-        size="small"
-        color='error'
-        type="submit"
-        variant="contained"
-      >
-        Ban
-      </LoadingButton>
+          fullWidth
+          size="small"
+          type="submit"
+          href={`detailinvestor/${id}`}
+          variant="contained"
+          endIcon={<VisibilityIcon />}
+        >
+          View
+        </LoadingButton>
       )
     }
   }
@@ -132,24 +150,23 @@ export default function User() {
     setFilterName(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
 
   const isUserNotFound = filteredUsers.length === 0;
 
   return (
-    <Page title="User | Minimal-UI">
+    <Page title="Danh sách người dùng">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            List Users
+            Danh sách người dùng
           </Typography>
         </Stack>
 
         <Card>
           <ListToolbar
-            numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
           />
@@ -161,7 +178,7 @@ export default function User() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
+                  rowCount={userList.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -170,7 +187,13 @@ export default function User() {
                   {filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { id, name, role, status, company, avatarUrl, isVerified } = row;
+                      const {
+                        id,
+                        phoneNumber,
+                        type,
+                        Student,
+                        email,
+                        status } = row;
                       const isItemSelected = selected.indexOf(name) !== -1;
 
                       return (
@@ -182,30 +205,30 @@ export default function User() {
                           selected={isItemSelected}
                           aria-checked={isItemSelected}
                         >
-                          <TableCell sx={{
-                            paddingLeft:"15px",
-                          }} component="th" scope="row" padding="none">
-                            <Stack direction="row" alignItems="center" spacing={2}>
-                              <Avatar alt={name} src={avatarUrl} />
-                              <Typography onClick={()=>alert('sadawd')} variant="subtitle2" noWrap>
-                                {name}
+                          <TableCell
+                            component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center">
+                              <Typography style={{
+                                marginLeft: 15,
+                              }} variant="subtitle2" noWrap>
+                                {Student.firstName} {Student.lastName}
                               </Typography>
                             </Stack>
                           </TableCell>
-                          <TableCell align="left">{company}</TableCell>
-                          <TableCell align="left">{role}</TableCell>
-                          <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
+                          <TableCell align="left">{phoneNumber}</TableCell>
+                          <TableCell align="left">{email}</TableCell>
+                          <TableCell align="left">{type}</TableCell>
                           <TableCell align="left">
                             <Label
                               variant="ghost"
-                              color={(status === 'banned' && 'error') || 'success'}
+                              color={(status !== 'ACTIVE' && 'error') || 'success'}
                             >
                               {sentenceCase(status)}
                             </Label>
                           </TableCell>
 
                           <TableCell align="right">
-                          {isBanned(sentenceCase(status))}
+                            {isStudent(type, id)}
                           </TableCell>
                         </TableRow>
                       );
@@ -232,7 +255,7 @@ export default function User() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={USERLIST.length}
+            count={userList.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
