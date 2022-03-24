@@ -45,7 +45,7 @@ ListToolbar.propTypes = {
   onFilterName: PropTypes.func
 };
 
-export default function ListToolbar({ numSelected, filterName, onFilterName }) {
+export default function ListToolbar({ numSelected, filterName, onFilterName, target }) {
   return (
     <RootStyle
       sx={{
@@ -63,7 +63,7 @@ export default function ListToolbar({ numSelected, filterName, onFilterName }) {
         <SearchStyle
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search"
+          placeholder={target}
           startAdornment={
             <InputAdornment position="start">
               <Box component={Icon} icon={searchFill} sx={{ color: 'text.disabled' }} />

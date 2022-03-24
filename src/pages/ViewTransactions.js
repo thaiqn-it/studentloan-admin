@@ -12,7 +12,8 @@ import {
   Container,
   Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  Grid
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -61,6 +62,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
+    
     return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
@@ -79,33 +81,6 @@ export default function ViewTransactions() {
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = TRANSACTIONLIST.map((n) => n.name);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
-
-  // const handleClick = (event, name) => {
-  //   const selectedIndex = selected.indexOf(name);
-  //   let newSelected = [];
-  //   if (selectedIndex === -1) {
-  //     newSelected = newSelected.concat(selected, name);
-  //   } else if (selectedIndex === 0) {
-  //     newSelected = newSelected.concat(selected.slice(1));
-  //   } else if (selectedIndex === selected.length - 1) {
-  //     newSelected = newSelected.concat(selected.slice(0, -1));
-  //   } else if (selectedIndex > 0) {
-  //     newSelected = newSelected.concat(
-  //       selected.slice(0, selectedIndex),
-  //       selected.slice(selectedIndex + 1)
-  //     );
-  //   }
-  //   setSelected(newSelected);
-  // };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -134,98 +109,114 @@ export default function ViewTransactions() {
             Danh Sách Giao Dịch
           </Typography>
         </Stack>
+        <Grid
+          contrainer
+          spacing={2}
+        >
+          <Grid
+            item
+            xs={12} md={9}>
+            <Card>
+              <ListToolbar
+                target={"Tên người gửi"}
+                filterName={filterName}
+                onFilterName={handleFilterByName}
+              />
 
-        <Card>
-          <ListToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
-          />
+              <Scrollbar>
+                <TableContainer sx={{ minWidth: 800 }}>
+                  <Table>
+                    <ListHead
+                      order={order}
+                      orderBy={orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={TRANSACTIONLIST.length}
+                      numSelected={selected.length}
+                      onRequestSort={handleRequestSort}
+                    />
+                    <TableBody>
+                      {filteredUsers
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((row) => {
+                          //   name, role, to, time, is, status
+                          const { id, name, to, money, time, isSuccessful, role, status, avatarUrl } = row;
+                          const isItemSelected = selected.indexOf(name) !== -1;
 
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <ListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={TRANSACTIONLIST.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {filteredUsers
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => {
-                      //   name, role, to, time, is, status
-                      const { id, name, to,money, time, isSuccessful, role, status, avatarUrl } = row;
-                      const isItemSelected = selected.indexOf(name) !== -1;
-
-                      return (
-                        <TableRow
-                          hover
-                          key={id}
-                          tabIndex={-1}
-                          role="checkbox"
-                          selected={isItemSelected}
-                          aria-checked={isItemSelected}
-                        >
-                          <TableCell sx={{
-                            paddingLeft:"15px",
-                          }} component="th" scope="row" padding="none" marginStart="2">
-                            <Stack direction="row" alignItems="center" spacing={2}>
-                              <Avatar alt={name} src={avatarUrl} />
-                              <Typography variant="subtitle2" noWrap>
-                                {name}
-                              </Typography>
-                            </Stack>
-                          </TableCell>
-                          <TableCell align="left">{role}</TableCell>
-                          <TableCell align="left">{to}</TableCell>
-                          <TableCell align="left">{money}</TableCell>
-                          <TableCell align="left">{time}</TableCell>
-                          <TableCell align="left">
-                            <Label
-                              variant="ghost"
-                              color={(isSuccessful === 'Không' && 'error') || 'success'}
+                          return (
+                            <TableRow
+                              hover
+                              key={id}
+                              onClick={()=>console.log(row)}
+                              tabIndex={-1}
+                              role="checkbox"
+                              selected={isItemSelected}
+                              aria-checked={isItemSelected}
                             >
-                              {isSuccessful}
-                            </Label>
-                          </TableCell>
-                          <TableCell align="left">{status}</TableCell>
+                              <TableCell sx={{
+                                paddingLeft: "15px",
+                              }} component="th" scope="row" padding="none" marginStart="2">
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                  <Avatar alt={name} src={avatarUrl} />
+                                  <Typography variant="subtitle2" noWrap>
+                                    {name}
+                                  </Typography>
+                                </Stack>
+                              </TableCell>
+                              <TableCell align="left">{role}</TableCell>
+                              <TableCell align="left">{to}</TableCell>
+                              <TableCell align="left">{money}</TableCell>
+                              <TableCell align="left">{time}</TableCell>
+                              <TableCell align="left">
+                                <Label
+                                  variant="ghost"
+                                  color={(isSuccessful === 'Không' && 'error') || 'success'}
+                                >
+                                  {isSuccessful}
+                                </Label>
+                              </TableCell>
+                              <TableCell align="left">{status}</TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      {emptyRows > 0 && (
+                        <TableRow style={{ height: 53 * emptyRows }}>
+                          <TableCell colSpan={6} />
                         </TableRow>
-                      );
-                    })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
-                {isUserNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterName} />
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
+                      )}
+                    </TableBody>
+                    {isUserNotFound && (
+                      <TableBody>
+                        <TableRow>
+                          <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                            <SearchNotFound searchQuery={filterName} />
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    )}
+                  </Table>
+                </TableContainer>
+              </Scrollbar>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={TRANSACTIONLIST.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Card>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={TRANSACTIONLIST.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Card>
+          </Grid>
+
+          <Grid
+            item
+            xs={12} md={3}>
+              <Card>
+                <Typography></Typography>
+              </Card>
+          </Grid>
+        </Grid>
       </Container>
     </Page>
   );

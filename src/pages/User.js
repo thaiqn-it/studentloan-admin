@@ -1,15 +1,12 @@
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 // material
 import {
   Card,
   Table,
   Stack,
-  Avatar,
-  Checkbox,
   TableRow,
   TableBody,
   TableCell,
@@ -31,12 +28,10 @@ import { userApi } from '../apis/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Tên', alignRight: false },
-  { id: 'phoneNum', label: 'Số điện thoại', alignRight: false },
+  { id: 'phoneNum', label: 'Số điện thoại người dùng', alignRight: false },
   { id: 'email', label: 'Thư điện tử', alignRight: false },
   { id: 'type', label: 'Loại', alignRight: false },
   { id: 'status', label: 'Trạng thái', alignRight: false },
-  { id: '' }
 ];
 
 // ----------------------------------------------------------------------
@@ -68,8 +63,8 @@ function applySortFilter(array, comparator, query) {
   });
   if (query) {
     return filter(array, (_user) => {
-      var name = _user.Student.firstName +" "+_user.Student.lastName
-      return name.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      var phoneNumber = _user.phoneNumber
+      return phoneNumber.toLowerCase().indexOf(query.toLowerCase()) !== -1
     }
     );
   }
@@ -80,7 +75,7 @@ export default function User() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState('');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [userList, setUserList] = useState([]);
@@ -88,7 +83,7 @@ export default function User() {
   useEffect(() => {
     userApi.getAll().then(res => {
       setUserList(res.data)
-      console.log(res.data)
+      console.log(res.data[0].UserStatuses)
     })
   }, [])
 
@@ -118,7 +113,7 @@ export default function User() {
           variant="contained"
           endIcon={<VisibilityIcon />}
         >
-          View
+          Xem chi tiết
         </LoadingButton>
       )
     } else {
@@ -131,7 +126,7 @@ export default function User() {
           variant="contained"
           endIcon={<VisibilityIcon />}
         >
-          View
+          Xem chi tiết
         </LoadingButton>
       )
     }
@@ -167,6 +162,7 @@ export default function User() {
 
         <Card>
           <ListToolbar
+            target={"Số điện thoại"}
             filterName={filterName}
             onFilterName={handleFilterByName}
           />
@@ -191,10 +187,8 @@ export default function User() {
                         id,
                         phoneNumber,
                         type,
-                        Student,
                         email,
-                        status } = row;
-                      const isItemSelected = selected.indexOf(name) !== -1;
+                        UserStatuses } = row;
 
                       return (
                         <TableRow
@@ -202,8 +196,6 @@ export default function User() {
                           key={id}
                           tabIndex={-1}
                           role="checkbox"
-                          selected={isItemSelected}
-                          aria-checked={isItemSelected}
                         >
                           <TableCell
                             component="th" scope="row" padding="none">
@@ -211,19 +203,18 @@ export default function User() {
                               <Typography style={{
                                 marginLeft: 15,
                               }} variant="subtitle2" noWrap>
-                                {Student.firstName} {Student.lastName}
+                                {phoneNumber}
                               </Typography>
                             </Stack>
                           </TableCell>
-                          <TableCell align="left">{phoneNumber}</TableCell>
                           <TableCell align="left">{email}</TableCell>
                           <TableCell align="left">{type}</TableCell>
                           <TableCell align="left">
                             <Label
                               variant="ghost"
-                              color={(status !== 'ACTIVE' && 'error') || 'success'}
+                              color={(UserStatuses[0].type === 'BAN' && 'error') || 'success'}
                             >
-                              {sentenceCase(status)}
+                              {sentenceCase(UserStatuses[0].type)}
                             </Label>
                           </TableCell>
 

@@ -120,12 +120,13 @@ export default function ManageSchool() {
             to="../createschool"
             startIcon={<AddIcon />}
           >
-            New School
+            Thêm trường mới
           </Button>
         </Stack>
 
         <Card>
           <ListToolbar
+          target={"Tên trường"}
             filterName={filterName}
             onFilterName={handleFilterByName}
           />
@@ -183,7 +184,7 @@ export default function ManageSchool() {
                               variant="contained"
                               endIcon={<Edit />}
                             >
-                              Edit
+                              Chỉnh sửa
                             </LoadingButton>
                           </TableCell>
                         </TableRow>
