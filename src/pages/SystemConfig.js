@@ -1,4 +1,4 @@
-import { filter } from 'lodash';
+import { filter, set } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
@@ -13,7 +13,8 @@ import {
     Container,
     Typography,
     TableContainer,
-    TablePagination
+    TablePagination,
+    TextField,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -24,16 +25,17 @@ import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
 import { ListHead, ListToolbar } from '../components/_dashboard/user';
 //
-import SCHOOLLIST from '../_mocks_/school';
+import SYSTEMCONFIG_DATA from '../_mocks_/systemconfig';
+import { setYear } from 'date-fns';
 //api
-import { schoolApi } from '../apis/school';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-    { id: 'name', label: 'Name', alignRight: false },
-    { id: 'subject', label: 'Subject', alignRight: false },
-    { id: 'subsubject', label: 'Sub-Subject', alignRight: false },
-    { id: 'isVerified', label: 'Verified', alignRight: false },
+    { id: 'yearFrom', label: 'Từ Năm', alignRight: false },
+    { id: 'yearTo', label: 'Đến Năm', alignRight: false },
+    { id: 'transactionFee', label: 'Phí rút', alignRight: false },
+    { id: 'interest', label: 'Lãi', alignRight: false },
+    { id: 'fixedMoney', label: 'Tiền lúc học', alignRight: false },
     { id: 'status', label: 'Status', alignRight: false },
     { id: '' }
 ];
@@ -69,18 +71,15 @@ function applySortFilter(array, comparator, query) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-export default function ViewListContract() {
+export default function Systemconfig() {
     const [page, setPage] = useState(0);
+    const [yearFrom, setYearFrom] = useState(0);
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('name');
     const [filterName, setFilterName] = useState('');
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [dataSchool, setdataSchool] = useState([])
 
     useEffect(() => {
-        schoolApi.getAll().then(res => {
-            console.log(res.data);
-        })
     }, [])
 
     const handleRequestSort = (event, property) => {
@@ -98,15 +97,11 @@ export default function ViewListContract() {
         setPage(0);
     };
 
-    const handleFilterByName = (event) => {
-        setFilterName(event.target.value);
-    };
+    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - SYSTEMCONFIG_DATA.length) : 0;
 
-    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - SCHOOLLIST.length) : 0;
+    const listSystemconfig = applySortFilter(SYSTEMCONFIG_DATA, getComparator(order, orderBy), filterName);
 
-    const filteredschools = applySortFilter(SCHOOLLIST, getComparator(order, orderBy), filterName);
-
-    const isschoolNotFound = filteredschools.length === 0;
+    const isSystemconfigNotFound = listSystemconfig.length === 0;
 
     return (
         <Page title="Quản lý | Trường Đại Học">
@@ -116,13 +111,7 @@ export default function ViewListContract() {
                         Danh Sách Các Hợp Đồng
                     </Typography>
                 </Stack>
-
                 <Card>
-                    <ListToolbar
-                        filterName={filterName}
-                        onFilterName={handleFilterByName}
-                    />
-
                     <Scrollbar>
                         <TableContainer sx={{ minWidth: 800 }}>
                             <Table>
@@ -130,16 +119,14 @@ export default function ViewListContract() {
                                     order={order}
                                     orderBy={orderBy}
                                     headLabel={TABLE_HEAD}
-                                    rowCount={SCHOOLLIST.length}
+                                    rowCount={SYSTEMCONFIG_DATA.length}
                                     onRequestSort={handleRequestSort}
                                 />
                                 <TableBody>
-                                    {filteredschools
+                                    {listSystemconfig
                                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                         .map((row) => {
-                                            const { id, name, subsubject, status, subject, isVerified } = row;
-                                            // const isItemSelected = selected.indexOf(name) !== -1;
-
+                                            const { id, yearFrom, yearTo, transactionFee, interest, fixedMoney, status } = row;
                                             return (
                                                 <TableRow
                                                     hover
@@ -147,28 +134,22 @@ export default function ViewListContract() {
                                                     tabIndex={-1}
                                                     role="checkbox"
                                                 >
-                                                    <TableCell
-                                                        component="th" scope="row" padding="none">
-                                                        <Stack direction="row" alignItems="center">
-                                                            <Typography style={{
-                                                                marginLeft: 15,
-                                                            }} variant="subtitle2" noWrap>
-                                                                {name}
-                                                            </Typography>
-                                                        </Stack>
+                                                    <TableCell align="left">
+                                                        <TextField maxLength="4"
+                                                            value={yearFrom} />
                                                     </TableCell>
-                                                    <TableCell align="left">{subject}</TableCell>
-                                                    <TableCell align="left">{subsubject}</TableCell>
-                                                    <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
+                                                    <TableCell align="left"><TextField value={yearTo} /></TableCell>
+                                                    <TableCell align="left"><TextField value={transactionFee} /></TableCell>
+                                                    <TableCell align="left">{interest}</TableCell>
+                                                    <TableCell align="left">{fixedMoney}</TableCell>
                                                     <TableCell align="left">
                                                         <Label
                                                             variant="ghost"
-                                                            color={(status === 'banned' && 'error') || 'success'}
+                                                            color={(status === 'INACTIVE' && 'error') || 'success'}
                                                         >
                                                             {sentenceCase(status)}
                                                         </Label>
                                                     </TableCell>
-
                                                     <TableCell align="right">
                                                         <LoadingButton
                                                             fullWidth
@@ -190,7 +171,7 @@ export default function ViewListContract() {
                                         </TableRow>
                                     )}
                                 </TableBody>
-                                {isschoolNotFound && (
+                                {isSystemconfigNotFound && (
                                     <TableBody>
                                         <TableRow>
                                             <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
@@ -206,7 +187,7 @@ export default function ViewListContract() {
                     <TablePagination
                         rowsPerPageOptions={[5, 10, 25]}
                         component="div"
-                        count={SCHOOLLIST.length}
+                        count={SYSTEMCONFIG_DATA.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         onPageChange={handleChangePage}

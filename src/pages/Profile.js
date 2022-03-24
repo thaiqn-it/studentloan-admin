@@ -1,31 +1,17 @@
-// import { Link as RouterLink } from 'react-router-dom';
-// material
 import { styled } from '@mui/material/styles';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Card, Container, Typography, Avatar, Grid, TextField, FormControl, OutlinedInput,
   InputAdornment,
+  Button,
   IconButton,
-  CardActionArea,
-  CardMedia,
-  CardContent,
-  CardActions,
-  Paper
 } from '@mui/material';
-// layouts
-import AuthLayout from '../layouts/AuthLayout';
-import Pdf from "react-to-pdf";
 // components
 import Page from '../components/Page';
-import { MHidden } from '../components/@material-extend';
-import account from '../_mocks_/account';
 import * as React from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { DesktopDatePicker, LoadingButton, LocalizationProvider } from '@mui/lab';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import Edit from '@mui/icons-material/Edit';
 import ArrowBack from '@mui/icons-material/ArrowBack';
-// import { RegisterForm } from '../components/authentication/register';
-// import AuthSocial from '../components/authentication/AuthSocial';
 
 // ----------------------------------------------------------------------
 
@@ -67,7 +53,24 @@ const ColoredLine = ({ color }) => (
 
 // ----------------------------------------------------------------------
 
-export default function Profile() {
+export default function Profile(props) {
+  const navigate = useNavigate()
+  // const admin = props.admin
+
+  const [admin, setAdmin] = React.useState({
+    id: "c07f1b26-7f46-4f23-b4f8-4f99524e0b55",
+    userId: "c07f1b26-7f46-4f23-b4f8-4f99524e0b55",
+    status: "ACTIVE",
+    firstName: "Nguyễn Trường",
+    profileUrl: "https://haycafe.vn/wp-content/uploads/2022/01/Anh-meo-FF-cute-ngau.jpg",
+    lastName: "Phi",
+    User: {
+      email: "phint.1002@gmail.com",
+      phoneNumber: "0981253505",
+      password: "123456",
+      userType: "ADMIN",
+    }
+  });
 
   const [date, setDate] = React.useState(new Date());
 
@@ -94,30 +97,23 @@ export default function Profile() {
     event.preventDefault();
   };
 
-  const ref = React.createRef();
+  const onBack = () => {
+    navigate('/')
+  }
+
   return (
     <RootStyle title="Profile page">
-      <AuthLayout>
-      </AuthLayout>
-
-      <MHidden width="mdDown">
-        <SectionStyle>
-          <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-            Chỉnh sửa thông tin cá nhân của bạn tại đây
-          </Typography>
-          <img alt="register" src="/static/illustrations/illustration_register.png" />
-        </SectionStyle>
-      </MHidden>
-
       <Container>
         <ContentStyle>
-
-          <Typography variant='h3'>Thông tin cơ bản</Typography>
+          <Typography variant='h4' onClick={onBack}>
+            <ArrowBack />
+          </Typography>
+          <Typography variant='h3'>Thông tin tài khoản</Typography>
           <Avatar
-            src={account.photoURL}
+            src={admin.profileUrl}
             alt="photoURL"
             sx={{
-              width: 100, height: 100,
+              width: 250, height: 250,
               margin: "auto auto",
               marginBottom: 5,
               marginTop: 2,
@@ -138,279 +134,88 @@ export default function Profile() {
                 xs={6}
               >
                 <Typography>Họ & tên đệm</Typography>
-                <TextField fullWidth value={"Nguyễn Trường"} />
+                <TextField fullWidth value={admin.firstName} />
               </Grid>
               <Grid
                 item
                 xs={6}
               >
                 <Typography>Tên</Typography>
-                <TextField fullWidth value={"Phi"} />
+                <TextField fullWidth value={admin.lastName} />
               </Grid>
             </Grid>
 
             <Typography style={{
               marginTop: 30
             }}>Email</Typography>
-            <TextField fullWidth value={"phintse140595@fpt.edu.vn"} />
+            <TextField fullWidth value={admin.User.email} />
 
             <Typography style={{
               marginTop: 30
             }}>Số điện thoại</Typography>
-            <TextField fullWidth value={"1900 1089"} />
-
-            <Typography style={{
-              marginTop: 30
-            }}>Địa chỉ</Typography>
-            <TextField fullWidth value={"Trường Đại học FPT TP. HCM, Khu Công Nghệ Cao, Long Thạnh Mỹ, Thành Phố Thủ Đức, Thành phố Hồ Chí Minh"} />
-
-            <Grid
-              container
-              direction="row"
-              spacing={2}
-              style={{
-                marginTop: 30,
-              }}
-            >
-              <Grid
-                item
-                xs={6}
-              >
-                <Typography>Thành Phố</Typography>
-                <TextField fullWidth value={"Hồ Chí Minh"} />
-              </Grid>
-              <Grid
-                item
-                xs={6}
-              >
-                <Typography>Zip Code</Typography>
-                <TextField fullWidth value={"70000"} />
-              </Grid>
-            </Grid>
-
-            <Grid
-              container
-              direction="row"
-              spacing={2}
-              style={{
-                marginTop: 30,
-              }}
-            >
-              <Grid
-                item
-                xs={6}
-              >
-                <Typography>Phường</Typography>
-                <TextField fullWidth value={"Hiệp Thành"} />
-              </Grid>
-              <Grid
-                item
-                xs={6}
-              >
-                <Typography>Quận</Typography>
-                <TextField fullWidth value={"12"} />
-              </Grid>
-            </Grid>
+            <TextField fullWidth value={admin.User.phoneNumber} />
 
             <Typography style={{
               marginTop: 30
             }}>Mật Khẩu</Typography>
-            <FormControl fullWidth variant="outlined">
-              <OutlinedInput
-                id="outlined-adornment-password"
-                type={values.showPassword ? 'text' : 'password'}
-                value={values.password}
-                disabled
-                onChange={handleChange('password')}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      edge="end"
-                    >
-                      {values.showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
+            <Grid
+              container
+              justifyContent="center"
+              alignItems="center"
+              spacing={1}>
+              <Grid
+                item
+                xs={9}>
+                <FormControl fullWidth variant="outlined">
+                  <OutlinedInput
+                    id="outlined-adornment-password"
+                    type={values.showPassword ? 'text' : 'password'}
+                    disabled
+                    value={values.password}
+                    onChange={handleChange('password')}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {values.showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                  />
+                </FormControl>
+              </Grid>
+              <Grid
+                item
+                xs={3}>
+                <Button
+                  fullWidth
+                  size="large"
+                  type="submit"
+                  variant="contained"
+                >
+                  Thay mật khẩu
+                </Button>
+              </Grid>
+            </Grid>
+
 
           </Card>
-          <ColoredLine color="#00FF9D" />
-          <Typography variant='h3'>Thông tin về căn cước</Typography>
-          <Paper
-            elevation={6}
-            style={{
-              padding: "1.5rem", borderRadius: "10px"
-            }}>
-            <Typography>Số CMND/CCCD</Typography>
-            <TextField fullWidth value={"1234567890"} />
 
-            <Grid
-              container
-              direction="row"
-              spacing={2}
-              style={{
-                marginTop: 30,
-              }}
-            >
-              <Grid
-                item
-                xs={6}
-              >
-                
-            <Typography>Nơi làm thẻ</Typography>
-            <TextField fullWidth value={"HCM"} />
-              </Grid>
-              <Grid
-                item
-                xs={6}
-              >
-                <Typography>Ngày làm thẻ</Typography>
-             <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DesktopDatePicker
-              inputFormat="dd/MM/yyyy"
-              value={date}
-              onChange={handleChangeDate}
-              renderInput={(params) => <TextField fullWidth {...params} />}
-            />
-            </LocalizationProvider>
-              </Grid>
-            </Grid>
-
-
-            
-
-
-            <Grid
-              container
-              sx={{
-                marginTop: '10px',
-              }}
-              spacing={2}>
-              <Grid
-                item
-                xs={6}>
-                <Card>
-                  <CardActionArea
-                    onClick={() => alert('asdawdasd')}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="150"
-                      image="/static/illustrations/illustration_register.png"
-                      alt="front-cccd"
-                    />
-                    <CardContent>
-                      <Typography variant="h5">
-                        Mặt trước
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                  <CardActions>
-                    <LoadingButton
-                      style={{
-                        marginLeft: 10,
-                        marginBottom: 10,
-                        padding: 8,
-                      }}
-                      size="small"
-                      type="submit"
-                      variant="contained"
-                      endIcon={<Edit />}
-                    // loading={isSubmitting}
-                    >
-                      Edit
-                    </LoadingButton>
-                  </CardActions>
-                </Card>
-              </Grid>
-              <Grid
-                item
-                xs={6}>
-                <Card>
-                  <CardActionArea
-                    onClick={() => alert('asdawdasd')}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="150"
-                      image="/static/illustrations/illustration_register.png"
-                      alt="front-cccd"
-                    />
-                    <CardContent>
-                      <Typography variant="h5">
-                        Mặt sau
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                  <CardActions>
-                    <LoadingButton
-                      style={{
-                        marginLeft: 10,
-                        marginBottom: 10,
-                        padding: 8,
-                      }}
-                      size="small"
-                      type="submit"
-                      variant="contained"
-                      endIcon={<Edit />}
-                    // loading={isSubmitting}
-                    >
-                      Edit
-                    </LoadingButton>
-                  </CardActions>
-                </Card>
-              </Grid>
-            </Grid>
-          </Paper>
-          
-
-          <ColoredLine color="#00FF9D" />
-          <Grid
-            container
-            spacing={2}
+          <Button
+            sx={{
+              margin:2,
+            }}
+            size="large"
+            type="submit"
+            variant="contained"
+            endIcon={<Edit />}
           >
-            <Grid
-              item
-              xs={6}
-            >
-              <LoadingButton
-                fullWidth
-                size="large"
-                type="submit"
-                sx={{
-                  borderColor: '#ABB5B1',
-                  color: '#ABB5B1',
-
-                }}
-                variant="outlined"
-                startIcon={<ArrowBack />}
-              // loading={isSubmitting}
-              >
-                Back
-              </LoadingButton>
-            </Grid>
-            <Grid
-              item
-              xs={6}
-            >
-              <LoadingButton
-                fullWidth
-                size="large"
-                type="submit"
-                variant="contained"
-                endIcon={<Edit />}
-              // loading={isSubmitting}
-              >
-                Edit
-              </LoadingButton>
-            </Grid>
-
-          </Grid>
-
+            Chỉnh sửa
+          </Button>
         </ContentStyle>
       </Container>
     </RootStyle>

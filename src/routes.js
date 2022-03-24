@@ -17,6 +17,8 @@ import ViewPost from './pages/ViewPost';
 import ViewListContract from './pages/ViewListContract';
 import CreateSchool from './pages/CreateSchool';
 import DetailStudent from './pages/DetailStudent';
+import DetailInvestor from './pages/DetailInvestor';
+import Systemconfig from './pages/SystemConfig';
 
 // ----------------------------------------------------------------------
 
@@ -30,6 +32,7 @@ export default function Router() {
         { path: 'app', element: <DashboardApp /> },
         { path: 'user', element: <User /> },
         { path: 'detailstudent/:id', element: <DetailStudent /> },
+        { path: 'detailinvestor/:id', element: <DetailInvestor /> },
         { path: 'waitingpost', element: <WaitingPost /> },
         { path: 'manageschool', element: <ManageSchool /> },
         { path: 'viewlistcontract', element: <ViewListContract /> },
@@ -38,6 +41,7 @@ export default function Router() {
         { path: 'detailschool/:id', element: <DetailSchool /> },
         { path: 'createschool', element: <CreateSchool /> },
         { path: 'profile', element: <Profile /> },
+        { path: 'systemconfig', element: <Systemconfig /> },
         { path: '', element: <DashboardApp /> },
       ]
     },

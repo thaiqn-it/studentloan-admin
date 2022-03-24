@@ -1,0 +1,426 @@
+import { Box, Divider, DialogActions, Grid, DialogContentText, Paper, Dialog, DialogTitle, Avatar, DialogContent, Button, TextField, Typography, Modal, Card } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+
+import DetailAccountCard from './components/DetailAccountCard'
+import PaperCard from './components/PaperCard'
+import AchievementCard from './components/AchievementCard'
+import TableTutor from './components/TableTutor'
+
+import CheckIcon from '@mui/icons-material/Check'
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import CloseIcon from '@mui/icons-material/Close'
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+import BlockIcon from '@mui/icons-material/Block';
+import { studentApi } from '../../apis/student'
+import { userStatusApi } from '../../apis/userStatus'
+
+const styleModal = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '50%',
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    borderRadius: 2,
+    boxShadow: 24,
+    p: 4,
+};
+
+export default function StudentProfile(props) {
+    var studentId = props.studentId
+
+    const [isChange, setIsChange] = useState("");
+    const [reason, setReason] = useState("");
+    const [open, setOpen] = useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+    const [student, setStudent] = useState({});
+    const [userStatus, setUserStatus] = useState([]);
+    // const [openConfirm, setOpenConfirm] = useState(false);
+    // const handleOpenConfirm = () => setOpenConfirm(true);
+    // const handleCloseConfirm = () => setOpenConfirm(false);
+    const [openBanConfirm, setOpenBanConfirm] = useState(false);
+    const handleOpenBanConfirm = () => setOpenBanConfirm(true);
+    const handleCloseBanConfirm = () => setOpenBanConfirm(false);
+
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const res = await studentApi.getStudentByUserId(studentId)
+            const student = res.data.student
+            const userStatus = res.data.student.User.UserStatuses[0]
+            setStudent(student)
+            setUserStatus(userStatus)
+        }
+        fetchData()
+    }, [isChange])
+
+    const appoveUser = (userStatus) => {
+        setIsChange("approve user")
+        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
+        var newStatus = {
+            ...cloneStatus,
+            isActive: true,
+            type: "VERIFIED",
+            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
+        }
+        userStatusApi.update(userStatus.id, { isActive: false }).then(
+            userStatusApi.create(newStatus)
+        )
+    }
+
+    const confirmDeny = (userStatus) => {
+        setIsChange("deny user")
+        handleClose()
+        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
+        var newStatus = {
+            ...cloneStatus,
+            isActive: true,
+            description: reason,
+            type: "UNVERIFIED",
+            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
+        }
+        setReason("")
+        userStatusApi.update(userStatus.id, { isActive: false }).then(
+            userStatusApi.create(newStatus)
+        )
+    }
+
+    const confirmBan = (userStatus) => {
+        setIsChange("ban user")
+        handleCloseBanConfirm()
+        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
+        var newStatus = {
+            ...cloneStatus,
+            isActive: true,
+            description: reason,
+            type: "BAN",
+            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
+        }
+        setReason("")
+        userStatusApi.update(userStatus.id, { isActive: false }).then(
+            userStatusApi.create(newStatus)
+        )
+    }
+
+
+    const confirmUnBan = (userStatus) => {
+        setIsChange("unban user")
+        // handleCloseConfirm()
+        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
+        var newStatus = {
+            ...cloneStatus,
+            isActive: true,
+            type: "UNVERIFIED",
+            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
+        }
+        setReason("")
+        userStatusApi.update(userStatus.id, { isActive: false }).then(
+            userStatusApi.create(newStatus)
+        )
+    }
+
+    const buttonBaseOnStatus = (userStatus) => {
+        if (userStatus.type === 'BAN') {
+            return (
+                <Grid
+                    sx={{
+                        marginTop: 1,
+                        marginLeft:1,
+                    }}>
+                    <Button
+                        size="medium"
+                        // onClick={handleOpenConfirm}
+                        onClick={()=>confirmUnBan(userStatus)}
+                        type="submit"
+                        color="primary"
+                        variant="contained"
+                        endIcon={<LockOpenIcon />}
+                    >
+                        Bỏ chặn
+                    </Button>
+                </Grid>
+            )
+        }else{
+            return (
+                <Grid
+                    sx={{
+                        marginTop: 1,
+                        marginLeft:1,
+                    }}>
+                    <Button
+                        size="medium"
+                        onClick={handleOpenBanConfirm}
+                        type="submit"
+                        color="error"
+                        variant="contained"
+                        endIcon={<BlockIcon />}
+                    >
+                        Chặn
+                    </Button>
+                    <Modal
+                        open={openBanConfirm}
+                        onClose={handleCloseBanConfirm}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                    >
+                        <Box sx={styleModal}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Lý do chặn
+                            </Typography>
+                            <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
+                            <Button
+                                onClick={() => confirmBan(userStatus)}
+                                size="large"
+                                sx={{ marginTop: 1 }}
+                                type="submit"
+                                variant="contained"
+                                endIcon={<CheckIcon />}
+                            >
+                                Xác nhận
+                            </Button>
+                            <Button
+                                onClick={handleCloseBanConfirm}
+                                sx={{ marginTop: 1, marginLeft: 1 }}
+                                size="large"
+                                type="submit"
+                                color="error"
+                                variant="contained"
+                                endIcon={<CloseIcon />}
+                            >
+                                Từ bỏ
+                            </Button>
+                        </Box>
+                    </Modal>
+                </Grid>
+            )
+        }
+
+    }
+
+    const statusOfUser = (userStatus) => {
+        if (userStatus.type === 'PENDING') {
+            return (
+                <>
+                    <Typography
+                        variant="h6"
+                        sx={{ margin: 1 }}
+                        fontWeight="regular"
+                        alignItems="center"
+                        color="secondary"
+                        display="flex"
+                    >
+                        <RestartAltIcon color="secondary" /> Đang chờ xét duyệt
+                    </Typography>
+                    <Button
+                        onClick={() => appoveUser(userStatus)}
+                        size="medium"
+                        sx={{ margin: 1 }}
+                        type="submit"
+                        variant="contained"
+                        endIcon={<CheckIcon />}
+                    >
+                        Xét duyệt
+                    </Button>
+                    <Button
+                        onClick={handleOpen}
+                        size="medium"
+                        sx={{ margin: 1 }}
+                        type="submit"
+                        color="error"
+                        variant="contained"
+                        endIcon={<CloseIcon />}
+                    >
+                        Từ chối
+                    </Button>
+                    <Modal
+                        open={open}
+                        onClose={handleClose}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                    >
+                        <Box sx={styleModal}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Lý do từ chối
+                            </Typography>
+                            <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
+                            <Button
+                                onClick={() => confirmDeny(userStatus)}
+                                size="large"
+                                sx={{ marginTop: 1 }}
+                                type="submit"
+                                variant="contained"
+                                endIcon={<CheckIcon />}
+                            >
+                                Xác nhận
+                            </Button>
+                            <Button
+                                onClick={handleClose}
+                                sx={{ marginTop: 1, marginLeft: 1 }}
+                                size="large"
+                                type="submit"
+                                color="error"
+                                variant="contained"
+                                endIcon={<CloseIcon />}
+                            >
+                                Từ bỏ
+                            </Button>
+                        </Box>
+                    </Modal>
+                </>
+            )
+        }
+        if (userStatus.type === 'VERIFIED') {
+            return (
+                <>
+                    <Typography
+                        variant="h6"
+                        sx={{ margin: 1 }}
+                        fontWeight="regular"
+                        alignItems="center"
+                        display="flex"
+                        color="primary"
+                    >
+                        <CheckIcon color="primary" /> Đã xác thực
+                    </Typography>
+                </>
+            )
+        }
+        if (userStatus.type === 'BAN') {
+            return (
+                <>
+                    <Typography
+                        variant="h6"
+                        sx={{ margin: 1 }}
+                        fontWeight="regular"
+                        alignItems="center"
+                        display="flex"
+                        color="error"
+                    >
+                        <CloseIcon color="error" /> Bị chặn
+                    </Typography>
+
+                    <Typography
+                        variant="h6"
+                        sx={{ margin: 1 }}
+                        fontWeight="regular"
+                        alignItems="center"
+                        display="flex"
+                    >
+                        Lý do: {userStatus.description}
+                    </Typography>
+                </>
+            )
+        } else {
+            return (
+                <>
+                    <Typography
+                        variant="h6"
+                        sx={{ margin: 1 }}
+                        fontWeight="regular"
+                        alignItems="center"
+                        display="flex"
+                        color="error"
+                    >
+                        <CloseIcon color="error" /> Chưa xác thực
+                    </Typography>
+                </>
+            )
+        }
+    }
+
+    return (
+        <>
+            <Typography color="secondary" variant="h4" my={2}>
+                Thông tin tài khoản
+            </Typography>
+
+            <Grid container spacing={4}>
+                <Grid item xs={12} md={4}>
+                    <Paper elevation={3} sx={{ borderRadius: '10px' }}>
+                        <Box p={2}>
+                            <Box
+                                elevation={2}
+                                display="flex"
+                                flexDirection="column"
+                                alignItems="center"
+                                justifyContent="space-between"
+                            >
+                                <Avatar
+                                    sx={{ cursor: 'pointer', height: "200px", width: "200px" }}
+                                    alt="Student"
+                                    bgColor="light"
+                                    src={student.profileUrl}
+                                />
+                                <Typography
+                                    variant="h4"
+                                    fontWeight="regular"
+                                >
+                                    {student.firstName} {student.lastName}
+                                </Typography>
+                            </Box>
+                            <Divider />
+                            <Box>
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        margin: 1
+                                    }}
+                                    fontWeight="regular"
+                                >
+                                    Trạng thái hiện tại
+                                </Typography>
+                                {statusOfUser(userStatus)}
+                            </Box>
+                            <Divider />
+                            {buttonBaseOnStatus(userStatus)}
+                        </Box>
+                    </Paper>
+                </Grid>
+                <Grid item md={8}>
+                    <DetailAccountCard studentId={studentId} />
+                </Grid>
+            </Grid>
+            <Card
+                sx={{
+                    marginTop: 2,
+                    marginBottom: 2,
+                }}>
+                <TableTutor
+                    studentId={studentId}
+                />
+            </Card>
+            <Typography color="secondary" variant="h4" my={2}>
+                Giấy tờ
+            </Typography>
+            <PaperCard studentId={studentId} />
+            <Typography color="secondary" variant="h4" my={2}>
+                Các thành tựu đạt được
+            </Typography>
+            <AchievementCard studentId={studentId} />
+            {/* <Dialog
+                open={openConfirm}
+                onClose={handleCloseConfirm}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Bạn có chắc về quyết định này"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Thay đổi sẽ được cập nhật vào hệ thống!
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button color='error' onClick={handleCloseConfirm}>Từ bỏ</Button>
+                    <Button onClick={()=>confirmUnBan(userStatus)} autoFocus>
+                        Đồng ý
+                    </Button>
+                </DialogActions>
+            </Dialog> */}
+        </>
+    )
+}
