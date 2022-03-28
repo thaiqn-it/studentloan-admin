@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 
 import Page from "../components/Page";
-import { Avatar, Card, Modal, Button, Container, Box, Grid, Typography, Badge, TextField, Divider, CardMedia } from "@mui/material";
+import { Avatar, Card, Modal, Button, Container, Box, Grid, Typography, Badge, TextField, Divider, CardMedia, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import { investorApi } from "../apis/investor";
 import { styled } from '@mui/material/styles';
 import CheckIcon from '@mui/icons-material/Check'
@@ -21,7 +21,8 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import EventIcon from '@mui/icons-material/Event';
 import ArrowBack from '@mui/icons-material/ArrowBack';
-import { userStatusApi } from "../apis/userStatus";
+import { userApi } from "../apis/user";
+import { USER_STATUS } from "../constants/enum";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -74,11 +75,16 @@ export default function DetailStudent() {
     const handleClose = () => setOpen(false);
     const [investor, setInvestor] = useState({});
     const [user, setUser] = useState({});
-    const [userStatus, setUserStatus] = useState([]);
     const { id } = useParams();
     const [openBanConfirm, setOpenBanConfirm] = useState(false);
     const handleOpenBanConfirm = () => setOpenBanConfirm(true);
     const handleCloseBanConfirm = () => setOpenBanConfirm(false);
+    const [openConfirmUnBan, setOpenConfirmUnBan] = useState(false);
+    const handleOpenConfirmUnBan = () => setOpenConfirmUnBan(true);
+    const handleCloseConfirmUnBan = () => setOpenConfirmUnBan(false);
+    const [openConfirmApprove, setOpenConfirmApprove] = useState(false);
+    const handleOpenConfirmApprove = () => setOpenConfirmApprove(true);
+    const handleCloseConfirmApprove = () => setOpenConfirmApprove(false);
 
     const onBack = () => {
         navigate("/dashboard/user")
@@ -88,90 +94,119 @@ export default function DetailStudent() {
         const fetchData = async () => {
             const res = await investorApi.getInvestorByUserId(id)
             const investor = res.data
-            const userStatus = res.data.User.UserStatuses[0]
             const user = res.data.User
-            setUserStatus(userStatus)
             setInvestor(investor)
             setUser(user)
         }
         fetchData()
     }, [isChange])
 
-    const appoveUser = (userStatus) => {
+    const appoveUser = (user) => {
         setIsChange("approve user")
-        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
-        var newStatus = {
-            ...cloneStatus,
-            isActive: true,
-            type: "VERIFIED",
-            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
-        }
-        userStatusApi.update(userStatus.id, { isActive: false }).then(
-            userStatusApi.create(newStatus).then(
-                setIsChange("")
-            )
-        )
+        handleCloseConfirmApprove()
+        userApi.update({ ...user, status: USER_STATUS.VERIFIED })
     }
 
-    const confirmDeny = (userStatus) => {
+    const confirmDeny = (user) => {
         setIsChange("deny user")
         handleClose()
-        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
-        var newStatus = {
-            ...cloneStatus,
-            isActive: true,
-            description: reason,
-            type: "UNVERIFIED",
-            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
-        }
         setReason("")
-        userStatusApi.update(userStatus.id, { isActive: false }).then(
-            userStatusApi.create(newStatus).then(
-                setIsChange("")
-            )
-        )
+        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason })
     }
 
-    const confirmBan = (userStatus) => {
+    const confirmBan = (user) => {
         setIsChange("ban user")
         handleCloseBanConfirm()
-        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
-        var newStatus = {
-            ...cloneStatus,
-            isActive: true,
-            description: reason,
-            type: "BAN",
-            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
-        }
+        userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason })
         setReason("")
-        userStatusApi.update(userStatus.id, { isActive: false }).then(
-            userStatusApi.create(newStatus).then(
-                setIsChange("")
-            )
-        )
     }
 
 
-    const confirmUnBan = (userStatus) => {
+    const confirmUnBan = (user) => {
         setIsChange("unban user")
-        // handleCloseConfirm()
-        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
-        var newStatus = {
-            ...cloneStatus,
-            isActive: true,
-            type: "UNVERIFIED",
-            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
-        }
-        setReason("")
-        userStatusApi.update(userStatus.id, { isActive: false }).then(
-            userStatusApi.create(newStatus).then(
-                setIsChange("")
-            )
-        )
+        handleCloseConfirmUnBan()
+        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED })
     }
 
-    const statusOfUser = (userStatus) => {
-        if (userStatus.type === 'PENDING') {
+    const buttonBaseOnStatus = (user) => {
+        if (user.status === 'BAN') {
+            return (
+                <Grid
+                    sx={{
+                        marginTop: 1,
+                        marginLeft: 1,
+                    }}>
+                    <Button
+                        size="medium"
+                        onClick={handleOpenConfirmUnBan}
+                        type="submit"
+                        color="primary"
+                        variant="contained"
+                        endIcon={<LockOpenIcon />}
+                    >
+                        Bỏ chặn
+                    </Button>
+                </Grid>
+            )
+        } else {
+            return (
+                <Grid
+                    sx={{
+                        marginTop: 1,
+                        marginLeft: 1,
+                    }}>
+                    <Button
+                        size="medium"
+                        onClick={handleOpenBanConfirm}
+                        type="submit"
+                        color="error"
+                        variant="contained"
+                        endIcon={<BlockIcon />}
+                    >
+                        Chặn
+                    </Button>
+                    <Modal
+                        open={openBanConfirm}
+                        onClose={handleCloseBanConfirm}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                    >
+                        <Box sx={styleModal}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Lý do chặn
+                            </Typography>
+                            <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
+                            <Button
+                                onClick={() => confirmBan(user)}
+                                size="large"
+                                sx={{ marginTop: 1 }}
+                                type="submit"
+                                variant="contained"
+                                endIcon={<CheckIcon />}
+                            >
+                                Xác nhận
+                            </Button>
+                            <Button
+                                onClick={handleCloseBanConfirm}
+                                sx={{ marginTop: 1, marginLeft: 1 }}
+                                size="large"
+                                type="submit"
+                                color="error"
+                                variant="contained"
+                                endIcon={<CloseIcon />}
+                            >
+                                Từ bỏ
+                            </Button>
+                        </Box>
+                    </Modal>
+                </Grid>
+            )
+        }
+
+    }
+
+    const statusOfUser = (user) => {
+        if (user.status === 'PENDING') {
             return (
                 <>
                     <Typography
@@ -185,7 +220,7 @@ export default function DetailStudent() {
                         <RestartAltIcon color="secondary" /> Đang chờ xét duyệt
                     </Typography>
                     <Button
-                        onClick={() => appoveUser(userStatus)}
+                        onClick={handleOpenConfirmApprove}
                         size="medium"
                         sx={{ margin: 1 }}
                         type="submit"
@@ -215,9 +250,9 @@ export default function DetailStudent() {
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 Lý do từ chối
                             </Typography>
-                            <TextField multiline onChange={(e, v) => setReason(v)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
+                            <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
                             <Button
-                                onClick={() => confirmDeny(userStatus)}
+                                onClick={() => confirmDeny(user)}
                                 size="large"
                                 sx={{ marginTop: 1 }}
                                 type="submit"
@@ -242,7 +277,7 @@ export default function DetailStudent() {
                 </>
             )
         }
-        if (userStatus.type === 'VERIFIED') {
+        if (user.status === 'VERIFIED') {
             return (
                 <>
                     <Typography
@@ -258,7 +293,7 @@ export default function DetailStudent() {
                 </>
             )
         }
-        if (userStatus.type === 'BAN') {
+        if (user.status === 'BAN') {
             return (
                 <>
                     <Typography
@@ -279,7 +314,7 @@ export default function DetailStudent() {
                         alignItems="center"
                         display="flex"
                     >
-                        Lý do: {userStatus.description}
+                        Lý do: {user.reason}
                     </Typography>
                 </>
             )
@@ -301,82 +336,6 @@ export default function DetailStudent() {
         }
     }
 
-    const buttonBaseOnStatus = (userStatus) => {
-        if (userStatus.type === 'BAN') {
-            return (
-                <Grid
-                    sx={{
-                        margin: 1,
-                    }}>
-                    <Button
-                        size="medium"
-                        // onClick={handleOpenConfirm}
-                        onClick={() => confirmUnBan(userStatus)}
-                        type="submit"
-                        color="primary"
-                        variant="contained"
-                        endIcon={<LockOpenIcon />}
-                    >
-                        Bỏ chặn
-                    </Button>
-                </Grid>
-            )
-        } else {
-            return (
-                <Grid
-                    sx={{
-                        margin: 1,
-                    }}>
-                    <Button
-                        size="medium"
-                        onClick={handleOpenBanConfirm}
-                        type="submit"
-                        color="error"
-                        variant="contained"
-                        endIcon={<BlockIcon />}
-                    >
-                        Chặn
-                    </Button>
-                    <Modal
-                        open={openBanConfirm}
-                        onClose={handleCloseBanConfirm}
-                        aria-labelledby="modal-modal-title"
-                        aria-describedby="modal-modal-description"
-                    >
-                        <Box sx={styleModal}>
-                            <Typography id="modal-modal-title" variant="h6" component="h2">
-                                Lý do chặn
-                            </Typography>
-                            <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
-                            <Button
-                                onClick={() => confirmBan(userStatus)}
-                                size="large"
-                                sx={{ marginTop: 1 }}
-                                type="submit"
-                                variant="contained"
-                                endIcon={<CheckIcon />}
-                            >
-                                Xác nhận
-                            </Button>
-                            <Button
-                                onClick={handleCloseBanConfirm}
-                                sx={{ marginTop: 1, marginLeft: 1 }}
-                                size="large"
-                                type="submit"
-                                color="error"
-                                variant="contained"
-                                endIcon={<CloseIcon />}
-                            >
-                                Từ bỏ
-                            </Button>
-                        </Box>
-                    </Modal>
-                </Grid>
-            )
-        }
-
-    }
-
     return (
         <Page title="Thông tin học sinh">
             <Container>
@@ -392,7 +351,10 @@ export default function DetailStudent() {
                         xs={4}
                     >
                         <Typography sx={{ marginBottom: 1 }} color="secondary.main" variant="h4">Trạng thái hiện tại</Typography>
-                        <Card>
+                        <Card
+                            sx={{
+                                padding: 1,
+                            }}>
                             <Box
                                 display="flex"
                                 justifyContent="center">
@@ -402,20 +364,19 @@ export default function DetailStudent() {
                                     variant="dot"
                                 >
                                     <Avatar sx={{
-                                        height: '150px',
-                                        width: '150px',
-                                        margin: 1,
+                                        height: '200px',
+                                        width: '200px',
                                     }}
                                         alt="Avatar Student"
-                                        src={investor.profileUrl}
+                                        src={user.profileUrl}
                                     />
                                 </StyledBadge>
                             </Box>
-                            {statusOfUser(userStatus)}
+                            {statusOfUser(user)}
                             <Divider sx={{
                                 margin: 1,
                             }} color="primary.main" />
-                            {buttonBaseOnStatus(userStatus)}
+                            {buttonBaseOnStatus(user)}
                         </Card>
                     </Grid>
                     <Grid
@@ -427,7 +388,7 @@ export default function DetailStudent() {
                         <Card>
                             <Typography sx={{ margin: 2 }}
                                 variant="h6" display="flex" alignItems="center">
-                                <PersonIcon sx={{ marginRight: 0.5, color: "#009999" }} /> {investor.firstName} {investor.lastName}
+                                <PersonIcon sx={{ marginRight: 0.5, color: "#009999" }} /> {user.firstName} {user.lastName}
                             </Typography>
 
                             <Typography sx={{ margin: 2 }}
@@ -440,49 +401,50 @@ export default function DetailStudent() {
                                 <LocalPhoneIcon sx={{ marginRight: 0.5, color: "#00e68a" }} /> {user.phoneNumber}
                             </Typography>
 
-                            <Divider sx={{
-                                margin: 1,
-                            }} color="primary.main" />
+                            
 
-                            <Typography variant="h6" color="secondary.main" sx={{ marginLeft: 2 }}>Thông tin chứng minh thư</Typography>
 
-                            <Grid
-                                container
-                                direction={"row"}
-                            >
-                                <Grid
-                                    item
-                                    xs={3}>
-                                    <Typography sx={{ margin: 2 }}
-                                        variant="h6" display="flex" alignItems="center">
-                                        <CreditScoreIcon sx={{ marginRight: 0.5, color: "#F0DB5D" }} /> {investor.citizenId}
-                                    </Typography>
-                                </Grid>
-                                <Grid
-                                    item
-                                    xs={3}>
-                                    <Typography sx={{ margin: 2 }}
-                                        variant="h6" display="flex" alignItems="center">
-                                        <LocationOnIcon sx={{ marginRight: 0.5, color: "#FF0000" }} /> {investor.citizenCardCreatedPlace}
-                                    </Typography>
-                                </Grid>
-                                <Grid
-                                    item
-                                    xs={3}>
-                                    <Typography sx={{ margin: 2 }}
-                                        variant="h6" display="flex" alignItems="center">
-                                        <EventIcon sx={{ marginRight: 0.5, color: "#0021FF" }} /> {moment(investor.citizenCardCreatedDate).format("DD/MM/YYYY")}
-                                    </Typography>
-                                </Grid>
-                            </Grid>
                         </Card>
                     </Grid>
                 </Grid>
                 <Card
-                sx={{
-                    marginTop:2,
-                    padding:1,
-                }}>
+                    sx={{
+                        marginTop: 2,
+                        padding: 2,
+                    }}>
+                    <Typography variant="h4" color="secondary.main" marginBottom={2}>Thông tin chứng minh thư</Typography>
+                    <Grid
+                        container
+                        direction={"row"}
+                    >
+                        <Grid
+                            item
+                            xs={3}>
+                            <Typography 
+                                variant="h6" display="flex" alignItems="center">
+                                <CreditScoreIcon sx={{ marginRight: 0.5, color: "#F0DB5D" }} /> {investor.citizenId}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            item
+                            xs={3}>
+                            <Typography 
+                                variant="h6" display="flex" alignItems="center">
+                                <LocationOnIcon sx={{ marginRight: 0.5, color: "#FF0000" }} /> {investor.citizenCardCreatedPlace}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            item
+                            xs={3}>
+                            <Typography 
+                                variant="h6" display="flex" alignItems="center">
+                                <EventIcon sx={{ marginRight: 0.5, color: "#0021FF" }} /> {moment(investor.citizenCardCreatedDate).format("DD/MM/YYYY")}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                    <Divider sx={{
+                                margin: 1,
+                            }} color="primary.main" />
                     <Grid
                         container
                         spacing={4}>
@@ -505,7 +467,7 @@ export default function DetailStudent() {
 
                         <Grid item xs={12} md={6}>
                             <Typography
-                               variant="h5" display="flex" alignItems="center"
+                                variant="h5" display="flex" alignItems="center"
                                 mb={1}
                             >
                                 Mặt sau CMND/CCCD
@@ -521,6 +483,52 @@ export default function DetailStudent() {
                         </Grid>
                     </Grid>
                 </Card>
+
+                {/* confirmUnban Dialog */}
+                <Dialog
+                    open={openConfirmUnBan}
+                    onClose={handleCloseConfirmUnBan}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {"Bạn có chắc về quyết định này"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Thay đổi sẽ được cập nhật vào hệ thống!
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color='error' onClick={handleCloseConfirmUnBan}>Từ bỏ</Button>
+                        <Button onClick={() => confirmUnBan(user)} autoFocus>
+                            Đồng ý
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                {/* confirmApprove Dialog */}
+                <Dialog
+                    open={openConfirmApprove}
+                    onClose={handleCloseConfirmApprove}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {"Bạn có chắc về quyết định này"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Thay đổi sẽ được cập nhật vào hệ thống!
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color='error' onClick={handleCloseConfirmApprove}>Từ bỏ</Button>
+                        <Button onClick={() => appoveUser(user)} autoFocus>
+                            Đồng ý
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
         </Page >
     )

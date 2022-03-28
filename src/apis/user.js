@@ -11,8 +11,8 @@ const getOne = (id) =>{
     return defaultInstance.get(`/user/${id}`)
 }
 
-const update = (id,data) =>{
-    return defaultInstance.put(`/user/${id}`, 
+const update = (data) =>{
+    return defaultInstance.put("/user/", 
         data
     );
 }

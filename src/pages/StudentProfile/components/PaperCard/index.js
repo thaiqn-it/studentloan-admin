@@ -5,11 +5,11 @@ import { studentApi } from '../../../../apis/student';
 
 
 export default function PaperCard(props) {
-    var studentId = props.studentId
+    var userId = props.userId
     const [student, setStudent] = useState({});
     useEffect(() => {
         const fetchData = async () => {
-            const res = await studentApi.getStudentByUserId(studentId)
+            const res = await studentApi.getStudentByUserId(userId)
             const student = res.data.student
             setStudent(student)
         }

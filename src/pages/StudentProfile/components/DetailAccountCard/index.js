@@ -11,14 +11,14 @@ import moment from "moment";
 import { studentApi } from '../../../../apis/student';
 
 export default function DetailAccountCard(props) {
-    var studentId = props.studentId
+    var userId = props.userId
     const [student, setStudent] = useState({});
     const [user, setUser] = useState({});
     const [major, setMajor] = useState({});
     const [school, setSchool] = useState({});
     useEffect(() => {
         const fetchData = async () => {
-            const res = await studentApi.getStudentByUserId(studentId)
+            const res = await studentApi.getStudentByUserId(userId)
             const student = res.data.student
             const user = res.data.student.User
             const major = res.data.student.SchoolMajor.Major
@@ -57,7 +57,7 @@ export default function DetailAccountCard(props) {
                                 disabled
                                 type="text"
                                 placeholder="Họ"
-                                value={student.firstName}
+                                value={user.firstName}
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -69,7 +69,7 @@ export default function DetailAccountCard(props) {
                                 disabled
                                 type="text"
                                 placeholder="Họ"
-                                value={student.lastName}
+                                value={user.lastName}
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -84,17 +84,7 @@ export default function DetailAccountCard(props) {
                                 value={user.email}
                             />
                         </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Typography variant="h6" fontWeight="regular">
-                                Kỳ học hiện tại
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                disabled
-                                type="text"
-                                value={student.semester}
-                            />
-                        </Grid>
+                        
                         <Grid item xs={12} md={6}>
                             <Typography variant="h6" fontWeight="regular">
                                 Ngày sinh
