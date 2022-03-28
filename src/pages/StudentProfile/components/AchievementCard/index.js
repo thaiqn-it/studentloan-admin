@@ -5,11 +5,11 @@ import { studentApi } from '../../../../apis/student';
 
 
 export default function AchievementCard(props) {
-    var studentId = props.studentId
+    var userId = props.userId
     const [archive, setArchievement] = useState([]);
     useEffect(() => {
         const fetchData = async () => {
-            const res = await studentApi.getStudentByUserId(studentId)
+            const res = await studentApi.getStudentByUserId(userId)
             const archives = res.data.student.Archievements
             setArchievement(archives)
         }

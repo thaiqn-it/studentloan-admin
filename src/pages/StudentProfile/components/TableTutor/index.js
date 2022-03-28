@@ -175,7 +175,7 @@ EnhancedTableToolbar.propTypes = {
 };
 
 export default function EnhancedTable(props) {
-  const studentId = props.studentId;
+  const userId = props.userId;
 
   // const [open, setOpen] = React.useState(false);
   // const handleOpen = () => setOpen(true);
@@ -193,7 +193,7 @@ export default function EnhancedTable(props) {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const res = await studentApi.getStudentByUserId(studentId)
+      const res = await studentApi.getStudentByUserId(userId)
       const res1 = await tutorApi.getListTutorByStudentId(res.data.student.id)
       const listTutor = res1.data
       setListutor(listTutor)

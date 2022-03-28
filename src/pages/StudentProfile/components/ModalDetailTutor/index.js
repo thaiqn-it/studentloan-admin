@@ -1,21 +1,8 @@
-import { Box, Button, CardMedia, Grid, Dialog, TextField, Typography } from '@mui/material';
+import { Box, CardMedia, Grid, Dialog, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 import moment from "moment";
 import { tutorApi } from '../../../../apis/tutor';
 
-const styleModal = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    height:"80%",
-    width: '50%',
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    borderRadius: 2,
-    boxShadow: 24,
-    p: 4,
-};
 
 export default function ModalDetailTutor(props) {
     const { onClose, isOpen, tutorId } = props
@@ -29,9 +16,10 @@ export default function ModalDetailTutor(props) {
             const res = await tutorApi.getTutorByPK(tutorId)
             const tutor = res.data
             setTutor(tutor)
+            // console.log("Gọi modal")
         }
         fetchData()
-    })
+    },[tutorId])
 
     const formatDate = (date) => {
         var data = '';

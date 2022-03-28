@@ -12,7 +12,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import BlockIcon from '@mui/icons-material/Block';
 import { studentApi } from '../../apis/student'
-import { userStatusApi } from '../../apis/userStatus'
+import { userApi } from '../../apis/user'
+import { USER_STATUS } from '../../constants/enum'
 
 const styleModal = {
     position: 'absolute',
@@ -28,18 +29,22 @@ const styleModal = {
 };
 
 export default function StudentProfile(props) {
-    var studentId = props.studentId
+    var userId = props.userId
 
     const [isChange, setIsChange] = useState("");
     const [reason, setReason] = useState("");
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const [student, setStudent] = useState({});
-    const [userStatus, setUserStatus] = useState([]);
-    // const [openConfirm, setOpenConfirm] = useState(false);
-    // const handleOpenConfirm = () => setOpenConfirm(true);
-    // const handleCloseConfirm = () => setOpenConfirm(false);
+    // const [student, setStudent] = useState({});
+    const [user, setUser] = useState({});
+    // const [userStatus, setUserStatus] = useState([]);
+    const [openConfirmUnBan, setOpenConfirmUnBan] = useState(false);
+    const handleOpenConfirmUnBan = () => setOpenConfirmUnBan(true);
+    const handleCloseConfirmUnBan = () => setOpenConfirmUnBan(false);
+    const [openConfirmApprove, setOpenConfirmApprove] = useState(false);
+    const handleOpenConfirmApprove = () => setOpenConfirmApprove(true);
+    const handleCloseConfirmApprove = () => setOpenConfirmApprove(false);
     const [openBanConfirm, setOpenBanConfirm] = useState(false);
     const handleOpenBanConfirm = () => setOpenBanConfirm(true);
     const handleCloseBanConfirm = () => setOpenBanConfirm(false);
@@ -48,82 +53,46 @@ export default function StudentProfile(props) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await studentApi.getStudentByUserId(studentId)
-            const student = res.data.student
-            const userStatus = res.data.student.User.UserStatuses[0]
-            setStudent(student)
-            setUserStatus(userStatus)
+            const res = await studentApi.getStudentByUserId(userId)
+            // const student = res.data.student
+            const user = res.data.student.User
+            // const userStatus = res.data.student.User.UserStatuses[0]
+            setUser(user)
+            // setStudent(student)
+            // setUserStatus(userStatus)
         }
         fetchData()
     }, [isChange])
 
-    const appoveUser = (userStatus) => {
+    const appoveUser = (user) => {
         setIsChange("approve user")
-        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
-        var newStatus = {
-            ...cloneStatus,
-            isActive: true,
-            type: "VERIFIED",
-            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
-        }
-        userStatusApi.update(userStatus.id, { isActive: false }).then(
-            userStatusApi.create(newStatus)
-        )
+        handleCloseConfirmApprove()
+        userApi.update({...user, status:USER_STATUS.VERIFIED})
     }
 
-    const confirmDeny = (userStatus) => {
+    const confirmDeny = (user) => {
         setIsChange("deny user")
         handleClose()
-        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
-        var newStatus = {
-            ...cloneStatus,
-            isActive: true,
-            description: reason,
-            type: "UNVERIFIED",
-            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
-        }
         setReason("")
-        userStatusApi.update(userStatus.id, { isActive: false }).then(
-            userStatusApi.create(newStatus)
-        )
+        userApi.update({...user, status:USER_STATUS.UNVERIFIED, reason:reason})
     }
 
-    const confirmBan = (userStatus) => {
+    const confirmBan = (user) => {
         setIsChange("ban user")
         handleCloseBanConfirm()
-        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
-        var newStatus = {
-            ...cloneStatus,
-            isActive: true,
-            description: reason,
-            type: "BAN",
-            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
-        }
+        userApi.update({...user, status:USER_STATUS.BAN, reason:reason})
         setReason("")
-        userStatusApi.update(userStatus.id, { isActive: false }).then(
-            userStatusApi.create(newStatus)
-        )
     }
 
 
-    const confirmUnBan = (userStatus) => {
+    const confirmUnBan = (user) => {
         setIsChange("unban user")
-        // handleCloseConfirm()
-        var cloneStatus = (({ id, createdAt, updatedAt, ...o }) => o)(userStatus)
-        var newStatus = {
-            ...cloneStatus,
-            isActive: true,
-            type: "UNVERIFIED",
-            adminId: "0977f2d8-7d51-4464-8ec1-bd692901b06d",
-        }
-        setReason("")
-        userStatusApi.update(userStatus.id, { isActive: false }).then(
-            userStatusApi.create(newStatus)
-        )
+        handleCloseConfirmUnBan()
+        userApi.update({...user, status:USER_STATUS.UNVERIFIED})
     }
 
-    const buttonBaseOnStatus = (userStatus) => {
-        if (userStatus.type === 'BAN') {
+    const buttonBaseOnStatus = (user) => {
+        if (user.status === 'BAN') {
             return (
                 <Grid
                     sx={{
@@ -132,8 +101,7 @@ export default function StudentProfile(props) {
                     }}>
                     <Button
                         size="medium"
-                        // onClick={handleOpenConfirm}
-                        onClick={()=>confirmUnBan(userStatus)}
+                        onClick={handleOpenConfirmUnBan}
                         type="submit"
                         color="primary"
                         variant="contained"
@@ -172,7 +140,7 @@ export default function StudentProfile(props) {
                             </Typography>
                             <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
                             <Button
-                                onClick={() => confirmBan(userStatus)}
+                                onClick={() => confirmBan(user)}
                                 size="large"
                                 sx={{ marginTop: 1 }}
                                 type="submit"
@@ -200,8 +168,8 @@ export default function StudentProfile(props) {
 
     }
 
-    const statusOfUser = (userStatus) => {
-        if (userStatus.type === 'PENDING') {
+    const statusOfUser = (user) => {
+        if (user.status === 'PENDING') {
             return (
                 <>
                     <Typography
@@ -215,7 +183,7 @@ export default function StudentProfile(props) {
                         <RestartAltIcon color="secondary" /> Đang chờ xét duyệt
                     </Typography>
                     <Button
-                        onClick={() => appoveUser(userStatus)}
+                        onClick={handleOpenConfirmApprove}
                         size="medium"
                         sx={{ margin: 1 }}
                         type="submit"
@@ -247,7 +215,7 @@ export default function StudentProfile(props) {
                             </Typography>
                             <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
                             <Button
-                                onClick={() => confirmDeny(userStatus)}
+                                onClick={() => confirmDeny(user)}
                                 size="large"
                                 sx={{ marginTop: 1 }}
                                 type="submit"
@@ -272,7 +240,7 @@ export default function StudentProfile(props) {
                 </>
             )
         }
-        if (userStatus.type === 'VERIFIED') {
+        if (user.status === 'VERIFIED') {
             return (
                 <>
                     <Typography
@@ -288,7 +256,7 @@ export default function StudentProfile(props) {
                 </>
             )
         }
-        if (userStatus.type === 'BAN') {
+        if (user.status === 'BAN') {
             return (
                 <>
                     <Typography
@@ -309,7 +277,7 @@ export default function StudentProfile(props) {
                         alignItems="center"
                         display="flex"
                     >
-                        Lý do: {userStatus.description}
+                        Lý do: {user.reason}
                     </Typography>
                 </>
             )
@@ -352,13 +320,13 @@ export default function StudentProfile(props) {
                                     sx={{ cursor: 'pointer', height: "200px", width: "200px" }}
                                     alt="Student"
                                     bgColor="light"
-                                    src={student.profileUrl}
+                                    src={user.profileUrl}
                                 />
                                 <Typography
                                     variant="h4"
                                     fontWeight="regular"
                                 >
-                                    {student.firstName} {student.lastName}
+                                    {user.firstName} {user.lastName}
                                 </Typography>
                             </Box>
                             <Divider />
@@ -372,15 +340,15 @@ export default function StudentProfile(props) {
                                 >
                                     Trạng thái hiện tại
                                 </Typography>
-                                {statusOfUser(userStatus)}
+                                {statusOfUser(user)}
                             </Box>
                             <Divider />
-                            {buttonBaseOnStatus(userStatus)}
+                            {buttonBaseOnStatus(user)}
                         </Box>
                     </Paper>
                 </Grid>
                 <Grid item md={8}>
-                    <DetailAccountCard studentId={studentId} />
+                    <DetailAccountCard userId={userId} />
                 </Grid>
             </Grid>
             <Card
@@ -389,20 +357,22 @@ export default function StudentProfile(props) {
                     marginBottom: 2,
                 }}>
                 <TableTutor
-                    studentId={studentId}
+                    userId={userId}
                 />
             </Card>
             <Typography color="secondary" variant="h4" my={2}>
                 Giấy tờ
             </Typography>
-            <PaperCard studentId={studentId} />
+            <PaperCard userId={userId} />
             <Typography color="secondary" variant="h4" my={2}>
                 Các thành tựu đạt được
             </Typography>
-            <AchievementCard studentId={studentId} />
-            {/* <Dialog
-                open={openConfirm}
-                onClose={handleCloseConfirm}
+            <AchievementCard userId={userId} />
+
+            {/* confirmUnban Dialog */}
+            <Dialog
+                open={openConfirmUnBan}
+                onClose={handleCloseConfirmUnBan}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
@@ -415,12 +385,35 @@ export default function StudentProfile(props) {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button color='error' onClick={handleCloseConfirm}>Từ bỏ</Button>
-                    <Button onClick={()=>confirmUnBan(userStatus)} autoFocus>
+                    <Button color='error' onClick={handleCloseConfirmUnBan}>Từ bỏ</Button>
+                    <Button onClick={()=>confirmUnBan(user)} autoFocus>
                         Đồng ý
                     </Button>
                 </DialogActions>
-            </Dialog> */}
+            </Dialog>
+
+            {/* confirmApprove Dialog */}
+            <Dialog
+                open={openConfirmApprove}
+                onClose={handleCloseConfirmApprove}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Bạn có chắc về quyết định này"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Thay đổi sẽ được cập nhật vào hệ thống!
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button color='error' onClick={handleCloseConfirmApprove}>Từ bỏ</Button>
+                    <Button onClick={()=>appoveUser(user)} autoFocus>
+                        Đồng ý
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }

@@ -28,11 +28,11 @@ const sidebarConfig = [
     path: '/dashboard/waitingpost',
     icon: getIcon(clockOutline)
   },
-    {
-    title: 'các giao dịch',
-    path: '/dashboard/viewtransactions',
-    icon: getIcon(transactionFill)
-  },
+  //   {
+  //   title: 'các giao dịch',
+  //   path: '/dashboard/viewtransactions',
+  //   icon: getIcon(transactionFill)
+  // },
   // {
   //   title: 'các yêu cầu xác thực từ học sinh',
   //   path: '/dashboard/authenticatestudent',

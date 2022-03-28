@@ -61,7 +61,7 @@ export default function DetailStudent() {
                 <Typography variant='h4' onClick={onBack}>
                     <ArrowBack />
                 </Typography>
-                <StudentProfile studentId={id} />
+                <StudentProfile userId={id} />
             </Container>
         </Page>
     )

@@ -83,7 +83,6 @@ export default function User() {
   useEffect(() => {
     userApi.getAll().then(res => {
       setUserList(res.data)
-      console.log(res.data[0].UserStatuses)
     })
   }, [])
 
@@ -109,7 +108,7 @@ export default function User() {
           fullWidth
           size="small"
           type="submit"
-          href={`detailstudent/${id}`}
+          href={`student/${id}`}
           variant="contained"
           endIcon={<VisibilityIcon />}
         >
@@ -122,7 +121,7 @@ export default function User() {
           fullWidth
           size="small"
           type="submit"
-          href={`detailinvestor/${id}`}
+          href={`investor/${id}`}
           variant="contained"
           endIcon={<VisibilityIcon />}
         >
@@ -188,7 +187,7 @@ export default function User() {
                         phoneNumber,
                         type,
                         email,
-                        UserStatuses } = row;
+                      status} = row;
 
                       return (
                         <TableRow
@@ -212,9 +211,9 @@ export default function User() {
                           <TableCell align="left">
                             <Label
                               variant="ghost"
-                              color={(UserStatuses[0].type === 'BAN' && 'error') || 'success'}
+                              color={(status === 'BAN' && 'error') || 'success'}
                             >
-                              {sentenceCase(UserStatuses[0].type)}
+                              {sentenceCase(status)}
                             </Label>
                           </TableCell>
 
