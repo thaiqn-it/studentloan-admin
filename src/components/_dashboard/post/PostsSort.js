@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 // material
 import { MenuItem, TextField } from '@mui/material';
+import { useState } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -10,13 +11,9 @@ BlogPostsSort.propTypes = {
 };
 
 export default function BlogPostsSort({ options, onSort }) {
+  const [optionChoosen, setOptionChoosen] = useState('DESC')
   return (
-    <TextField select size="small" value="latest" onChange={onSort}>
-      {options.map((option) => (
-        <MenuItem key={option.value} value={option.value}>
-          {option.label}
-        </MenuItem>
-      ))}
-    </TextField>
+    <>
+    </>
   );
 }

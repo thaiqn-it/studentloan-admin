@@ -1,11 +1,11 @@
 import { defaultInstance } from "./index";
 
-const getAll = (data) => {
-    return defaultInstance.get("/loan", {
-        data
-    });
+const getAllWaiting = (data) => {
+    return defaultInstance.post("/loan/waiting", 
+    data
+    );
 };
 
 export const loanApi = {
-    getAll,
+    getAllWaiting,
 };

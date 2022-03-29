@@ -54,12 +54,8 @@ export default function StudentProfile(props) {
     useEffect(() => {
         const fetchData = async () => {
             const res = await studentApi.getStudentByUserId(userId)
-            // const student = res.data.student
             const user = res.data.student.User
-            // const userStatus = res.data.student.User.UserStatuses[0]
             setUser(user)
-            // setStudent(student)
-            // setUserStatus(userStatus)
         }
         fetchData()
     }, [isChange])
