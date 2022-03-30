@@ -22,24 +22,21 @@ import React, { useEffect, useState } from "react";
 import { convertCurrencyVN } from '../utils/formatNumber';
 
 import { LoadingButton } from "@mui/lab";
-import { Navigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { loanApi } from "../apis/loan";
 import moment from "moment";
 import { LOANMEDIA_TYPE } from "../constants/enum";
 import YoutubeEmbed from "../components/YoutubeEmbed";
-import { forEach } from "lodash";
+import ReactPlayer from "react-player"
 
 
-const onBack = () => {
-  // Navigate("/dashboard/waitingpost")
-  console.log('back')
-}
+
 
 export default function ViewPost() {
   const { id } = useParams();
+  const navigate = useNavigate()
   const [isChange, setIsChange] = useState('')
   const [loan, setLoan] = useState({})
-  const [student, setStudent] = useState({})
   const [school, setSchool] = useState({})
   const [major, setMajor] = useState({})
   const [user, setUser] = useState({})
@@ -53,7 +50,6 @@ export default function ViewPost() {
     const fetchData = async () => {
       const res = await loanApi.getOne(id)
       setLoan(res.data.loan)
-      setStudent(res.data.loan.Student)
       setSchool(res.data.loan.Student.SchoolMajor.School)
       setMajor(res.data.loan.Student.SchoolMajor.Major)
       setUser(res.data.loan.Student.User)
@@ -79,17 +75,12 @@ export default function ViewPost() {
     return data;
   }
 
+  const onBack = () => {
+    navigate("/dashboard/waitingpost")
+  }
 
   const generateDuration = (date, duration) => {
     return formatDate(moment(date).add(duration, 'months'))
-  }
-
-  const initiateYoutubeVideo = (inputUrl) => {
-    var regExp =
-      /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/
-    var match = inputUrl.match(regExp)
-    var id = match && match[7].length === 11 ? match[7] : false
-    return id
   }
 
   return (
@@ -114,22 +105,13 @@ export default function ViewPost() {
             marginTop: '2px'
           }}>
             <Grid item xs="12" md="7">
-              {/* <Typography>{loanMediaV.imageUrl}</Typography> */}
-              {/* <YoutubeEmbed url={loanMediaV.imageUrl}/> */}
-              {/* <div className="video-responsive">
-                <iframe
-                    width="100%"
-                    style={{
-                        borderRadius:'10px'}
-                    }
-                    height={"360"}
-                    src={`https://www.youtube.com/embed/${initiateYoutubeVideo(loanMediaV.imageUrl)}`}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    title="Embedded youtube"
+              <div>
+                <ReactPlayer
+                controls={true}
+                loop
+                  url={loanMediaV.imageUrl}
                 />
-            </div> */}
+              </div>
             </Grid>
             <Grid item xs="12" md="5">
               <Grid container spacing="5">
@@ -300,56 +282,41 @@ export default function ViewPost() {
 
         <Divider sx={{ margin: "20px 0px" }} />
 
-        <Typography variant="h5">Thành tựu đạt được</Typography>
+        <Typography sx={{ margin: '1.5rem' }} variant="h4" color='secondary'>Thành tựu sinh viên đạt được</Typography>
         <Grid
           container
-          sx={{
-            margintop: '10px'
-          }}
           spacing={2}>
-          <Grid
-            item
-            xs={6}>
-            <Card>
-              <CardActionArea
-                onClick={() => alert('asdawdasd')}
-              >
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image="/static/illustrations/illustration_register.png"
-                  alt="front-cccd"
-                />
-                <CardContent>
-                  <Typography variant="h5">
-                    Mặt trước
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-          <Grid
-            item
-            xs={6}>
-            <Card justifyContent={'center'} alignItems="center">
-              <CardActionArea
-                onClick={() => alert('asdawdasd')}
-              >
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image="/static/illustrations/illustration_register.png"
-                  alt="front-cccd"
-                />
-                <CardContent>
-                  <Typography variant="h5">
-                    Mặt sau
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
+
+          {
+            archievements.map(item => {
+              return (
+                <Grid
+                  item
+                  xs={12}
+                  md={6}>
+                  <Card>
+                    <CardActionArea
+                      onClick={() => alert('asdawdasd')}
+                    >
+                      <CardMedia
+                        component="img"
+                        height="300"
+                        image={item.imageUrl}
+                        alt={item.description}
+                      />
+                      <CardContent>
+                        <Typography variant="h5">
+                          {item.description}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Grid>
+              )
+            })
+          }
         </Grid>
+
         <Divider sx={{ margin: "20px 0px" }} />
         <Grid
           container
