@@ -37,11 +37,29 @@ export default function WaitingPost(props) {
         setLastPage(convertPage)
       }
       setLoanList(loanList)
-      console.log(order)
-      console.log(offset)
     }
     fetchData()
   }, [limit, offset, order])
+
+  const checkIsEmpty = (list) => {
+    if (list.length <= 0) {
+      return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Typography
+          color='error'
+            variant='h4'
+          >
+            Hiện tại không còn bài viết nào cần duyệt!
+          </Typography>
+        </div>
+      )
+    } else {
+      return (
+        <></>
+      )
+    }
+  }
+
   return (
     <Page title="Danh sách các bài xin vay đang chờ duyệt">
       <Container>
@@ -50,7 +68,6 @@ export default function WaitingPost(props) {
             Các bài xin vay đang chờ duyệt
           </Typography>
         </Stack>
-
         <Stack mb={5} direction="row" alignItems="center" justifyContent="space-between">
           <div />
           <div>
@@ -76,6 +93,7 @@ export default function WaitingPost(props) {
             <PostCard key={post.id} post={post} index={index} />
           ))}
         </Grid>
+        {checkIsEmpty(loanList)}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
           <Pagination onChange={(e) => {
             var offsetNextPage = (Number.parseInt(e.target.textContent) - 1) * 7

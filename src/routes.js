@@ -37,7 +37,7 @@ export default function Router() {
         { path: 'manageschool', element: <ManageSchool /> },
         { path: 'viewlistcontract', element: <ViewListContract /> },
         { path: 'viewtransactions', element: <ViewTransactions /> },
-        { path: 'viewPost', element: <ViewPost /> },
+        { path: 'viewPost/:id', element: <ViewPost /> },
         { path: 'detailschool/:id', element: <DetailSchool /> },
         { path: 'createschool', element: <CreateSchool /> },
         { path: 'profile', element: <Profile /> },

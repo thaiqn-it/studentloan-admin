@@ -6,6 +6,11 @@ const getAllWaiting = (data) => {
     );
 };
 
+const getOne = (id) => {
+    return defaultInstance.get(`/loan/waiting/${id}`);
+};
+
 export const loanApi = {
     getAllWaiting,
+    getOne
 };

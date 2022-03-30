@@ -65,7 +65,7 @@ export default function BlogPostCard({ post, index }) {
   const { totalMoney, id, title, postCreatedAt, Student } = post;
   const latestPostLarge = index === 0;
   const latestPost = index === 1 || index === 2;
-  
+
 
   const POST_INFO = [
     { name: totalMoney, icon: moneyFill },
@@ -184,7 +184,7 @@ export default function BlogPostCard({ post, index }) {
           </Typography>
 
           <TitleStyle
-            to="../viewPost"
+            to={`../viewPost/${id}`}
             color="inherit"
             variant="subtitle2"
             underline="hover"
