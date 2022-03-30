@@ -19,6 +19,10 @@ export function fShortenNumber(number) {
   return replace(numeral(number).format('0.00a'), '.00', '');
 }
 
+export function convertCurrencyVN(number){
+  return Number(number).toLocaleString('it-IT', {style : 'currency', currency : 'VND'});
+}
+
 export function fData(number) {
   return numeral(number).format('0.0 b');
 }

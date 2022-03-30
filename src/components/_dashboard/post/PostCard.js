@@ -9,9 +9,10 @@ import { alpha, styled } from '@mui/material/styles';
 import { Box, Link, Card, Grid, Avatar, Typography, CardContent } from '@mui/material';
 // utils
 import { fDate } from '../../../utils/formatTime';
-import { fShortenNumber } from '../../../utils/formatNumber';
+import { convertCurrencyVN } from '../../../utils/formatNumber';
 //
 import SvgIconStyle from '../../SvgIconStyle';
+import { mockImgCover } from '../../../utils/mockImages';
 
 // ----------------------------------------------------------------------
 
@@ -61,15 +62,34 @@ BlogPostCard.propTypes = {
 };
 
 export default function BlogPostCard({ post, index }) {
-  const { cover, title, view, comment, share, author,university, createdAt } = post;
+  const { totalMoney, id, title, postCreatedAt, Student } = post;
   const latestPostLarge = index === 0;
   const latestPost = index === 1 || index === 2;
 
+
   const POST_INFO = [
-    { number: comment, icon: moneyFill },
-    { number: view, icon: semesterFill },
-    // { number: share, icon: shareFill }
+    { name: totalMoney, icon: moneyFill },
+    { name: Student, icon: semesterFill },
   ];
+
+  const getPost_Infor = (info) => {
+    if (typeof info.name === 'object') {
+      var nameGet = info.name.SchoolMajor.Major.name
+      return (
+        <>
+          <Box component={Icon} icon={info.icon} sx={{ width: 16, height: 16, mr: 0.5 }} />
+          <Typography variant="caption">{nameGet}</Typography>
+        </>
+      )
+    } else {
+      return (
+        <>
+          <Box component={Icon} icon={info.icon} sx={{ width: 16, height: 16, mr: 0.5 }} />
+          <Typography variant="caption">{convertCurrencyVN(info.name)}</Typography>
+        </>
+      )
+    }
+  }
 
   return (
     <Grid item xs={12} sm={latestPostLarge ? 12 : 6} md={latestPostLarge ? 6 : 3}>
@@ -108,19 +128,19 @@ export default function BlogPostCard({ post, index }) {
             }}
           />
           <AvatarStyle
-            alt={author.name}
-            src={author.avatarUrl}
+            alt={Student.User.firstName}
+            src={Student.User.profileUrl}
             sx={{
               ...((latestPostLarge || latestPost) && {
                 zIndex: 9,
                 top: 24,
                 left: 24,
-                width: 40,
-                height: 40
+                width: 80,
+                height: 80
               })
             }}
           />
-          <CoverImgStyle alt={title} src={cover} />
+          <CoverImgStyle alt={title} src={mockImgCover(index + 1)} />
         </CardMediaStyle>
 
         <CardContent
@@ -134,37 +154,37 @@ export default function BlogPostCard({ post, index }) {
           }}
         >
           <Grid
-          container
-          direction={"row"}
-          justifyContent={"space-between"}
-          alignItems={"flex-start"}
+            container
+            direction={"row"}
+            justifyContent={"space-between"}
+            alignItems={"flex-start"}
           >
-           <Typography
-            gutterBottom
-            variant="caption"
-            sx={{ color: 'text.disabled', display: 'block' }}
-          >
-            {author.name}
-          </Typography>
-          <Typography
-            gutterBottom
-            variant="caption"
-            sx={{ color: 'text.disabled', display: 'block' }}
-          >
-            {university}
-          </Typography>
+            <Typography
+              gutterBottom
+              variant="caption"
+              sx={{ color: 'text.disabled', display: 'block' }}
+            >
+              {Student.User.firstName} {Student.User.lastName}
+            </Typography>
+            <Typography
+              gutterBottom
+              variant="caption"
+              sx={{ color: 'text.disabled', display: 'block' }}
+            >
+              {Student.SchoolMajor.School.name}
+            </Typography>
           </Grid>
-         
+
           <Typography
             gutterBottom
             variant="caption"
             sx={{ color: 'text.disabled', display: 'block' }}
           >
-            {fDate(createdAt)}
+            {fDate(postCreatedAt)}
           </Typography>
 
           <TitleStyle
-            to="../viewPost"
+            to={`../viewPost/${id}`}
             color="inherit"
             variant="subtitle2"
             underline="hover"
@@ -192,8 +212,7 @@ export default function BlogPostCard({ post, index }) {
                   })
                 }}
               >
-                <Box component={Icon} icon={info.icon} sx={{ width: 16, height: 16, mr: 0.5 }} />
-                <Typography variant="caption">{fShortenNumber(info.number)}</Typography>
+                {getPost_Infor(info)}
               </Box>
             ))}
           </InfoStyle>

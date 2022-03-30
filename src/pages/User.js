@@ -24,6 +24,7 @@ import SearchNotFound from '../components/SearchNotFound';
 import { ListHead, ListToolbar } from '../components/_dashboard/user';
 //
 import { userApi } from '../apis/user';
+import { USER_STATUS } from '../constants/enum';
 
 // ----------------------------------------------------------------------
 
@@ -46,6 +47,21 @@ function descendingComparator(a, b, orderBy) {
     return 1;
   }
   return 0;
+}
+
+const color = (status) =>{
+  if(status === USER_STATUS.BAN){
+    return 'error'
+  }
+  if(status === USER_STATUS.UNVERIFIED){
+    return 'default'
+  }
+  if(status === USER_STATUS.VERIFIED){
+    return 'success'
+  }
+  if(status === USER_STATUS.PENDING){
+    return 'warning'
+  }
 }
 
 function getComparator(order, orderBy) {
@@ -187,7 +203,7 @@ export default function User() {
                         phoneNumber,
                         type,
                         email,
-                      status} = row;
+                        status } = row;
 
                       return (
                         <TableRow
@@ -211,7 +227,7 @@ export default function User() {
                           <TableCell align="left">
                             <Label
                               variant="ghost"
-                              color={(status === 'BAN' && 'error') || 'success'}
+                              color={color(status)}
                             >
                               {sentenceCase(status)}
                             </Label>
