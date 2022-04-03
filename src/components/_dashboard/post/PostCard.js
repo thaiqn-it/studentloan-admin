@@ -63,9 +63,6 @@ BlogPostCard.propTypes = {
 
 export default function BlogPostCard({ post, index }) {
   const { totalMoney, id, title, postCreatedAt, Student } = post;
-  const latestPostLarge = index === 0;
-  const latestPost = index === 1 || index === 2;
-
 
   const POST_INFO = [
     { name: totalMoney, icon: moneyFill },
@@ -92,28 +89,9 @@ export default function BlogPostCard({ post, index }) {
   }
 
   return (
-    <Grid item xs={12} sm={latestPostLarge ? 12 : 6} md={latestPostLarge ? 6 : 3}>
+    <Grid item xs={12} sm={6} md={3}>
       <Card sx={{ position: 'relative' }}>
         <CardMediaStyle
-          sx={{
-            ...((latestPostLarge || latestPost) && {
-              pt: 'calc(100% * 4 / 3)',
-              '&:after': {
-                top: 0,
-                content: "''",
-                width: '100%',
-                height: '100%',
-                position: 'absolute',
-                bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72)
-              }
-            }),
-            ...(latestPostLarge && {
-              pt: {
-                xs: 'calc(100% * 4 / 3)',
-                sm: 'calc(100% * 3 / 4.66)'
-              }
-            })
-          }}
         >
           <SvgIconStyle
             color="paper"
@@ -124,33 +102,21 @@ export default function BlogPostCard({ post, index }) {
               zIndex: 9,
               bottom: -15,
               position: 'absolute',
-              ...((latestPostLarge || latestPost) && { display: 'none' })
             }}
           />
           <AvatarStyle
             alt={Student.User.firstName}
-            src={Student.User.profileUrl}
-            sx={{
-              ...((latestPostLarge || latestPost) && {
-                zIndex: 9,
-                top: 24,
-                left: 24,
-                width: 80,
-                height: 80
-              })
-            }}
+            src={'https://media.istockphoto.com/vectors/flip-hourglass-icon-to-keep-track-of-the-elapsed-time-vector-id1322169400?b=1&k=20&m=1322169400&s=170667a&w=0&h=qkub6UGQNWBWvC2GdIXKHVMfgif5ahag3_3iZ0Mj56I='}
+           
           />
-          <CoverImgStyle alt={title} src={mockImgCover(index + 1)} />
+          <CoverImgStyle alt={title} 
+          src={Student.User.profileUrl} 
+          />
         </CardMediaStyle>
 
         <CardContent
           sx={{
             pt: 4,
-            ...((latestPostLarge || latestPost) && {
-              bottom: 0,
-              width: '100%',
-              position: 'absolute'
-            })
           }}
         >
           <Grid
@@ -189,12 +155,6 @@ export default function BlogPostCard({ post, index }) {
             variant="subtitle2"
             underline="hover"
             component={RouterLink}
-            sx={{
-              ...(latestPostLarge && { typography: 'h5', height: 60 }),
-              ...((latestPostLarge || latestPost) && {
-                color: 'common.white'
-              })
-            }}
           >
             {title}
           </TitleStyle>
@@ -207,9 +167,6 @@ export default function BlogPostCard({ post, index }) {
                   display: 'flex',
                   alignItems: 'center',
                   ml: index === 0 ? 0 : 1.5,
-                  ...((latestPostLarge || latestPost) && {
-                    color: 'grey.500'
-                  })
                 }}
               >
                 {getPost_Infor(info)}

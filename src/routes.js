@@ -33,7 +33,7 @@ export default function Router() {
         { path: 'user', element: <User /> },
         { path: 'student/:id', element: <DetailStudent /> },
         { path: 'investor/:id', element: <DetailInvestor /> },
-        { path: 'waitingpost', element: <WaitingPost orderByLastest='DESC' initalLimit={7} initalOffset={0} /> },
+        { path: 'waitingpost', element: <WaitingPost orderByLastest='DESC' initalLimit={8} initalOffset={0} /> },
         { path: 'manageschool', element: <ManageSchool /> },
         { path: 'viewlistcontract', element: <ViewListContract /> },
         { path: 'viewtransactions', element: <ViewTransactions /> },

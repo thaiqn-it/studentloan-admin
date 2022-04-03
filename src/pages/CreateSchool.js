@@ -118,7 +118,6 @@ export default function CreateSchool() {
       setmessage('Tạo mới thành công!')
     }).catch(
       (e) => {
-        console.log(e);
         setmessage('Tạo mới thất bại!')
       }
     )

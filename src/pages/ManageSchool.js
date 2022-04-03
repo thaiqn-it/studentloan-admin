@@ -108,7 +108,7 @@ export default function ManageSchool() {
   const isschoolNotFound = filteredschools.length === 0;
 
   return (
-    <Page title="Quản lý | Trường Đại Học">
+    <Page title="Quản lý các trường đại học">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>

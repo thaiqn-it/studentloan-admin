@@ -50,11 +50,11 @@ const sidebarConfig = [
   //   icon: getIcon(fileContract)
   // },
 
-  // {
-  //   title: 'thiết lập',
-  //   path: '/dashboard/systemconfig',
-  //   icon: getIcon(settingsFill)
-  // },
+  {
+    title: 'thiết lập',
+    path: '/dashboard/systemconfig',
+    icon: getIcon(settingsFill)
+  },
   
   // {
   //   title: 'register',

@@ -6,12 +6,15 @@ import {
   Grid,
   Divider,
   Card,
-  Paper,
   CardMedia,
   CardContent,
   CardActionArea,
   Avatar,
-  TextField
+  TextField,
+  Dialog,
+  Button,
+  Snackbar,
+  Alert
 } from "@mui/material";
 //mui icons
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,27 +28,48 @@ import { LoadingButton } from "@mui/lab";
 import { useNavigate, useParams } from "react-router-dom";
 import { loanApi } from "../apis/loan";
 import moment from "moment";
-import { LOANMEDIA_TYPE } from "../constants/enum";
-import YoutubeEmbed from "../components/YoutubeEmbed";
+import { LOANHISTORYIMAGE_STATUS, LOANMEDIA_TYPE, LOAN_STATUS } from "../constants/enum";
 import ReactPlayer from "react-player"
-
-
-
+// import { mockImgCover } from "../utils/mockImages";
+import imgNoVideo from '../assets/img-no-video-waiting-post.jpg'
+import DropFileZone from "../components/dropfilezone";
+import ImageModal from "../components/imagemodal";
+import { loanHistoryApi } from "../apis/loanHistory";
+import { loanHistoryImageApi } from "../apis/loanHistoryImage";
+import Page from "../components/Page";
 
 export default function ViewPost() {
   const { id } = useParams();
   const navigate = useNavigate()
-  const [isChange, setIsChange] = useState('')
   const [loan, setLoan] = useState({})
   const [school, setSchool] = useState({})
   const [major, setMajor] = useState({})
   const [user, setUser] = useState({})
   const [archievements, setArchievements] = useState([])
+  const [imgURL, setImgURL] = useState('')
   const [loanHistories, setLoanHistories] = useState([])
-  // const [loanMedia, setLoanMedia] = useState([])
-  const [loanMediaV, setLoanMediaV] = useState({})
-  const [loanMediaC, setLoanMediaC] = useState({})
-  const [loanMediaD, setLoanMediaD] = useState({})
+  const [loanMedia, setLoanMedia] = useState([])
+  const [reason, setReason] = useState('')
+  // const [loanMediaV, setLoanMediaV] = useState({})
+  // const [loanMediaC, setLoanMediaC] = useState([])
+  // const [loanMediaD, setLoanMediaD] = useState([])
+
+  const [isOpenApproveDialog, setIsOpenAprroveDialog] = useState(false)
+  const handleCloseApproveDialog = () => {
+    setIsOpenAprroveDialog(false)
+    setImgURL('')
+  }
+  const handleOpenApproveDialog = () => setIsOpenAprroveDialog(true)
+
+  const [isOpenDeniedDialog, setIsOpenDeniedDialog] = useState(false)
+  const handleCloseDeniedDialog = () => setIsOpenDeniedDialog(false)
+  const handleOpenDeniedDialog = () => setIsOpenDeniedDialog(true)
+
+  const [message, setMessage] = useState('')
+  const [openSnackBar, setOpenSnackBar] = useState(false)
+  const [colorSnackBar, setColorSnackBar] = useState('')
+  const handleCloseSnackBar = () => setOpenSnackBar(false)
+  // const handleCloseOpenSnackBar = () => setOpenSnackBar(false)
   useEffect(() => {
     const fetchData = async () => {
       const res = await loanApi.getOne(id)
@@ -55,16 +79,7 @@ export default function ViewPost() {
       setUser(res.data.loan.Student.User)
       setArchievements(res.data.loan.Student.Archievements)
       setLoanHistories(res.data.loan.LoanHistories)
-      // setLoanMedia(res.data.loan.LoanMedia)
-      res.data.loan.LoanMedia.forEach(item => {
-        if (item.type === LOANMEDIA_TYPE.VIDEO) {
-          setLoanMediaV(item)
-        } else if (item.type === LOANMEDIA_TYPE.STUDENTCERT) {
-          setLoanMediaC(item)
-        } else if (item.type === LOANMEDIA_TYPE.DEMANDNOTE) {
-          setLoanMediaD(item)
-        }
-      })
+      setLoanMedia(res.data.loan.LoanMedia)
     }
     fetchData()
   }, [id])
@@ -75,6 +90,22 @@ export default function ViewPost() {
     return data;
   }
 
+  const openImage = (url) => {
+    return (
+      <ImageModal
+        component="img"
+        image={url}
+        sx={{
+          borderRadius: 0,
+          margin: 0,
+          cursor: 'pointer',
+          maxWidth: '100%',
+          height: 'auto',
+        }}
+      />
+    )
+  }
+
   const onBack = () => {
     navigate("/dashboard/waitingpost")
   }
@@ -83,8 +114,57 @@ export default function ViewPost() {
     return formatDate(moment(date).add(duration, 'months'))
   }
 
+  const getMsg = (msg, type, open) => {
+    if (type === 'errorDropFile') {
+      setColorSnackBar('error')
+    }
+    setMessage(msg)
+    setOpenSnackBar(open)
+  }
+
+  const onFileChangeURL = (url, e) => {
+    setImgURL(url)
+  }
+
+  const onDeleteURL = (id) => {
+    setImgURL('')
+  }
+
+  const appropvePost = (history, url) => {
+    const clone = (({ id, createdAt, updatedAt, adminId, ...o }) => o)(history)
+    const newHistory = { ...clone, type: LOAN_STATUS.FUNDING, adminId: "cfe24265-6fe4-4b42-9115-acc2fc61d5fd" }
+    loanHistoryApi.update(history.id, { ...history, isActive: false }).then(
+      loanHistoryApi.create(newHistory)
+    )
+    // url.map(item => {
+    //   return loanHistoryImageApi.create({
+    //     loanHistoryId: history.id,
+    //     imageUrl: item.url,
+    //     status: LOANHISTORYIMAGE_STATUS.ACTIVE
+    //   })
+    // })
+    loanHistoryImageApi.create({
+      loanHistoryId: history.id,
+      imageUrl: url,
+      status: LOANHISTORYIMAGE_STATUS.ACTIVE
+    })
+    handleCloseApproveDialog()
+    getMsg('Duyệt bài thành công!', 'success', true)
+  }
+
+  const denyPost = (history) => {
+    const clone = (({ id, createdAt, updatedAt, adminId, ...o }) => o)(history)
+    const newHistory = { ...clone,description:reason, type: LOAN_STATUS.DRAFT, adminId: "cfe24265-6fe4-4b42-9115-acc2fc61d5fd" }
+    loanHistoryApi.update(history.id, { ...history, isActive: false }).then(
+      loanHistoryApi.create(newHistory)
+    )
+    handleCloseDeniedDialog()
+    setOpenSnackBar(false)
+    getMsg('Từ chối bài thành công!', 'success', true)
+  }
+
   return (
-    <div>
+    <Page title="Chi tiết bài chờ duyệt">
       <Container sx={{ padding: "3rem 3rem" }} maxWidth="xl">
         <Typography variant='h4' onClick={onBack}>
           <ArrowBack />
@@ -105,13 +185,26 @@ export default function ViewPost() {
             marginTop: '2px'
           }}>
             <Grid item xs="12" md="7">
-              <div>
-                <ReactPlayer
-                controls={true}
-                loop
-                  url={loanMediaV.imageUrl}
-                />
-              </div>
+              {
+                loanMedia.filter(item => item.type === LOANMEDIA_TYPE.VIDEO).length ? loanMedia.filter(item => item.type === LOANMEDIA_TYPE.VIDEO).map(item =>
+                (
+                  <div>
+                    <ReactPlayer
+                      key={item.id}
+                      controls={true}
+                      loop
+                      url={item.imageUrl}
+                    />
+                  </div>
+                )
+                ) : (
+                  <div>
+                    <CardMedia
+                      component='img'
+                      image={imgNoVideo} />
+                  </div>
+                )
+              }
             </Grid>
             <Grid item xs="12" md="5">
               <Grid container spacing="5">
@@ -151,6 +244,7 @@ export default function ViewPost() {
               sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
               md={3}>
               <Avatar
+                onClick={() => navigate(`/dashboard/student/${user.id}`)}
                 sx={{ height: "200px", width: "200px" }}
                 alt="Student"
                 bgColor="light"
@@ -234,53 +328,81 @@ export default function ViewPost() {
         <Grid
           container
           spacing={2}>
-          <Grid
-            item
-            xs={12}
-            md={6}>
-            <Card>
-              <CardActionArea
-                onClick={() => alert('asdawdasd')}
-              >
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image={loanMediaC.imageUrl}
-                  alt={loanMediaC.description}
-                />
-                <CardContent>
-                  <Typography variant="h5">
-                    {loanMediaC.description}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            md={6}>
-            <Card>
-              <CardActionArea
-                onClick={() => alert('asdawdasd')}
-              >
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image={loanMediaD.imageUrl}
-                  alt={loanMediaD.description}
-                />
-                <CardContent>
-                  <Typography variant="h5">
-                    {loanMediaD.description}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
+          {
+            loanMedia.map(item => {
+              return item.type === LOANMEDIA_TYPE.DEMANDNOTE ?
+                (
+                  <Grid
+                    item
+                    key={item.id}
+                    xs={12}
+                    md={6}>
+                    <Card>
+                      <CardActionArea
+                        onClick={() => openImage(item.imageUrl)}
+                      >
+                        <CardMedia
+                          component="img"
+                          height="300"
+                          image={item.imageUrl}
+                          alt={item.description}
+                        />
+                        <CardContent>
+                          <Typography variant="h5">
+                            {item.description}
+                          </Typography>
+                        </CardContent>
+                      </CardActionArea>
+                    </Card>
+                  </Grid>
+                ) :
+                (
+                  <></>
+                )
+            })
+          }
         </Grid>
 
         <Divider sx={{ margin: "20px 0px" }} />
+
+        <Typography sx={{ margin: '1.5rem' }} variant="h4" color='secondary'>Chứng nhận sinh viên</Typography>
+        <Grid
+          container
+          spacing={2}>
+          {
+            loanMedia.map(item => {
+              return item.type === LOANMEDIA_TYPE.STUDENTCERT ?
+                (
+                  <Grid
+                    item
+                    xs={12}
+                    key={item.id}
+                    md={6}>
+                    <Card>
+                      <CardActionArea
+                        onClick={() => openImage(item.imageUrl)}
+                      >
+                        <CardMedia
+                          component="img"
+                          height="300"
+                          image={item.imageUrl}
+                          alt={item.description}
+                        />
+                        <CardContent>
+                          <Typography variant="h5">
+                            {item.description}
+                          </Typography>
+                        </CardContent>
+                      </CardActionArea>
+                    </Card>
+                  </Grid>
+                ) :
+                (
+                  <></>
+                )
+            })
+          }
+        </Grid>
 
         <Typography sx={{ margin: '1.5rem' }} variant="h4" color='secondary'>Thành tựu sinh viên đạt được</Typography>
         <Grid
@@ -293,10 +415,11 @@ export default function ViewPost() {
                 <Grid
                   item
                   xs={12}
+                  key={item.id}
                   md={6}>
                   <Card>
                     <CardActionArea
-                      onClick={() => alert('asdawdasd')}
+                      onClick={() => openImage(item.imageUrl)}
                     >
                       <CardMedia
                         component="img"
@@ -332,13 +455,13 @@ export default function ViewPost() {
             xs={6}
           >
             <LoadingButton
+            onClick={handleOpenDeniedDialog}
               fullWidth
               size="large"
               type="submit"
               color="error"
               variant="contained"
               startIcon={<CloseIcon />}
-            // loading={isSubmitting}
             >
               Từ chối
             </LoadingButton>
@@ -348,19 +471,78 @@ export default function ViewPost() {
             xs={6}
           >
             <LoadingButton
+              onClick={handleOpenApproveDialog}
               fullWidth
               size="large"
               type="submit"
               variant="contained"
               endIcon={<CheckIcon />}
-            // loading={isSubmitting}
             >
               Duyệt
             </LoadingButton>
           </Grid>
-
         </Grid>
+        <Dialog
+          maxWidth='xl'
+          open={isOpenApproveDialog}
+          onClose={handleCloseApproveDialog}
+          scroll='body'
+          aria-labelledby="scroll-dialog-title"
+          aria-describedby="scroll-dialog-description"
+        >
+          <Box
+            sx={{
+              padding: 2,
+              width: 800,
+            }}>
+            <Typography sx={{ mt: 2 }} id="modal-modal-title" color="secondary" variant="h6" component="h2">
+              Có thể thêm hình/file.pdf
+            </Typography>
+            <Box sx={{ mt: 2 }}>
+              <DropFileZone image={imgURL} getMsg={getMsg} onDelete={onDeleteURL} onFileChangeURL={onFileChangeURL} ></DropFileZone>
+            </Box>
+            <Button
+              fullWidth
+              onClick={() => appropvePost(loanHistories[0], imgURL)}
+              sx={{ mt: 2 }}
+              variant="contained">
+              Duyệt bài
+            </Button>
+          </Box>
+        </Dialog>
+
+        <Dialog
+          maxWidth='xl'
+          open={isOpenDeniedDialog}
+          onClose={handleCloseDeniedDialog}
+          scroll='body'
+          aria-labelledby="scroll-dialog-title"
+          aria-describedby="scroll-dialog-description"
+        >
+          <Box
+            sx={{
+              padding: 2,
+              width: 800,
+            }}>
+            <Typography id="modal-modal-title" color="secondary" variant="h6" component="h2">
+              Lý do:
+            </Typography>
+            <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
+            <Button
+              fullWidth
+              onClick={() => denyPost(loanHistories[0])}
+              sx={{ mt: 2 }}
+              variant="contained">
+              Từ chối
+            </Button>
+          </Box>
+        </Dialog>
+        <Snackbar open={openSnackBar} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} autoHideDuration={3000} onClose={handleCloseSnackBar}>
+          <Alert onClose={handleCloseSnackBar} severity={colorSnackBar} sx={{ width: '100%' }}>
+            {message}
+          </Alert>
+        </Snackbar>
       </Container>
-    </div>
+    </Page>
   );
 }

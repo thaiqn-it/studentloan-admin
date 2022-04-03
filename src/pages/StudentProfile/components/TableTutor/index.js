@@ -194,7 +194,7 @@ export default function EnhancedTable(props) {
   React.useEffect(() => {
     const fetchData = async () => {
       const res = await studentApi.getStudentByUserId(userId)
-      const res1 = await tutorApi.getListTutorByStudentId(res.data.student.id)
+      const res1 = await tutorApi.getListTutorByStudentId(res.data.student.parentId)
       const listTutor = res1.data
       setListutor(listTutor)
     }
@@ -279,10 +279,6 @@ export default function EnhancedTable(props) {
                       <TableCell align="right">{formatAddress(row.address)}</TableCell>
                       <TableCell align="right">{row.relation}</TableCell>
                       <TableCell align="right">
-                        {/* <Button
-                          onClick={() => handleClick(row.id)}>
-                          View
-                        </Button> */}
                         <Button
                           onClick={() => handleClick(row.id)}
                           size="small"

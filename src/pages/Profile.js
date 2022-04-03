@@ -21,14 +21,6 @@ const RootStyle = styled(Page)(({ theme }) => ({
   }
 }));
 
-const SectionStyle = styled(Card)(({ theme }) => ({
-  width: '100%',
-  maxWidth: 464,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  margin: theme.spacing(2, 0, 2, 2)
-}));
 
 const ContentStyle = styled('div')(({ theme }) => ({
   maxWidth: "85%",
@@ -39,17 +31,6 @@ const ContentStyle = styled('div')(({ theme }) => ({
   justifyContent: 'center',
   padding: theme.spacing(12, 0)
 }));
-
-const ColoredLine = ({ color }) => (
-  <hr
-    style={{
-      color: color,
-      backgroundColor: color,
-      margin: 30,
-      height: 1.5
-    }}
-  />
-);
 
 // ----------------------------------------------------------------------
 
@@ -148,12 +129,12 @@ export default function Profile(props) {
             <Typography style={{
               marginTop: 30
             }}>Email</Typography>
-            <TextField fullWidth value={admin.User.email} />
+            <TextField disabled fullWidth value={admin.User.email} />
 
             <Typography style={{
               marginTop: 30
             }}>Số điện thoại</Typography>
-            <TextField fullWidth value={admin.User.phoneNumber} />
+            <TextField disabled fullWidth value={admin.User.phoneNumber} />
 
             <Typography style={{
               marginTop: 30

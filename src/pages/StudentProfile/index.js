@@ -15,6 +15,8 @@ import { studentApi } from '../../apis/student'
 import { userApi } from '../../apis/user'
 import { USER_STATUS } from '../../constants/enum'
 
+import {useAuthState} from '../../context/AuthContext'
+
 const styleModal = {
     position: 'absolute',
     top: '50%',
@@ -49,7 +51,8 @@ export default function StudentProfile(props) {
     const handleOpenBanConfirm = () => setOpenBanConfirm(true);
     const handleCloseBanConfirm = () => setOpenBanConfirm(false);
 
-
+    const userContext = useAuthState();
+    console.log(userContext)
 
     useEffect(() => {
         const fetchData = async () => {

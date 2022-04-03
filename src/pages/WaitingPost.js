@@ -39,7 +39,7 @@ export default function WaitingPost(props) {
       setLoanList(loanList)
     }
     fetchData()
-  }, [limit, offset, order])
+  }, [limit, offset, order,loanList])
 
   const checkIsEmpty = (list) => {
     if (list.length <= 0) {
@@ -72,7 +72,6 @@ export default function WaitingPost(props) {
           <div />
           <div>
             <TextField select size="small" value={optionChoosen}
-              // onChange={onSort}
               onChange={(e) => {
                 setOptionChoosen(e.target.value)
                 setOrder(e.target.value)
@@ -85,7 +84,6 @@ export default function WaitingPost(props) {
               ))}
             </TextField>
           </div>
-          {/* <PostsSort options={SORT_OPTIONS} /> */}
         </Stack>
 
         <Grid container spacing={3}>
@@ -96,7 +94,7 @@ export default function WaitingPost(props) {
         {checkIsEmpty(loanList)}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
           <Pagination onChange={(e) => {
-            var offsetNextPage = (Number.parseInt(e.target.textContent) - 1) * 7
+            var offsetNextPage = (Number.parseInt(e.target.textContent) - 1) * 8
             setOffset(offsetNextPage)
           }} count={lastPage} variant="outlined" color="primary" />
         </div>

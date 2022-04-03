@@ -5,6 +5,12 @@ const PRIMARY_COLOR_WHITE = "#ffffff"
 const PRIMARY_COLOR_BLACK = "#000000"
 const PRIMARY_COLOR = "#00BFA6";
 const SECONDARY_COLOR = "#FFA15D";
+const JWT_TOKEN ='JWT_TOKEN'
+const USER_ID = 'USER_ID'
+
+export const getJWToken = () => {
+  return (localStorage.getItem(JWT_TOKEN))
+}
 
 export {
   API_SUCCSES,
@@ -13,5 +19,7 @@ export {
   PRIMARY_COLOR_WHITE,
   PRIMARY_COLOR_BLACK,
   PRIMARY_COLOR,
-  SECONDARY_COLOR
+  SECONDARY_COLOR,
+  JWT_TOKEN,
+  USER_ID
 };
