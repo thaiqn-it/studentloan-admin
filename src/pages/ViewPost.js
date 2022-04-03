@@ -46,7 +46,7 @@ export default function ViewPost() {
   const [major, setMajor] = useState({})
   const [user, setUser] = useState({})
   const [archievements, setArchievements] = useState([])
-  const [imgURL, setImgURL] = useState('')
+  const [imgURL, setImgURL] = useState([])
   const [loanHistories, setLoanHistories] = useState([])
   const [loanMedia, setLoanMedia] = useState([])
   const [reason, setReason] = useState('')
@@ -126,7 +126,7 @@ export default function ViewPost() {
     setImgURL(url)
   }
 
-  const onDeleteURL = (id) => {
+  const onDeleteURL = (url) => {
     setImgURL('')
   }
 

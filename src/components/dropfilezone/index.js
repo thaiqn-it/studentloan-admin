@@ -23,7 +23,6 @@ const DropFileZone = (props) => {
 
     const [progress, setProgress] = useState(0)
     const [nameFile, setNameFile] = useState('')
-    const [url, setUrl] = useState('')
 
     const wrapperRef = useRef(null)
 
@@ -34,16 +33,15 @@ const DropFileZone = (props) => {
     const onDrop = () => wrapperRef.current.classList.remove('dragover')
 
     const onFileDrop = (e) => {
-        const newFile = e.target.files[0]
-        console.log(newFile)
-        if (newFile) {
-            if (newFile.type === 'application/pdf') {
-                setNameFile(newFile.name)
-                connectUploadCloud(newFile, e)
-            }else{
-                getMsg('Buộc phải là file.pdf','errorDropFile',true)
-            }
-        }
+        const newFile = e.target.files
+        connectUploadCloud(newFile, e)
+    }
+
+    function getName(url) {
+        var splittedArr = url.split('/')
+        var name = splittedArr[splittedArr.length - 1]
+        var fileName = name.substring(name.indexOf('-') + 1, name.length)
+        return fileName
     }
 
     const singleFileOptions = {
@@ -59,19 +57,27 @@ const DropFileZone = (props) => {
     const connectUploadCloud = async (imageFile, event) => {
         setProgress(1)
         const formData = new FormData()
-        formData.append('file', imageFile)
+        for (let i = 0; i < imageFile.length; i++) {
+            formData.append('file', imageFile[i])
+        }
         await imageApi
             .uploadImageWithProg(formData, singleFileOptions)
             .then((res) => {
-                setUrl(res.data.url)
+                let arr = [];
+                if (Array.isArray(res.data)) {
+                    arr = res.data
+                } else {
+                    arr.push({ url: res.data.url })
+                }
                 setProgress(100)
-                onFileChangeURL(res.data.url, event)
+                onFileChangeURL(arr, event)
+                setProgress(0)
+            }).catch(e => {
                 setProgress(0)
             })
     }
 
     const handleDelete = () => {
-        setUrl('')
         setProgress(0)
         onDelete(elementName)
     }
@@ -89,53 +95,42 @@ const DropFileZone = (props) => {
                             // width: 'fit-content',
                         }}
                     >
-                        {image.indexOf('.pdf') !== -1 ? (
-                            <Link
-                                href={image} underline="hover">
-                                {nameFile}
-                            </Link>
-                        ) : (
-                            <ImageModal
-                                component="img"
-                                image={image}
-                                sx={{
-                                    borderRadius: 0,
-                                    margin: 0,
-                                    cursor: 'pointer',
-                                    maxWidth: '100%',
-                                    height: 'auto',
-                                }}
-                            />
+                        {image?.map(item =>
+                        (
+                                <>
+                                    <Link
+                                        href={item.url} underline="hover">
+                                        {getName(item.url)}
+                                    </Link>
+                                    <IconButton
+                                        aria-label="fileuploan"
+                                        component="span"
+                                        size="medium"
+                                        onClick={handleDelete}
+                                    >
+                                        <DeleteIcon fontSize="inherit" />
+                                    </IconButton>
+                                    <label htmlFor={elementId}>
+                                        <input
+                                            multiple
+                                            type="file"
+                                            accept="image/jpeg,image/png,application/pdf"
+                                            id={elementId}
+                                            name={elementName}
+                                            onChange={onFileDrop}
+                                            hidden
+                                        />
+                                        <IconButton
+                                            aria-label="fileuploan"
+                                            component="span"
+                                            size="medium"
+                                        >
+                                            <FileUploadIcon fontSize="inherit" />
+                                        </IconButton>
+                                    </label>
+                                </>
+                        )
                         )}
-
-                        <>
-                            <IconButton
-                                aria-label="fileuploan"
-                                component="span"
-                                size="medium"
-                                onClick={handleDelete}
-                            >
-                                <DeleteIcon fontSize="inherit" />
-                            </IconButton>
-                            <label htmlFor={elementId}>
-                                <input
-                                multiple
-                                    type="file"
-                                    accept="application/pdf"
-                                    id={elementId}
-                                    name={elementName}
-                                    onChange={onFileDrop}
-                                    hidden
-                                />
-                                <IconButton
-                                    aria-label="fileuploan"
-                                    component="span"
-                                    size="medium"
-                                >
-                                    <FileUploadIcon fontSize="inherit" />
-                                </IconButton>
-                            </label>
-                        </>
                     </Box>
                 </Box>
             </>
@@ -187,9 +182,9 @@ const DropFileZone = (props) => {
                                 </IconButton>
                                 <label htmlFor={elementId}>
                                     <input
-                                    multiple
+                                        multiple
                                         type="file"
-                                        accept="application/pdf"
+                                        accept="image/jpeg,image/png,application/pdf"
                                         id={elementId}
                                         name={elementName}
                                         onChange={onFileDrop}
@@ -219,9 +214,9 @@ const DropFileZone = (props) => {
                             <p>Chọn tệp</p>
                         </div>
                         <input
-                        multiple
+                            multiple
                             type="file"
-                            accept="application/pdf"
+                            accept="image/jpeg,image/png,application/pdf"
                             value=""
                             id={elementId}
                             name={elementName}

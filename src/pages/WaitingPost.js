@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { loanApi } from '../apis/loan';
 // components
 import Page from '../components/Page';
-import { PostCard, PostsSort } from '../components/_dashboard/post';
+import { PostCard } from '../components/_dashboard/post';
 
 
 // ----------------------------------------------------------------------
