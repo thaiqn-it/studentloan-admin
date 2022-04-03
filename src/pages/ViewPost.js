@@ -531,7 +531,7 @@ export default function ViewPost() {
               variant="h6"
               component="h2"
             >
-              Có thể thêm hình/file.pdf
+              Chọn tệp đính kèm (.pdf, .png, .jpg)
             </Typography>
             <Box sx={{ mt: 2 }}>
               <Box
