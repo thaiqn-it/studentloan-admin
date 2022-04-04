@@ -7,27 +7,34 @@ import { useEffect, useState } from 'react';
 import { loanApi } from '../apis/loan';
 // components
 import Page from '../components/Page';
-import { PostCard, PostsSort } from '../components/_dashboard/post';
+import { PostCard } from '../components/_dashboard/post';
+import { LOAN_STATUS } from '../constants/enum';
 
 
 // ----------------------------------------------------------------------
 
 export default function WaitingPost(props) {
-  const { orderByLastest, initalLimit, initalOffset } = props
+  const { orderByLastest, initalLimit, initalOffset,initalType } = props
   const [lastPage, setLastPage] = useState(0)
   const [limit, setLimit] = useState(initalLimit)
   const [order, setOrder] = useState(orderByLastest)
+  const [type, setType] = useState(initalType)
   const [offset, setOffset] = useState(initalOffset)
   const [sortOption, setSortOption] = useState([
     { value: 'DESC', label: 'Gần nhất' },
     { value: 'ASC', label: 'Xa nhất' }
   ])
+  const [typeOption, setTypeOption] = useState([
+    { value: LOAN_STATUS.WAITING, label: 'Đang chờ' },
+    { value: LOAN_STATUS.ONGOING, label: 'Đang trong tiến độ' }
+  ])
   const [optionChoosen, setOptionChoosen] = useState('DESC')
+  const [typeChoosen, setTypeChoosen] = useState(LOAN_STATUS.WAITING)
   const [loanList, setLoanList] = useState([])
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await loanApi.getAllWaiting({ limit, offset, order })
+      const res = await loanApi.getAllWaiting({ limit, offset, order, type })
       const loanList = res.data.rows
       const lastPage = res.data.count / limit
       if (Number.isInteger(lastPage)) {
@@ -39,14 +46,14 @@ export default function WaitingPost(props) {
       setLoanList(loanList)
     }
     fetchData()
-  }, [limit, offset, order,loanList])
+  }, [limit, offset, order, loanList, type])
 
   const checkIsEmpty = (list) => {
     if (list.length <= 0) {
       return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Typography
-          color='error'
+            color='error'
             variant='h4'
           >
             Hiện tại không còn bài viết nào cần duyệt!
@@ -68,8 +75,21 @@ export default function WaitingPost(props) {
             Các bài xin vay đang chờ duyệt
           </Typography>
         </Stack>
-        <Stack mb={5} direction="row" alignItems="center" justifyContent="space-between">
-          <div />
+        <Stack mb={5} direction="row" spacing={1} justifyContent="flex-end">
+          <div>
+            <TextField select size="small" value={typeChoosen}
+              onChange={(e) => {
+                setTypeChoosen(e.target.value)
+                setType(e.target.value)
+              }}
+            >
+              {typeOption.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
           <div>
             <TextField select size="small" value={optionChoosen}
               onChange={(e) => {
