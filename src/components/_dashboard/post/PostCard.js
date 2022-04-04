@@ -62,7 +62,15 @@ BlogPostCard.propTypes = {
 };
 
 export default function BlogPostCard({ post, index }) {
-  const { totalMoney, id, title, postCreatedAt, Student } = post;
+  const { totalMoney, id, title, postCreatedAt, Student, LoanHistories } = post;
+
+  const getIcon = (type) =>{
+    if(type==='WAITING'){
+      return 'https://media.istockphoto.com/vectors/flip-hourglass-icon-to-keep-track-of-the-elapsed-time-vector-id1322169400?b=1&k=20&m=1322169400&s=170667a&w=0&h=qkub6UGQNWBWvC2GdIXKHVMfgif5ahag3_3iZ0Mj56I='
+    }else if(type==='ONGOING'){
+      return 'https://www.pngkit.com/png/detail/302-3023079_progress-icon.png'
+    }
+  }
 
   const POST_INFO = [
     { name: totalMoney, icon: moneyFill },
@@ -106,7 +114,7 @@ export default function BlogPostCard({ post, index }) {
           />
           <AvatarStyle
             alt={Student.User.firstName}
-            src={'https://media.istockphoto.com/vectors/flip-hourglass-icon-to-keep-track-of-the-elapsed-time-vector-id1322169400?b=1&k=20&m=1322169400&s=170667a&w=0&h=qkub6UGQNWBWvC2GdIXKHVMfgif5ahag3_3iZ0Mj56I='}
+            src={getIcon(LoanHistories[0]?.type)}
            
           />
           <CoverImgStyle alt={title} 

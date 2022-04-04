@@ -154,7 +154,7 @@ export default function ViewPost() {
 
   const denyPost = (history) => {
     const clone = (({ id, createdAt, updatedAt, adminId, ...o }) => o)(history)
-    const newHistory = { ...clone,description:reason, type: LOAN_STATUS.DRAFT, adminId: "cfe24265-6fe4-4b42-9115-acc2fc61d5fd" }
+    const newHistory = { ...clone, description: reason, type: LOAN_STATUS.DRAFT, adminId: "cfe24265-6fe4-4b42-9115-acc2fc61d5fd" }
     loanHistoryApi.update(history.id, { ...history, isActive: false }).then(
       loanHistoryApi.create(newHistory)
     )
@@ -338,11 +338,9 @@ export default function ViewPost() {
                     xs={12}
                     md={6}>
                     <Card>
-                      <CardActionArea
-                        onClick={() => openImage(item.imageUrl)}
-                      >
-                        <CardMedia
-                          component="img"
+                      <CardActionArea>
+                        <ImageModal
+                         component="img"
                           height="300"
                           image={item.imageUrl}
                           alt={item.description}
@@ -379,10 +377,8 @@ export default function ViewPost() {
                     key={item.id}
                     md={6}>
                     <Card>
-                      <CardActionArea
-                        onClick={() => openImage(item.imageUrl)}
-                      >
-                        <CardMedia
+                      <CardActionArea>
+                        <ImageModal
                           component="img"
                           height="300"
                           image={item.imageUrl}
@@ -418,10 +414,8 @@ export default function ViewPost() {
                   key={item.id}
                   md={6}>
                   <Card>
-                    <CardActionArea
-                      onClick={() => openImage(item.imageUrl)}
-                    >
-                      <CardMedia
+                    <CardActionArea>
+                      <ImageModal
                         component="img"
                         height="300"
                         image={item.imageUrl}
@@ -455,7 +449,7 @@ export default function ViewPost() {
             xs={6}
           >
             <LoadingButton
-            onClick={handleOpenDeniedDialog}
+              onClick={handleOpenDeniedDialog}
               fullWidth
               size="large"
               type="submit"

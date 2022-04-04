@@ -19,6 +19,7 @@ import CreateSchool from './pages/CreateSchool';
 import DetailStudent from './pages/DetailStudent';
 import DetailInvestor from './pages/DetailInvestor';
 import Systemconfig from './pages/SystemConfig';
+import { LOAN_STATUS } from './constants/enum';
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +34,7 @@ export default function Router() {
         { path: 'user', element: <User /> },
         { path: 'student/:id', element: <DetailStudent /> },
         { path: 'investor/:id', element: <DetailInvestor /> },
-        { path: 'waitingpost', element: <WaitingPost orderByLastest='DESC' initalLimit={8} initalOffset={0} /> },
+        { path: 'waitingpost', element: <WaitingPost initalType={LOAN_STATUS.WAITING} orderByLastest='DESC' initalLimit={8} initalOffset={0} /> },
         { path: 'manageschool', element: <ManageSchool /> },
         { path: 'viewlistcontract', element: <ViewListContract /> },
         { path: 'viewtransactions', element: <ViewTransactions /> },
