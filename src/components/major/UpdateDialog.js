@@ -13,14 +13,14 @@ import {
   DialogActions
 } from "@material-ui/core";
 import Button from '@mui/material/Button';
-import styles from "./AddDialog.module.css";
+import styles from "./UpdateDialog.module.css";
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
 import faker from 'faker';
 import { majorApi } from "../../apis/major";
 
-export const AddDialog = (props) => {
-  const [text, setText] = useState("");
+export const UpdateDialog = (props) => {
+  const [text, setText] = useState(props.major.name);
   const [parentId, setParentId] = useState(null);
   const [name, setName] = useState("");
   const status = 'ACTIVE'
@@ -28,7 +28,7 @@ export const AddDialog = (props) => {
   const [droppable, setDroppable] = useState(false);
   var major = {};
   const id = faker.datatype.uuid();
-  const schoolId = props.schoolId
+  const majorUpdate = props.major
   // const firstNode = props.firstNode;
   // console.log(firstNode.id)
 
@@ -39,10 +39,10 @@ export const AddDialog = (props) => {
 
   return (
     <Dialog open={true} onClose={props.onClose}>
-      <DialogTitle>Thêm ngành mới</DialogTitle>
+      <DialogTitle>Chỉnh sửa ngành</DialogTitle>
       <DialogContent className={styles.content}>
         <div>
-          <TextField fullWidth label="Tên" type={"text"} style={{ width : 500 }} onChange={handleChangeText} value={text} />
+          <TextField fullWidth label="Tên ngành" type={"text"} style={{ width : 500 }} onChange={handleChangeText} value={text} />
         </div>
       </DialogContent>
       <DialogActions>
@@ -51,17 +51,13 @@ export const AddDialog = (props) => {
           endIcon={<CheckIcon />}
           disabled={text === ""}
           onClick={() => {
-            major = {
-              id: id,
-              name,
-              status,
-              schoolId
-            }
-            majorApi.create(major).finally(props.onClose);
+            majorApi.update(majorUpdate.id ,{
+                name
+            }).finally(props.onClose)
           }
           }
         >
-          Tạo
+          Xác nhận
         </Button>
       </DialogActions>
     </Dialog>

@@ -49,12 +49,13 @@ export default function StudentProfile(props) {
     const handleOpenBanConfirm = () => setOpenBanConfirm(true);
     const handleCloseBanConfirm = () => setOpenBanConfirm(false);
 
-    const userContext = useAuthState();
-    console.log(userContext)
+    // const userContext = useAuthState();
+    // console.log(userContext)
 
     useEffect(() => {
         const fetchData = async () => {
             const res = await studentApi.getStudentByUserId(userId)
+            console.log(res);
             const user = res.data.student.User
             setUser(user)
         }
