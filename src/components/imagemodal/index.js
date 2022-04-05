@@ -41,6 +41,7 @@ export default function ImageModal(props) {
                             outline: 'none',
                             '@media (max-width: 1024px)': {
                                 maxWidth: '400px',
+                                maxHeight:'400px',
                             },
                         }}
                     />

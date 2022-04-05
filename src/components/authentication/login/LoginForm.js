@@ -5,7 +5,6 @@ import { useFormik, Form, FormikProvider } from 'formik';
 import { Icon } from '@iconify/react';
 import eyeFill from '@iconify/icons-eva/eye-fill';
 import eyeOffFill from '@iconify/icons-eva/eye-off-fill';
-import { useAuthState, useAuthDispatch } from '../../../context/AuthContext'
 import { loginUser } from '../../../context/AdminAction'
 // material
 import {
@@ -15,31 +14,31 @@ import {
   TextField,
   IconButton,
   InputAdornment,
-  FormControlLabel
+  FormControlLabel,
+  Typography
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { userApi } from '../../../apis/user';
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const user = useAuthState();
-
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isErr,setIsErr] = useState(false)
 
-  const dispatch = useAuthDispatch();
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      const userRes = await loginUser(dispatch, email, password)
-      if (userRes.status !== 200 || !userRes.data) { return }
-      navigate('/dashboard')
+      const userRes = await loginUser(email, password)
+      if (userRes.status === 200 || userRes.data) {
+        navigate('/dashboard')
+      }
     }
     catch (e) {
       console.log(e)
+      setIsErr(true)
     }
   }
 
@@ -60,7 +59,7 @@ export default function LoginForm() {
     }
   });
 
-  const { errors, touched, values, isSubmitting, handleSubmit, getFieldProps } = formik;
+  const { errors, touched} = formik;
 
   const handleShowPassword = () => {
     setShowPassword((show) => !show);
@@ -104,24 +103,17 @@ export default function LoginForm() {
           />
         </Stack>
 
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-          <FormControlLabel
-            control={<Checkbox {...getFieldProps('remember')} checked={values.remember} />}
-            label="Lưu đăng nhập"
-          />
-
-          <Link component={RouterLink} variant="subtitle2" to="#">
-            Quên mật khẩu?
-          </Link>
+        <Stack direction="row" alignItems="center" sx={{ my: 2 }}>
+          {isErr===true? <>
+            <Typography variant='caption' color='error'>Sai tên tài khoản/mật khẩu!</Typography>
+          </> : <></>}
         </Stack>
 
         <LoadingButton
-          // onClick={handleLogin}
           fullWidth
           size="large"
           type="submit"
           variant="contained"
-        // loading={isSubmitting}
         >
           Đăng nhập
         </LoadingButton>

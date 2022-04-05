@@ -32,7 +32,7 @@ export default function Page404() {
             </motion.div>
             <Typography sx={{ color: 'text.secondary' }}>
             Xin lỗi, chúng tôi không thể tìm thấy trang bạn đang tìm kiếm. 
-            Có lẽ bạn đã gõ nhầm URL? Xin vui lòng kiểm tra lại.
+            Xin vui lòng kiểm tra lại.
             </Typography>
 
             <motion.div variants={varBounceIn}>

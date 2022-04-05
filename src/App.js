@@ -16,9 +16,7 @@ export default function App() {
       <ScrollToTop />
       <GlobalStyles />
       <BaseOptionChartStyle />
-      <AuthProvider>
-        <Router />
-      </AuthProvider>
+      <Router />
     </ThemeConfig>
   );
 }

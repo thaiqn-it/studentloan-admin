@@ -18,36 +18,36 @@ export default function AchievementCard(props) {
 
     return (
         <>
-                    <Box>
-                        <Grid container spacing={2}>
-                            {archive.map(item => {
-                                return (
-                                    <Grid item xs={12} md={6}>
-                                        <Card>
-                                        <Typography
+            <Box>
+                <Grid container spacing={2}>
+                    {archive.map(item => {
+                        return (
+                            <Grid item key={item.id} xs={12} md={6}>
+                                <Card>
+                                    <Typography
                                         variant='h5'
                                         fontWeight="regular"
-                                            sx={{
-                                                margin: 1
-                                            }}
-                                        >
-                                            {item.description}
-                                        </Typography>
-                                        <CardMedia
-                                            sx={{
-                                                borderRadius: 2
-                                            }}
-                                            component='img'
-                                            height="300px"
-                                            width="300px"
-                                            image={item.imageUrl} />
-                                    </Card>
+                                        sx={{
+                                            margin: 1
+                                        }}
+                                    >
+                                        {item.description}
+                                    </Typography>
+                                    <CardMedia
+                                        sx={{
+                                            borderRadius: 2
+                                        }}
+                                        component='img'
+                                        height="300px"
+                                        width="300px"
+                                        image={item.imageUrl} />
+                                </Card>
 
-                                    </Grid>
-                                )
-                            })}
-                        </Grid>
-                    </Box>
+                            </Grid>
+                        )
+                    })}
+                </Grid>
+            </Box>
         </>
     )
 }

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link as RouterLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
 import { Box, Link, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
@@ -12,6 +12,9 @@ import { MHidden } from '../../components/@material-extend';
 //
 import sidebarConfig from './SidebarConfig';
 import account from '../../_mocks_/account';
+import { useAuthState } from '../../context/AuthContext';
+import { userApi } from '../../apis/user';
+import { loadToken } from '../../apis';
 
 // ----------------------------------------------------------------------
 
@@ -40,9 +43,25 @@ DashboardSidebar.propTypes = {
 };
 
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
+  let navigate = useNavigate()
   const { pathname } = useLocation();
+  const [admin, setAdmin] = useState({})
 
   useEffect(() => {
+
+  }, [])
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        loadToken()
+        const resData = await userApi.getAdminInfo()
+        setAdmin(resData.data)
+      }
+      catch (e) {
+        console.log(e)
+      }
+    }
+    fetchData()
     if (isOpenSidebar) {
       onCloseSidebar();
     }
@@ -65,13 +84,13 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none" component={RouterLink} to="#">
           <AccountStyle>
-            <Avatar src={account.photoURL} alt="photoURL" />
+            <Avatar src={admin.profileUrl} alt="photoURL" />
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {admin.firstName} {admin.lastName}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
+                Quản lý
               </Typography>
             </Box>
           </AccountStyle>

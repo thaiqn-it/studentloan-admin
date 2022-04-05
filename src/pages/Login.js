@@ -62,7 +62,6 @@ export default function Login() {
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>Nhập thông tin của bạn vào bên dưới.</Typography>
           </Stack>
-          <AuthSocial />
           <LoginForm />
         </ContentStyle>
       </Container>

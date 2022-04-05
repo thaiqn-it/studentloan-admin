@@ -4,7 +4,7 @@ import peopleFill from '@iconify/icons-eva/people-fill';
 import settingsFill from '@iconify/icons-eva/settings-fill';
 import fileContract from '@iconify/icons-fa-solid/file-contract';
 import schoolFill from '@iconify/icons-ion/school';
-import fileFill from '@iconify/icons-eva/file-fill'
+import fileFill from '@iconify/icons-eva/file-text-fill'
 
 // ----------------------------------------------------------------------
 

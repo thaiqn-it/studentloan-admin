@@ -1,42 +1,55 @@
 import { Icon } from '@iconify/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import homeFill from '@iconify/icons-eva/home-fill';
 import personFill from '@iconify/icons-eva/person-fill';
 import settings2Fill from '@iconify/icons-eva/settings-2-fill';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // material
 import { alpha } from '@mui/material/styles';
 import { Button, Box, Divider, MenuItem, Typography, Avatar, IconButton } from '@mui/material';
 // components
 import MenuPopover from '../../components/MenuPopover';
-//
-import account from '../../_mocks_/account';
+import { loadToken } from '../../apis';
+import { userApi } from '../../apis/user';
+import { logOut } from '../../context/AdminAction'
+
 
 // ----------------------------------------------------------------------
 
 const MENU_OPTIONS = [
   {
-    label: 'Home',
+    label: 'Trang chính',
     icon: homeFill,
     linkTo: '/'
   },
   {
-    label: 'Profile',
+    label: 'Hồ sơ',
     icon: personFill,
-    linkTo: '/dashboard/profile'
+    linkTo: '../dashboard/profile'
   },
-  // {
-  //   label: 'Settings',
-  //   icon: settings2Fill,
-  //   linkTo: '#'
-  // }
 ];
 
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
   const anchorRef = useRef(null);
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false);
+  const [admin, setAdmin] = useState({})
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        loadToken()
+        const resData = await userApi.getAdminInfo()
+        setAdmin(resData.data)
+      }
+      catch (e) {
+        console.log(e)
+      }
+    }
+    fetchData()
+  }, [])
 
   const handleOpen = () => {
     setOpen(true);
@@ -44,6 +57,12 @@ export default function AccountPopover() {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleLogout = (e) => {
+    e.preventDefault()
+    logOut()
+    navigate('/login')    
+  }
 
   return (
     <>
@@ -67,7 +86,7 @@ export default function AccountPopover() {
           })
         }}
       >
-        <Avatar src={account.photoURL} alt="photoURL" />
+        <Avatar src={admin.profileUrl} alt="photoURL" />
       </IconButton>
 
       <MenuPopover
@@ -78,13 +97,13 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle1" noWrap>
-            {account.displayName}
+            {admin.fristName} {admin.lastName}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
+            {admin.email}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.phone}
+            {admin.phoneNumber}
           </Typography>
         </Box>
 
@@ -112,8 +131,8 @@ export default function AccountPopover() {
         ))}
 
         <Box sx={{ p: 2, pt: 1.5 }}>
-          <Button fullWidth color="inherit" variant="outlined" href="/login">
-            Logout
+          <Button onClick={handleLogout} fullWidth color="inherit" variant="outlined" href="/login">
+            Đăng xuất
           </Button>
         </Box>
       </MenuPopover>

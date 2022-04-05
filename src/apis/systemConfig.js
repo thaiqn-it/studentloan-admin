@@ -2,7 +2,7 @@ import { defaultInstance } from "./index";
 
 
 const getOne = () =>{
-    return defaultInstance.get('/config/')
+    return defaultInstance.get('/config/getOne')
 }
 
 const create = (data) => {

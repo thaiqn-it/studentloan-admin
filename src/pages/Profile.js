@@ -12,6 +12,9 @@ import * as React from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import Edit from '@mui/icons-material/Edit';
 import ArrowBack from '@mui/icons-material/ArrowBack';
+import { useAuthState } from '../context/AuthContext';
+import { userApi } from '../apis/user';
+import { loadToken } from '../apis';
 
 // ----------------------------------------------------------------------
 
@@ -34,24 +37,24 @@ const ContentStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function Profile(props) {
+export default function Profile() {
   const navigate = useNavigate()
-  // const admin = props.admin
+  const [admin, setAdmin] = React.useState({})
 
-  const [admin, setAdmin] = React.useState({
-    id: "c07f1b26-7f46-4f23-b4f8-4f99524e0b55",
-    userId: "c07f1b26-7f46-4f23-b4f8-4f99524e0b55",
-    status: "ACTIVE",
-    firstName: "Nguyễn Trường",
-    profileUrl: "https://haycafe.vn/wp-content/uploads/2022/01/Anh-meo-FF-cute-ngau.jpg",
-    lastName: "Phi",
-    User: {
-      email: "phint.1002@gmail.com",
-      phoneNumber: "0981253505",
-      password: "123456",
-      userType: "ADMIN",
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        loadToken()
+        const resData = await userApi.getAdminInfo()
+        setAdmin(resData.data)
+      }
+      catch (e) {
+        console.log(e)
+      }
     }
-  });
+    fetchData()
+  }, [])
+
 
   const [date, setDate] = React.useState(new Date());
 
@@ -115,88 +118,27 @@ export default function Profile(props) {
                 xs={6}
               >
                 <Typography>Họ & tên đệm</Typography>
-                <TextField fullWidth value={admin.firstName} />
+                <TextField disabled fullWidth value={admin.firstName} />
               </Grid>
               <Grid
                 item
                 xs={6}
               >
                 <Typography>Tên</Typography>
-                <TextField fullWidth value={admin.lastName} />
+                <TextField disabled fullWidth value={admin.lastName} />
               </Grid>
             </Grid>
 
             <Typography style={{
               marginTop: 30
             }}>Email</Typography>
-            <TextField disabled fullWidth value={admin.User.email} />
+            <TextField disabled fullWidth value={admin.email} />
 
             <Typography style={{
               marginTop: 30
             }}>Số điện thoại</Typography>
-            <TextField disabled fullWidth value={admin.User.phoneNumber} />
-
-            <Typography style={{
-              marginTop: 30
-            }}>Mật Khẩu</Typography>
-            <Grid
-              container
-              justifyContent="center"
-              alignItems="center"
-              spacing={1}>
-              <Grid
-                item
-                xs={9}>
-                <FormControl fullWidth variant="outlined">
-                  <OutlinedInput
-                    id="outlined-adornment-password"
-                    type={values.showPassword ? 'text' : 'password'}
-                    disabled
-                    value={values.password}
-                    onChange={handleChange('password')}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          onMouseDown={handleMouseDownPassword}
-                          edge="end"
-                        >
-                          {values.showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                  />
-                </FormControl>
-              </Grid>
-              <Grid
-                item
-                xs={3}>
-                <Button
-                  fullWidth
-                  size="large"
-                  type="submit"
-                  variant="contained"
-                >
-                  Thay mật khẩu
-                </Button>
-              </Grid>
-            </Grid>
-
-
+            <TextField disabled fullWidth value={admin.phoneNumber} />
           </Card>
-
-          <Button
-            sx={{
-              margin:2,
-            }}
-            size="large"
-            type="submit"
-            variant="contained"
-            endIcon={<Edit />}
-          >
-            Chỉnh sửa
-          </Button>
         </ContentStyle>
       </Container>
     </RootStyle>

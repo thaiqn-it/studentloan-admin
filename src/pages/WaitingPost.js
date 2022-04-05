@@ -5,6 +5,7 @@
 import { Grid, Container, Stack, Typography, Pagination, TextField, MenuItem } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { loanApi } from '../apis/loan';
+import ErrorSection from '../components/errorSection';
 // components
 import Page from '../components/Page';
 import { PostCard } from '../components/_dashboard/post';
@@ -14,7 +15,7 @@ import { LOAN_STATUS } from '../constants/enum';
 // ----------------------------------------------------------------------
 
 export default function WaitingPost(props) {
-  const { orderByLastest, initalLimit, initalOffset,initalType } = props
+  const { orderByLastest, initalLimit, initalOffset, initalType } = props
   const [lastPage, setLastPage] = useState(0)
   const [limit, setLimit] = useState(initalLimit)
   const [order, setOrder] = useState(orderByLastest)
@@ -31,6 +32,7 @@ export default function WaitingPost(props) {
   const [optionChoosen, setOptionChoosen] = useState('DESC')
   const [typeChoosen, setTypeChoosen] = useState(LOAN_STATUS.WAITING)
   const [loanList, setLoanList] = useState([])
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,14 +53,7 @@ export default function WaitingPost(props) {
   const checkIsEmpty = (list) => {
     if (list.length <= 0) {
       return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <Typography
-            color='error'
-            variant='h4'
-          >
-            Hiện tại không còn bài viết nào cần duyệt!
-          </Typography>
-        </div>
+        <ErrorSection msg='Hiện tại không còn bài viết nào!'/>
       )
     } else {
       return (
@@ -68,11 +63,11 @@ export default function WaitingPost(props) {
   }
 
   return (
-    <Page title="Danh sách các bài xin vay đang chờ duyệt">
+    <Page title='Danh sách các bài xin vay'>
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Các bài xin vay đang chờ duyệt
+            Danh sách các bài xin vay
           </Typography>
         </Stack>
         <Stack mb={5} direction="row" spacing={1} justifyContent="flex-end">

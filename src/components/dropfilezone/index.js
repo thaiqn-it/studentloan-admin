@@ -25,7 +25,7 @@ const DropFileZone = (props) => {
     if (newFile && isValidInputFiles(newFile)) {
       connectUploadCloud(newFile, e);
     }else{
-        getMsg("Hình ảnh không hợp lệ", "errorDropFile", true);
+        getMsg("Tệp không hợp lệ", "errorDropFile", true);
     }
   };
 

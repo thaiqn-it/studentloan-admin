@@ -33,15 +33,14 @@ export function AuthProvider({ children }) {
 
 export function isAuthenticated() {
     const authState = useAuthState()
-    if (!authState.id) return true
+    if (!authState.admin) return true
 
     return false
 }
-const id = localStorage.getItem(USER_ID)
 const token = localStorage.getItem(JWT_TOKEN)
 
 const initialState = {
-    id: '',
+    admin: null,
     token: token,
     loading: false,
     error: null,
@@ -55,11 +54,11 @@ export const authReducer = (initialState, action) => {
             return {
                 ...initialState,
                 loading: false,
-                id: action.payload.id,
+                admin: action.payload.admin,
                 token: action.payload.token,
             }
         case USER_REDUCER_ACTION.LOG_OUT:
-            return { ...initialState, id: '', token: '' }
+            return { ...initialState, admin: null, token: '' }
         case USER_REDUCER_ACTION.LOGIN_FAILED:
             return {
                 ...initialState,

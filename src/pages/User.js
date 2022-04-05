@@ -25,6 +25,7 @@ import { ListHead, ListToolbar } from '../components/_dashboard/user';
 //
 import { userApi } from '../apis/user';
 import { USER_STATUS } from '../constants/enum';
+import { useNavigate } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
@@ -88,6 +89,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function User() {
+  let navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -124,7 +126,11 @@ export default function User() {
           fullWidth
           size="small"
           type="submit"
-          href={`student/${id}`}
+          // href={`student/${id}`}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate(`../student/${id}`);
+          }}
           variant="contained"
           endIcon={<VisibilityIcon />}
         >
@@ -137,7 +143,11 @@ export default function User() {
           fullWidth
           size="small"
           type="submit"
-          href={`investor/${id}`}
+          // href={`investor/${id}`}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate(`../investor/${id}`);
+          }}
           variant="contained"
           endIcon={<VisibilityIcon />}
         >
@@ -190,9 +200,7 @@ export default function User() {
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={userList.length}
-                  numSelected={selected.length}
                   onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredUsers

@@ -28,14 +28,10 @@ const CHART_DATA = [
   // }
 ];
 
+// 10 năm gần nhất
 const YEAR_DATA = ["2020", "2021", "2022"];
 
-
-
 export default function TransactionDashBoard() {
-
-
-
   const [data, setdata] = useState([
     {
       name: 'Students',
