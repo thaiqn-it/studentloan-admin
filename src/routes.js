@@ -19,6 +19,7 @@ import CreateSchool from './pages/CreateSchool';
 import DetailStudent from './pages/DetailStudent';
 import DetailInvestor from './pages/DetailInvestor';
 import Systemconfig from './pages/SystemConfig';
+import ContractPage from './pages/ContractPage';
 import { LOAN_STATUS } from './constants/enum';
 
 // ----------------------------------------------------------------------
@@ -43,6 +44,7 @@ export default function Router() {
         { path: 'createschool', element: <CreateSchool /> },
         { path: 'profile', element: <Profile /> },
         { path: 'systemconfig', element: <Systemconfig /> },
+        { path: 'contract', element: <ContractPage /> },
         { path: '', element: <DashboardApp /> },
       ]
     },

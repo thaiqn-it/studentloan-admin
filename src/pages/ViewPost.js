@@ -192,23 +192,6 @@ export default function ViewPost() {
     setImgURL(returnArray);
   }
 
-  const generateColor = () => {
-    if (loanHistories[0].type === LOAN_STATUS.WAITING) {
-      return (
-        <Typography color="secondary" variant="h4">
-          {loanHistories[0].type}
-        </Typography>
-      )
-    } else if (loanHistories[0].type === LOAN_STATUS.ONGOING) {
-      return (
-        <Typography color="primary" variant="h4">
-          {loanHistories[0].type}
-        </Typography>
-      )
-    }
-
-  }
-
   return (
     <Page title="Chi tiết bài chờ duyệt">
       <Container sx={{ padding: "3rem 3rem" }} maxWidth="xl">
@@ -274,10 +257,13 @@ export default function ViewPost() {
 
                 <Grid item xs="6" md="12">
                   <Typography variant="h6">Trạng thái</Typography>
-                  {loanHistories[0].type === LOAN_STATUS.WAITING ? (<Typography color="secondary" variant="h4">
-                    {loanHistories[0].type}
-                  </Typography>) : (<Typography color="primary" variant="h4">
-                    {loanHistories[0].type}
+                  {loanHistories[0]?.type === LOAN_STATUS.WAITING ? 
+                  (<Typography color='secondary' variant="h4">
+                    Đang chờ duyệt
+                  </Typography>) 
+                  : 
+                  (<Typography color='primary' variant="h4">
+                    Đang trong tiến độ trả nợ
                   </Typography>)}
                 </Grid>
 
@@ -463,6 +449,8 @@ export default function ViewPost() {
           })}
         </Grid>
 
+        <Divider sx={{ margin: "20px 0px" }} />
+
         <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
           Thành tựu sinh viên đạt được
         </Typography>
@@ -485,6 +473,13 @@ export default function ViewPost() {
             );
           })}
         </Grid>
+
+        {loanHistories[0]?.type===LOAN_STATUS.ONGOING?(
+          <>
+          <Divider sx={{ margin: "20px 0px" }} />
+
+          </>
+        ):(<></>)}
 
         <Divider sx={{ margin: "20px 0px" }} />
         <Grid
@@ -543,7 +538,7 @@ export default function ViewPost() {
               variant="h6"
               component="h2"
             >
-              Chọn tệp đính kèm (.pdf, .png, .jpg)
+              Chọn 1 hoặc nhiều tệp đính kèm (.pdf, .png, .jpg) để giúp cho việc xác thực sinh viên! (nếu có) 
             </Typography>
             <Box sx={{ mt: 2 }}>
               <Box
