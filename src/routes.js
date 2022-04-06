@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
@@ -21,10 +22,28 @@ import DetailInvestor from './pages/DetailInvestor';
 import Systemconfig from './pages/SystemConfig';
 import ContractPage from './pages/ContractPage';
 import { LOAN_STATUS } from './constants/enum';
+import { loadToken } from '../src/apis/index';
+import { userApi } from './apis/user';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
+  const [isLogin,setIsLogin] = useState(false)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        loadToken()
+        const resData = await userApi.getAdminInfo()
+        if(resData.data){
+          setIsLogin(true)
+        }
+      }
+      catch (e) {
+        console.log(e)
+      }
+    }
+    fetchData()
+  }, [])
   return useRoutes([
     {
       path: '/dashboard',
@@ -56,9 +75,9 @@ export default function Router() {
         { path: 'register', element: <Register /> },
         { path: '404', element: <NotFound /> },
         { path: '/', element: <Navigate to="/dashboard" /> },
-        { path: '*', element: <Navigate to="/404" /> }
+        { path: '*', element: <Navigate to={isLogin?'/dashboard':'/login'} replace /> }
       ]
     },
-    { path: '*', element: <Navigate to="/404" replace /> }
+    { path: '*', element: <Navigate to={isLogin?'/dashboard':'/login'} replace /> }
   ]);
 }

@@ -28,7 +28,6 @@ import { Edit, Clear } from "@mui/icons-material";
 import { filter } from "lodash";
 
 function MajorHandle(props) {
-  const majorSchool = props.majorSchool
   const schoolId = props.schoolId
 
   //snackbar
@@ -46,25 +45,12 @@ function MajorHandle(props) {
     setOpenSb(false);
   };
 
-  //
   const TABLE_HEAD = [
     { id: 'name', label: 'Tên ngành', alignRight: false },
     { id: 'isVerified', label: 'Trạng thái', alignRight: false },
     { id: '' }
   ];
 
-  const changeFormatData = (datas) => {
-    datas.map((dataNote) => {
-      dataNote.text = dataNote.name
-      dataNote.parent = dataNote.parentId
-      dataNote.parentId === null ? dataNote.droppable = true : dataNote.droppable = false
-    })
-    return datas
-  }
-  const formatTree = changeFormatData(majorSchool)
-  const [treeData, setTreeData] = useState(formatTree);
-  const [undoTreeData, setUndoTreeData] = useState(formatTree);
-  const handleDrop = (newTree) => setTreeData(newTree);
   const [open, setOpen] = useState(false);
   const [update, setUpdate] = useState(false);
   const [disable, setDisable] = useState(false);
@@ -164,18 +150,6 @@ function MajorHandle(props) {
     setUpdate(!update) 
   }
 
-  const handleTextChange = (id, value) => {
-    const newTree = treeData.map((node) => {
-      if (node.id === id) {
-        return {
-          ...node,
-          text: value,
-        };
-      }
-      return node;
-    });
-    setTreeData(newTree);
-  };
 
   const handleOpenDialog = () => {
     setOpen(true);
@@ -197,13 +171,6 @@ function MajorHandle(props) {
     setFilterName(event.target.value);
   };
 
-  const wontDragAble = (droppable, status) =>{
-    if(droppable===true ||status ==="INACTIVE"){
-      return false
-    }else{
-      return true
-    }
-  }
 
   return (
     <Card
@@ -350,43 +317,6 @@ function MajorHandle(props) {
                 onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </Card>
-            {/* <Tree
-              tree={treeData}
-              rootId={null}
-              // render={(node, options) => {
-              //   if (node.status === "ACTIVE") {
-              //     return (
-              //       <CustomNode
-              //         node={node}
-              //         {...options}
-              //         onDelete={handleDelete}
-              //         onTextChange={handleTextChange}
-              //       />
-              //     );
-              //   }
-              //   else {
-              //     return <></>
-              //   }
-              // }}
-              render={(node, options) => (
-                <CustomNode
-                  node={node}
-                  {...options}
-                  onDelete={handleDelete}
-                  onTextChange={handleTextChange}
-                />
-              )}
-              dragPreviewRender={(monitorProps) => (
-                <CustomDragPreview monitorProps={monitorProps} />
-              )}
-              canDrag={(node)=>wontDragAble(node.droppable, node.status)}
-              onDrop={handleDrop}
-              classes={{
-                root: styles.treeRoot,
-                draggingSource: styles.draggingSource,
-                dropTarget: styles.dropTarget
-              }}
-            /> */}
         </ThemeProvider>
         <Snackbar open={openSb} anchorOrigin={{ vertical, horizontal }} autoHideDuration={3000} onClose={handleClose}>
           <Alert onClose={handleClose} severity={colorMessage} sx={{ width: '100%' }}>

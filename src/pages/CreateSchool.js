@@ -21,7 +21,8 @@ import ArrowBack from '@mui/icons-material/ArrowBack';
 import Page from '../components/Page';
 //api
 import { schoolApi } from '../apis/school';
-import { cityApi } from '../apis/city';
+import { PROVINCEVN } from '../apis/static/provinceVN';
+
 // ----------------------------------------------------------------------
 
 const RootStyle = styled(Page)(({ theme }) => ({
@@ -58,10 +59,14 @@ export default function CreateSchool() {
     navigate("/dashboard/manageschool")
   }
 
-  const getAllDistrict = (code) => {
-    cityApi.getAllDistrict(code).then(res => {
-      setListDistrict(res.data.districts)
-    })
+  const getListCity = (list) => {
+    return list.map(item =>
+      <MenuItem onClick={() => {
+        getAllDistrictInit(item.idProvince)
+        setcity(item.name)
+      }
+      } key={item.name} value={item.name}>{item.name}</MenuItem>
+    )
   }
 
   const getListDistrict = (list) => {
@@ -69,25 +74,18 @@ export default function CreateSchool() {
       <MenuItem onClick={() => {
         setdistrict(item.name)
       }
-      } key={item.code} value={item.name}>{item.name}</MenuItem>
+      } key={item.name} value={item.name}>{item.name}</MenuItem>
     )
   }
 
-  const getListCity = (list) => {
-    return list.map(item =>
-      <MenuItem onClick={() => {
-        getAllDistrict(item.code)
-        setcity(item.name)
-      }
-      } key={item.code} value={item.name}>{item.name}</MenuItem>
-    )
+  const getAllDistrictInit = (id) =>{
+    var district = PROVINCEVN.district.filter(item=>item.idProvince===id)
+    setListDistrict(district)
   }
 
   React.useEffect(() => {
     const fetchData = async () => {
-
-      const listCitiesRes = await cityApi.getAllCity()
-      const listCities = listCitiesRes.data
+      const listCities = PROVINCEVN.province
       setListCity(listCities)
     }
     fetchData()
