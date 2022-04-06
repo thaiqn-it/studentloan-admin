@@ -34,7 +34,6 @@ export function AuthProvider({ children }) {
 export function isAuthenticated() {
     const authState = useAuthState()
     if (!authState.admin) return true
-
     return false
 }
 const token = localStorage.getItem(JWT_TOKEN)

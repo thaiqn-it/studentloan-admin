@@ -131,18 +131,6 @@ export default function DetailAccountCard(props) {
                                 value={major.name}
                             />
                         </Grid>
-
-                        <Grid item xs={12} md={12}>
-                            <Typography variant="h6" fontWeight="regular">
-                                Địa chỉ
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                disabled
-                                type="text"
-                                value={student.address}
-                            />
-                        </Grid>
                     </Grid>
                 </Box>
             </Paper>

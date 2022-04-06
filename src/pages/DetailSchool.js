@@ -23,11 +23,8 @@ import Page from '../components/Page';
 import * as React from 'react';
 import Edit from '@mui/icons-material/Edit';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-//faker
-import faker from 'faker';
 //Api
 import { schoolApi } from '../apis/school';
-import {cityApi} from '../apis/city'
 import MajorHandle from '../components/major/MajorHandle';
 import {PROVINCEVN} from '../apis/static/provinceVN'
 

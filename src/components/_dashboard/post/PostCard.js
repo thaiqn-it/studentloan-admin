@@ -6,7 +6,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import moneyFill from '@iconify/icons-fa-solid/money-bill-wave';
 // material
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Link, Card, Grid, Avatar, Typography, CardContent } from '@mui/material';
+import { Box, Link, Card, Grid, Avatar, Typography, CardContent, Stack } from '@mui/material';
 // utils
 import { fDate } from '../../../utils/formatTime';
 import { convertCurrencyVN } from '../../../utils/formatNumber';
@@ -30,12 +30,8 @@ const TitleStyle = styled(Link)({
 });
 
 const AvatarStyle = styled(Avatar)(({ theme }) => ({
-  zIndex: 9,
   width: 32,
   height: 32,
-  position: 'absolute',
-  left: theme.spacing(3),
-  bottom: theme.spacing(-2)
 }));
 
 const InfoStyle = styled('div')(({ theme }) => ({
@@ -64,10 +60,10 @@ BlogPostCard.propTypes = {
 export default function BlogPostCard({ post, index }) {
   const { totalMoney, id, title, postCreatedAt, Student, LoanHistories } = post;
 
-  const getIcon = (type) =>{
-    if(type==='WAITING'){
+  const getIcon = (type) => {
+    if (type === 'WAITING') {
       return 'https://media.istockphoto.com/vectors/flip-hourglass-icon-to-keep-track-of-the-elapsed-time-vector-id1322169400?b=1&k=20&m=1322169400&s=170667a&w=0&h=qkub6UGQNWBWvC2GdIXKHVMfgif5ahag3_3iZ0Mj56I='
-    }else if(type==='ONGOING'){
+    } else if (type === 'ONGOING') {
       return 'https://www.pngkit.com/png/detail/302-3023079_progress-icon.png'
     }
   }
@@ -112,13 +108,9 @@ export default function BlogPostCard({ post, index }) {
               position: 'absolute',
             }}
           />
-          <AvatarStyle
-            alt={Student.User.firstName}
-            src={getIcon(LoanHistories[0]?.type)}
-           
-          />
-          <CoverImgStyle alt={title} 
-          src={Student.User.profileUrl} 
+
+          <CoverImgStyle alt={title}
+            src={Student.User.profileUrl}
           />
         </CardMediaStyle>
 
@@ -167,20 +159,39 @@ export default function BlogPostCard({ post, index }) {
             {title}
           </TitleStyle>
 
-          <InfoStyle>
-            {POST_INFO.map((info, index) => (
-              <Box
-                key={index}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  ml: index === 0 ? 0 : 1.5,
-                }}
+          <Stack
+            direction='row'
+            justifyContent='space-between'
+            alignItems='center'
+          >
+            <div
               >
-                {getPost_Infor(info)}
-              </Box>
-            ))}
-          </InfoStyle>
+              <AvatarStyle
+                alt={Student.User.firstName}
+                src={getIcon(LoanHistories[0]?.type)}
+              />
+            </div>
+
+            <div>
+              <InfoStyle>
+                {POST_INFO.map((info, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      ml: index === 0 ? 0 : 1.5,
+                    }}
+                  >
+                    {getPost_Infor(info)}
+                  </Box>
+                ))}
+              </InfoStyle>
+            </div>
+
+          </Stack>
+
+
         </CardContent>
       </Card>
     </Grid>

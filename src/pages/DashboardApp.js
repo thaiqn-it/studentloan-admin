@@ -14,7 +14,6 @@ import {
   TransactionDashBoard,
   Reports,
 } from '../components/_dashboard/app';
-import { useAuthState } from '../context/AuthContext';
 
 // ----------------------------------------------------------------------
 

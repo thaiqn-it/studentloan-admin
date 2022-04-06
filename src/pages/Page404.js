@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
 import { Box, Button, Typography, Container } from '@mui/material';
@@ -20,6 +20,7 @@ const RootStyle = styled(Page)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Page404() {
+  const navigate = useNavigate()
   return (
     <RootStyle title="404 Page Not Found">
       <Container>
@@ -43,7 +44,11 @@ export default function Page404() {
               />
             </motion.div>
 
-            <Button to="/" size="large" variant="contained" component={RouterLink}>
+            <Button 
+            onClick={(e)=>{
+              e.preventDefault()
+              navigate('../dashboard')
+            }} size="large" variant="contained">
               Quay về trang chính
             </Button>
           </Box>

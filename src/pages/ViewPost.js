@@ -16,7 +16,9 @@ import {
   Alert,
   Link,
   IconButton,
+  Tab,
 } from "@mui/material";
+import { TabContext, TabList, TabPanel, LoadingButton } from '@mui/lab';
 //mui icons
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -25,7 +27,6 @@ import ArrowBack from "@mui/icons-material/ArrowBack";
 import React, { useEffect, useState } from "react";
 import { convertCurrencyVN } from "../utils/formatNumber";
 
-import { LoadingButton } from "@mui/lab";
 import { useNavigate, useParams } from "react-router-dom";
 import { loanApi } from "../apis/loan";
 import moment from "moment";
@@ -43,6 +44,7 @@ import { loanHistoryImageApi } from "../apis/loanHistoryImage";
 import Page from "../components/Page";
 import { loadToken } from "../apis";
 import { userApi } from "../apis/user";
+import ContractPage from '../pages/ContractPage'
 
 export default function ViewPost() {
   const { id } = useParams();
@@ -74,8 +76,12 @@ export default function ViewPost() {
   const [colorSnackBar, setColorSnackBar] = useState("");
   const handleCloseSnackBar = () => setOpenSnackBar(false);
 
-  useEffect(() => {
+  const [tab, setTab] = useState(1);
+  const handleChangeTabs = (event, newValue) => {
+    setTab(newValue);
+  };
 
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await loanApi.getOne(id);
@@ -91,7 +97,6 @@ export default function ViewPost() {
         const resData = await userApi.getAdminInfo()
         setAdminId(resData.data.id)
       } catch (e) {
-        console.log(e)
         navigate('/404')
       }
     };
@@ -198,325 +203,348 @@ export default function ViewPost() {
         <Typography variant="h4" onClick={onBack}>
           <ArrowBack />
         </Typography>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            margin: 20,
-          }}
-        >
-          <Typography variant="h4">{loan.title}</Typography>
-        </div>
-        <Card
-          elevation={6}
-          sx={{
-            padding: "1.5rem",
-            borderRadius: "10px",
-          }}
-        >
-          <Typography color="secondary" variant="h4">
-            Các thông tin cơ bản
-          </Typography>
-          <Grid
-            container
-            spacing="15"
-            sx={{
-              marginTop: "2px",
-            }}
-          >
-            <Grid item xs="12" md="7">
-              {loanMedia.filter((item) => item.type === LOANMEDIA_TYPE.VIDEO)
-                .length ? (
-                loanMedia
-                  .filter((item) => item.type === LOANMEDIA_TYPE.VIDEO)
-                  .map((item) => (
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <ReactPlayer
-                        key={item.id}
-                        controls={true}
-                        loop
-                        url={item.imageUrl}
-                      />
-                    </div>
-                  ))
-              ) : (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  <ImageModal component="img" image={imgNoVideo} />
-                </div>
-              )}
-            </Grid>
-            <Grid item xs="12" md="5">
-              <Grid container spacing="5">
-                <Grid item xs="6" md="12">
-                  <Typography variant="h6">Cần vay</Typography>
-                  <Typography color="primary" variant="h4">
-                    {convertCurrencyVN(loan.totalMoney)}
-                  </Typography>
-                </Grid>
+        <TabContext value={tab}>
+          {
+            loanHistories[0]?.type === LOAN_STATUS.ONGOING ? (
+              <TabList value={tab} onChange={handleChangeTabs} centered>
+                <Tab label="Thông tin cơ bản" value={1} />
+                <Tab label="Hợp đồng" value={2} />
+                <Tab label="Lịch trình trả nợ" value={3} />
+              </TabList>
+            ) : (<></>)
+          }
 
-                <Grid item xs="6" md="12">
-                  <Typography variant="h6">Trạng thái</Typography>
-                  {loanHistories[0]?.type === LOAN_STATUS.WAITING ? 
-                  (<Typography color='secondary' variant="h4">
-                    Đang chờ duyệt
-                  </Typography>) 
-                  : 
-                  (<Typography color='primary' variant="h4">
-                    Đang trong tiến độ trả nợ
-                  </Typography>)}
-                </Grid>
-
-                <Grid item xs="6" md="12" sx={{ marginTop: "1rem" }}>
-                  <Typography variant="h6">Vay trong</Typography>
-                  <Typography variant="h5">{loan.duration} tháng</Typography>
-                </Grid>
-
-                <Grid item xs="6" md="12" sx={{ marginTop: "1rem" }}>
-                  <Typography variant="h6">
-                    Thời gian ra trường dự kiến
-                  </Typography>
-                  <Typography variant="h5">
-                    {generateDuration(
-                      loan.postCreatedAt,
-                      loan.expectedGraduationTime
-                    )}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Card>
-
-        <Divider sx={{ margin: "20px 0px" }} />
-
-        <Card
-          elevation={6}
-          style={{
-            padding: "1.5rem",
-            borderRadius: "10px",
-          }}
-        >
-          <Typography color="secondary" variant="h4">
-            Thông tin sơ lược của sinh viên
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid
-              item
-              xs={12}
-              sx={{
+          <TabPanel value={1}>
+            <div
+              style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                margin: 20,
               }}
-              md={3}
             >
-              <Avatar
-                onClick={() => navigate(`/dashboard/student/${user.id}`)}
-                sx={{ height: "200px", width: "200px" }}
-                alt="Student"
-                bgColor="light"
-                src={user.profileUrl}
-              />
-            </Grid>
-            <Grid item xs={12} md={9}>
+              <Typography variant="h4">{loan.title}</Typography>
+            </div>
+            <Card
+              elevation={6}
+              sx={{
+                padding: "1.5rem",
+                borderRadius: "10px",
+              }}
+            >
+              <Typography color="secondary" variant="h4">
+                Các thông tin cơ bản
+              </Typography>
+              <Grid
+                container
+                spacing="15"
+                sx={{
+                  marginTop: "2px",
+                }}
+              >
+                <Grid item xs="12" md="7">
+                  {loanMedia.filter((item) => item.type === LOANMEDIA_TYPE.VIDEO)
+                    .length ? (
+                    loanMedia
+                      .filter((item) => item.type === LOANMEDIA_TYPE.VIDEO)
+                      .map((item) => (
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                          <ReactPlayer
+                            key={item.id}
+                            controls={true}
+                            loop
+                            url={item.imageUrl}
+                          />
+                        </div>
+                      ))
+                  ) : (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <ImageModal component="img" image={imgNoVideo} />
+                    </div>
+                  )}
+                </Grid>
+                <Grid item xs="12" md="5">
+                  <Grid container spacing="5">
+                    <Grid item xs="6" md="12">
+                      <Typography variant="h6">Cần vay</Typography>
+                      <Typography color="primary" variant="h4">
+                        {convertCurrencyVN(loan.totalMoney)}
+                      </Typography>
+                    </Grid>
+
+                    <Grid item xs="6" md="12">
+                      <Typography variant="h6">Trạng thái</Typography>
+                      {loanHistories[0]?.type === LOAN_STATUS.WAITING ?
+                        (<Typography color='secondary' variant="h4">
+                          Đang chờ duyệt
+                        </Typography>)
+                        :
+                        (<Typography color='primary' variant="h4">
+                          Đang trong tiến độ trả nợ
+                        </Typography>)}
+                    </Grid>
+
+                    <Grid item xs="6" md="12" sx={{ marginTop: "1rem" }}>
+                      <Typography variant="h6">Vay trong</Typography>
+                      <Typography variant="h5">{loan.duration} tháng</Typography>
+                    </Grid>
+
+                    <Grid item xs="6" md="12" sx={{ marginTop: "1rem" }}>
+                      <Typography variant="h6">
+                        Thời gian ra trường dự kiến
+                      </Typography>
+                      <Typography variant="h5">
+                        {generateDuration(
+                          loan.postCreatedAt,
+                          loan.expectedGraduationTime
+                        )}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Card>
+
+            <Divider sx={{ margin: "20px 0px" }} />
+
+            <Card
+              elevation={6}
+              style={{
+                padding: "1.5rem",
+                borderRadius: "10px",
+              }}
+            >
+              <Typography color="secondary" variant="h4">
+                Thông tin sơ lược của sinh viên
+              </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="h6" fontWeight="regular">
-                    Họ
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    disabled
-                    type="text"
-                    placeholder="Họ"
-                    value={user.firstName}
+                <Grid
+                  item
+                  xs={12}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  md={3}
+                >
+                  <Avatar
+                    onClick={() => navigate(`/dashboard/student/${user.id}`)}
+                    sx={{ height: "200px", width: "200px" }}
+                    alt="Student"
+                    bgColor="light"
+                    src={user.profileUrl}
                   />
                 </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="h6" fontWeight="regular">
-                    Tên
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    disabled
-                    type="text"
-                    placeholder="Họ"
-                    value={user.lastName}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="h6" fontWeight="regular">
-                    Trường
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    disabled
-                    type="text"
-                    placeholder="phone number"
-                    value={school.name}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="h6" fontWeight="regular">
-                    Chuyên ngành
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    disabled
-                    type="text"
-                    placeholder="phone number"
-                    value={major.name}
-                  />
+                <Grid item xs={12} md={9}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="h6" fontWeight="regular">
+                        Họ
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        disabled
+                        type="text"
+                        placeholder="Họ"
+                        value={user.firstName}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="h6" fontWeight="regular">
+                        Tên
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        disabled
+                        type="text"
+                        placeholder="Họ"
+                        value={user.lastName}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="h6" fontWeight="regular">
+                        Trường
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        disabled
+                        type="text"
+                        placeholder="phone number"
+                        value={school.name}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="h6" fontWeight="regular">
+                        Chuyên ngành
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        disabled
+                        type="text"
+                        placeholder="phone number"
+                        value={major.name}
+                      />
+                    </Grid>
+                  </Grid>
                 </Grid>
               </Grid>
+            </Card>
+
+            <Divider sx={{ margin: "20px 0px" }} />
+
+            <Card
+              elevation={6}
+              style={{
+                padding: "1.5rem",
+                borderRadius: "10px",
+              }}
+            >
+              <Typography color="secondary" variant="h4">
+                Mô tả
+              </Typography>
+              <Typography variant="h6" sx={{ marginTop: "10px" }}>
+                {loan.description}
+              </Typography>
+            </Card>
+
+            <Divider sx={{ margin: "20px 0px" }} />
+
+            <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
+              Thông tin bổ sung
+            </Typography>
+            <Grid container spacing={2}>
+              {loanMedia.map((item) => {
+                return item.type === LOANMEDIA_TYPE.DEMANDNOTE ? (
+                  <Grid item key={item.id} xs={12} md={6}>
+                    <Card>
+                      <CardActionArea>
+                        <ImageModal
+                          component="img"
+                          height="300"
+                          image={item.imageUrl}
+                          alt={item.description}
+                        />
+                        <CardContent>
+                          <Typography variant="h5">{item.description}</Typography>
+                        </CardContent>
+                      </CardActionArea>
+                    </Card>
+                  </Grid>
+                ) : (
+                  <></>
+                );
+              })}
             </Grid>
-          </Grid>
-        </Card>
 
-        <Divider sx={{ margin: "20px 0px" }} />
+            <Divider sx={{ margin: "20px 0px" }} />
 
-        <Card
-          elevation={6}
-          style={{
-            padding: "1.5rem",
-            borderRadius: "10px",
-          }}
-        >
-          <Typography color="secondary" variant="h4">
-            Mô tả
-          </Typography>
-          <Typography variant="h6" sx={{ marginTop: "10px" }}>
-            {loan.description}
-          </Typography>
-        </Card>
+            <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
+              Chứng nhận sinh viên
+            </Typography>
+            <Grid container spacing={2}>
+              {loanMedia.map((item) => {
+                return item.type === LOANMEDIA_TYPE.STUDENTCERT ? (
+                  <Grid item xs={12} key={item.id} md={6}>
+                    <Card>
+                      <CardActionArea>
+                        <ImageModal
+                          component="img"
+                          height="300"
+                          image={item.imageUrl}
+                          alt={item.description}
+                        />
+                        <CardContent>
+                          <Typography variant="h5">{item.description}</Typography>
+                        </CardContent>
+                      </CardActionArea>
+                    </Card>
+                  </Grid>
+                ) : (
+                  <></>
+                );
+              })}
+            </Grid>
 
-        <Divider sx={{ margin: "20px 0px" }} />
+            <Divider sx={{ margin: "20px 0px" }} />
 
-        <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
-          Thông tin bổ sung
-        </Typography>
-        <Grid container spacing={2}>
-          {loanMedia.map((item) => {
-            return item.type === LOANMEDIA_TYPE.DEMANDNOTE ? (
-              <Grid item key={item.id} xs={12} md={6}>
-                <Card>
-                  <CardActionArea>
-                    <ImageModal
-                      component="img"
-                      height="300"
-                      image={item.imageUrl}
-                      alt={item.description}
-                    />
-                    <CardContent>
-                      <Typography variant="h5">{item.description}</Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            ) : (
-              <></>
-            );
-          })}
-        </Grid>
+            <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
+              Thành tựu sinh viên đạt được
+            </Typography>
+            <Grid container spacing={2}>
+              {archievements.map((item) => {
+                return (
+                  <Grid item xs={12} key={item.id} md={6}>
+                    <Card>
+                      <ImageModal
+                        component="img"
+                        height="300"
+                        image={item.imageUrl}
+                        alt={item.description}
+                      />
+                      <CardContent>
+                        <Typography variant="h5">{item.description}</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
+            </Grid>
+            {
+              loanHistories[0]?.type === LOAN_STATUS.WAITING ? (
+                <>
+                  <Divider sx={{ margin: "20px 0px" }} />
+                  <Grid
+                    container
+                    sx={{
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                    }}
+                    width={"70%"}
+                    spacing={2}
+                  >
+                    <Grid item xs={6}>
+                      <LoadingButton
+                        onClick={handleOpenDeniedDialog}
+                        fullWidth
+                        size="large"
+                        type="submit"
+                        color="error"
+                        variant="contained"
+                        startIcon={<CloseIcon />}
+                      >
+                        Từ chối
+                      </LoadingButton>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <LoadingButton
+                        onClick={handleOpenApproveDialog}
+                        fullWidth
+                        size="large"
+                        type="submit"
+                        variant="contained"
+                        endIcon={<CheckIcon />}
+                      >
+                        Duyệt
+                      </LoadingButton>
+                    </Grid>
+                  </Grid>
+                </>
+              ) : (<></>)
+            }
 
-        <Divider sx={{ margin: "20px 0px" }} />
+          </TabPanel>
 
-        <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
-          Chứng nhận sinh viên
-        </Typography>
-        <Grid container spacing={2}>
-          {loanMedia.map((item) => {
-            return item.type === LOANMEDIA_TYPE.STUDENTCERT ? (
-              <Grid item xs={12} key={item.id} md={6}>
-                <Card>
-                  <CardActionArea>
-                    <ImageModal
-                      component="img"
-                      height="300"
-                      image={item.imageUrl}
-                      alt={item.description}
-                    />
-                    <CardContent>
-                      <Typography variant="h5">{item.description}</Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            ) : (
-              <></>
-            );
-          })}
-        </Grid>
+          <TabPanel
+            value={2}>
+              <ContractPage loanId = {id}/>
+          </TabPanel>
 
-        <Divider sx={{ margin: "20px 0px" }} />
-
-        <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
-          Thành tựu sinh viên đạt được
-        </Typography>
-        <Grid container spacing={2}>
-          {archievements.map((item) => {
-            return (
-              <Grid item xs={12} key={item.id} md={6}>
-                <Card>
-                  <ImageModal
-                    component="img"
-                    height="300"
-                    image={item.imageUrl}
-                    alt={item.description}
-                  />
-                  <CardContent>
-                    <Typography variant="h5">{item.description}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            );
-          })}
-        </Grid>
-
-        {loanHistories[0]?.type===LOAN_STATUS.ONGOING?(
-          <>
-          <Divider sx={{ margin: "20px 0px" }} />
-
-          </>
-        ):(<></>)}
-
-        <Divider sx={{ margin: "20px 0px" }} />
-        <Grid
-          container
-          sx={{
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
-          width={"70%"}
-          spacing={2}
-        >
-          <Grid item xs={6}>
-            <LoadingButton
-              onClick={handleOpenDeniedDialog}
-              fullWidth
-              size="large"
-              type="submit"
-              color="error"
-              variant="contained"
-              startIcon={<CloseIcon />}
-            >
-              Từ chối
-            </LoadingButton>
-          </Grid>
-          <Grid item xs={6}>
-            <LoadingButton
-              onClick={handleOpenApproveDialog}
-              fullWidth
-              size="large"
-              type="submit"
-              variant="contained"
-              endIcon={<CheckIcon />}
-            >
-              Duyệt
-            </LoadingButton>
-          </Grid>
-        </Grid>
+          <TabPanel
+            value={3}>
+            <ContractPage />
+          </TabPanel>
+        </TabContext>
         <Dialog
           maxWidth="xl"
           open={isOpenApproveDialog}
@@ -538,7 +566,7 @@ export default function ViewPost() {
               variant="h6"
               component="h2"
             >
-              Chọn 1 hoặc nhiều tệp đính kèm (.pdf, .png, .jpg) để giúp cho việc xác thực sinh viên! (nếu có) 
+              Chọn 1 hoặc nhiều tệp đính kèm (.pdf, .png, .jpg) để giúp cho việc xác thực sinh viên! (nếu có)
             </Typography>
             <Box sx={{ mt: 2 }}>
               <Box

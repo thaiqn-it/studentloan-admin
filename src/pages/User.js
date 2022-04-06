@@ -126,7 +126,6 @@ export default function User() {
           fullWidth
           size="small"
           type="submit"
-          // href={`student/${id}`}
           onClick={(e) => {
             e.preventDefault();
             navigate(`../student/${id}`);
@@ -143,7 +142,6 @@ export default function User() {
           fullWidth
           size="small"
           type="submit"
-          // href={`investor/${id}`}
           onClick={(e) => {
             e.preventDefault();
             navigate(`../investor/${id}`);

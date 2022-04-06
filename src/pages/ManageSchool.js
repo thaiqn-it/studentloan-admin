@@ -1,7 +1,7 @@
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // material
 import {
   Card,
@@ -70,6 +70,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function ManageSchool() {
+  const navigate = useNavigate()
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
@@ -180,7 +181,10 @@ export default function ManageSchool() {
                               fullWidth
                               size="small"
                               type="submit"
-                              href={`/dashboard/detailschool/${id}`}
+                              onClick={(e)=>{
+                                e.preventDefault()
+                                navigate(`../detailschool/${id}`)
+                              }}
                               variant="contained"
                               endIcon={<Edit />}
                             >

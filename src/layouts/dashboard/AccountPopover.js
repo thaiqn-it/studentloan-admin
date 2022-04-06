@@ -131,7 +131,7 @@ export default function AccountPopover() {
         ))}
 
         <Box sx={{ p: 2, pt: 1.5 }}>
-          <Button onClick={handleLogout} fullWidth color="inherit" variant="outlined" href="/login">
+          <Button onClick={handleLogout} fullWidth color="inherit" variant="outlined">
             Đăng xuất
           </Button>
         </Box>

@@ -53,7 +53,7 @@ export default function WaitingPost(props) {
   const checkIsEmpty = (list) => {
     if (list.length <= 0) {
       return (
-        <ErrorSection msg='Hiện tại không còn bài viết nào!'/>
+        <ErrorSection msg='Hiện tại không còn bài viết nào!' />
       )
     } else {
       return (
@@ -70,22 +70,37 @@ export default function WaitingPost(props) {
             Danh sách các bài xin vay
           </Typography>
         </Stack>
-        <Stack mb={5} direction="row" spacing={1} justifyContent="flex-end">
+        <Stack mb={5} direction="row" spacing={2} justifyContent="flex-start">
           <div>
-            <TextField select size="small" value={typeChoosen}
-              onChange={(e) => {
-                setTypeChoosen(e.target.value)
-                setType(e.target.value)
-              }}
+            <Stack
+              direction='row'
+              justifyContent='space-between'
+              alignItems='center'
+              spacing={1}
             >
-              {typeOption.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
+              <Typography variant='h5'>Trạng thái:</Typography>
+              <TextField select size="small" value={typeChoosen}
+                onChange={(e) => {
+                  setTypeChoosen(e.target.value)
+                  setType(e.target.value)
+                }}
+              >
+                {typeOption.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
           </div>
           <div>
+          <Stack
+              direction='row'
+              justifyContent='space-between'
+              alignItems='center'
+              spacing={1}
+            >
+              <Typography variant='h5'>Sắp xếp theo thời gian:</Typography>
             <TextField select size="small" value={optionChoosen}
               onChange={(e) => {
                 setOptionChoosen(e.target.value)
@@ -98,6 +113,7 @@ export default function WaitingPost(props) {
                 </MenuItem>
               ))}
             </TextField>
+            </Stack>
           </div>
         </Stack>
 

@@ -14,8 +14,13 @@ const countLoan = (type) => {
     return defaultInstance.get(`/loan/countLoan/${type}`);
 };
 
+const countLoanBaseTime = (data) => {
+    return defaultInstance.post("/loan/countLoan",data);
+};
+
 export const loanApi = {
     getAllWaiting,
     getOne,
-    countLoan
+    countLoan,
+    countLoanBaseTime
 };

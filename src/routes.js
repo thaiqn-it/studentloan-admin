@@ -22,19 +22,57 @@ import DetailInvestor from './pages/DetailInvestor';
 import Systemconfig from './pages/SystemConfig';
 import ContractPage from './pages/ContractPage';
 import { LOAN_STATUS } from './constants/enum';
-import { loadToken } from '../src/apis/index';
 import { userApi } from './apis/user';
+import { getJWToken } from './constants';
+import { loadToken } from '../src/apis/index';
 
 // ----------------------------------------------------------------------
 
+const routes = (isLogin) => [
+  {
+    path: '/dashboard',
+    element: isLogin?<DashboardLayout />:<Navigate to='../login'/>,
+    children: [
+      { element: <Navigate to="/dashboard/app" replace /> },
+      { path: 'app', element: <DashboardApp /> },
+      { path: 'user', element: <User /> },
+      { path: 'student/:id', element: <DetailStudent /> },
+      { path: 'investor/:id', element: <DetailInvestor /> },
+      { path: 'waitingpost', element: <WaitingPost initalType={LOAN_STATUS.WAITING} orderByLastest='DESC' initalLimit={8} initalOffset={0} /> },
+      { path: 'manageschool', element: <ManageSchool /> },
+      { path: 'viewlistcontract', element: <ViewListContract /> },
+      { path: 'viewtransactions', element: <ViewTransactions /> },
+      { path: 'viewPost/:id', element: <ViewPost /> },
+      { path: 'detailschool/:id', element: <DetailSchool /> },
+      { path: 'createschool', element: <CreateSchool /> },
+      { path: 'profile', element: <Profile /> },
+      { path: 'systemconfig', element: <Systemconfig /> },
+      { path: 'contract', element: <ContractPage /> },
+      { path: '', element: <DashboardApp /> },
+    ]
+  },
+  {
+    path: '/',
+    element: isLogin?<LogoOnlyLayout />:<Navigate to ='./login' replace/>,
+    children: [
+      { path: 'register', element: <Register /> },
+      { path: '404', element: <NotFound /> },
+    ]
+  },
+  { path: '/login', element: isLogin?<Navigate to ='../dashboard' replace/> :<Login/> },
+  { path: '', element: isLogin?<Navigate to ='../dashboard' replace/> :<Login/> },
+]
+
 export default function Router() {
-  const [isLogin,setIsLogin] = useState(false)
+  const [isLogin, setIsLogin] = useState(false)
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if (!getJWToken()) { return }
         loadToken()
         const resData = await userApi.getAdminInfo()
-        if(resData.data){
+        if (resData.data) {
           setIsLogin(true)
         }
       }
@@ -43,41 +81,7 @@ export default function Router() {
       }
     }
     fetchData()
-  }, [])
-  return useRoutes([
-    {
-      path: '/dashboard',
-      element: <DashboardLayout />,
-      children: [
-        { element: <Navigate to="/dashboard/app" replace /> },
-        { path: 'app', element: <DashboardApp /> },
-        { path: 'user', element: <User /> },
-        { path: 'student/:id', element: <DetailStudent /> },
-        { path: 'investor/:id', element: <DetailInvestor /> },
-        { path: 'waitingpost', element: <WaitingPost initalType={LOAN_STATUS.WAITING} orderByLastest='DESC' initalLimit={8} initalOffset={0} /> },
-        { path: 'manageschool', element: <ManageSchool /> },
-        { path: 'viewlistcontract', element: <ViewListContract /> },
-        { path: 'viewtransactions', element: <ViewTransactions /> },
-        { path: 'viewPost/:id', element: <ViewPost /> },
-        { path: 'detailschool/:id', element: <DetailSchool /> },
-        { path: 'createschool', element: <CreateSchool /> },
-        { path: 'profile', element: <Profile /> },
-        { path: 'systemconfig', element: <Systemconfig /> },
-        { path: 'contract', element: <ContractPage /> },
-        { path: '', element: <DashboardApp /> },
-      ]
-    },
-    {
-      path: '/',
-      element: <LogoOnlyLayout />,
-      children: [
-        { path: 'login', element: <Login /> },
-        { path: 'register', element: <Register /> },
-        { path: '404', element: <NotFound /> },
-        { path: '/', element: <Navigate to="/dashboard" /> },
-        { path: '*', element: <Navigate to={isLogin?'/dashboard':'/login'} replace /> }
-      ]
-    },
-    { path: '*', element: <Navigate to={isLogin?'/dashboard':'/login'} replace /> }
-  ]);
+  })
+
+  return useRoutes(routes(isLogin));
 }
