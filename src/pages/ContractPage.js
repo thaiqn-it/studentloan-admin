@@ -1,149 +1,225 @@
 import React, { useEffect, useState } from 'react'
-import { Document, Page, pdfjs } from 'react-pdf'
-import { Box, Container, Divider, Grid, Button, TextField, Stack, Typography } from '@mui/material'
+import { pdfjs } from 'react-pdf'
+import {Card, Button, TextField, Stack, Typography, Link, TableContainer, Table, TableBody, TableCell, TableRow, TablePagination } from '@mui/material'
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
-import { imageApi } from '../apis/imageApi'
-
-import DownloadIcon from '@mui/icons-material/Download'
-import { contractApi } from '../apis/contractApi';
 import { investmentApi } from '../apis/investmentApi';
+import { fDate } from '../utils/formatTime';
+import { sentenceCase } from 'change-case';
+import { ListHead, ListToolbar } from '../components/_dashboard/user';
+import Scrollbar from '../components/Scrollbar';
+import Label from '../components/Label';
+import SearchNotFound from '../components/SearchNotFound';
+import { filter } from 'lodash';
+
+const TABLE_HEAD = [
+    { id: 'contractCode', label: 'Mã hợp đồng', alignRight: false },
+    { id: 'createdAt', label: 'Ngày tạo', alignRight: false },
+    { id: 'updatedAt', label: 'Ngày cập nhật', alignRight: false },
+    { id: 'status', label: 'Trạng thái', alignRight: false },
+    { id: 'nameFile', label: 'Tên hợp đồng', alignRight: false }
+];
+
+function descendingComparator(a, b, orderBy) {
+    if (b[orderBy] < a[orderBy]) {
+        return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+        return 1;
+    }
+    return 0;
+}
+
+function getComparator(order, orderBy) {
+    return order === 'desc'
+        ? (a, b) => descendingComparator(a, b, orderBy)
+        : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+function applySortFilter(array, comparator, query) {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+        const order = comparator(a[0], b[0]);
+        if (order !== 0) return order;
+        return a[1] - b[1];
+    });
+    if (query) {
+        return filter(array, (_contract) => _contract.contractCode.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    }
+    return stabilizedThis.map((el) => el[0]);
+}
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
 export default function App(props) {
     const { loanId } = props
     const [numPages, setNumPages] = useState(null)
+    const [duration, setDuration] = useState(0)
     const [listContract, setListContract] = useState([])
-    
+    const [page, setPage] = useState(0);
+    const [order, setOrder] = useState('asc');
+    const [orderBy, setOrderBy] = useState('contractCode');
+    const [filterCode, setFilterCode] = useState('');
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
     useEffect(() => {
         const fetchData = async () => {
             var arrContract = []
             const resInvestment = await investmentApi.findAllByLoanId(loanId)
-            resInvestment.data.map(async item => {
-                const resContract = await contractApi.findByInvestmentId(item.id)
-                arrContract.push(resContract.data)
+            resInvestment.data.map(item => {
+                arrContract.push(item.Contract)
             })
             setListContract(arrContract)
         }
         fetchData()
     }, [])
 
+    const handleRequestSort = (event, property) => {
+        const isAsc = orderBy === property && order === 'asc';
+        setOrder(isAsc ? 'desc' : 'asc');
+        setOrderBy(property);
+    };
 
-    function onDocumentLoadSuccess({ numPages }) {
-        setNumPages(numPages)
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    const handleFilterByCode = (event) => {
+        setFilterCode(event.target.value);
+    };
+
+    function getFileName(url) {
+        var splittedArr = url.split("/");
+        var name = splittedArr[splittedArr.length - 1];
+        // var fileName = name.substring(name.indexOf("-") + 1, name.length);
+        return name;
     }
 
-    const onDownload = async () => {
-        await imageApi
-            .downloadFileURL(
-                'https://res.cloudinary.com/larrytran/image/upload/v1648997077/pdf/hmq3b48dybfpn1mvfqsa.pdf'
-            )
-            .then((response) => {
-                const url = window.URL.createObjectURL(
-                    new Blob([response.data])
-                )
-                const link = document.createElement('a')
-                link.href = url
-                link.setAttribute('download', `hopdong-${id}.pdf`) //or any other extension
-                document.body.appendChild(link)
-                link.click()
-                document.body.removeChild(link)
-            })
-    }
+    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listContract.length) : 0;
+
+    const filteredcontracts = applySortFilter(listContract, getComparator(order, orderBy), filterCode);
+
+    const isContractNotFound = filteredcontracts.length === 0;
 
     const handleRenewalContract = async () => {
         console.log('renewal contract')
     }
     return (
-        <Box>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <>
+            <div
+                style={{
+                    padding: 1,
+                    direction: 'row',
+                    display: 'flex', justifyContent: 'center', alignItems: 'center',
+                }}>
+                <Typography margin={0.5}>Nhập số tháng để gia hạn:</Typography>
+                <TextField sx={{margin:0.5}} type='number' onChange={(e) => setDuration(e.target.value)} value={duration} />
                 <Button
                     startIcon={<AccessTimeIcon />}
                     onClick={handleRenewalContract}
                     variant="contained"
                     color="warning"
-                    sx={{ borderRadius: 1 }}
+                    sx={{ borderRadius: 1, margin:0.5 }}
                 >
                     Gia hạn
                 </Button>
             </div>
+            <Card
+                sx={{
+                    padding: 1
+                }}>
 
+                <ListToolbar
+                    target={"Mã hợp đồng"}
+                    filterName={filterCode}
+                    onFilterName={handleFilterByCode}
+                />
 
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'row'
-                }}
-            >
-                {
-                    listContract.map(item => {
-                        return (
-                            <div>
-                                <Stack direction="row" spacing={1} justifyContent="flex-end">
-                                    <Button
-                                        startIcon={<DownloadIcon />}
-                                        onClick={onDownload}
-                                        variant="contained"
-                                        color="primary"
-                                        sx={{ borderRadius: 1 }}
-                                    >
-                                        Tải xuống
-                                    </Button>
-                                </Stack>
-                                <Container maxWidth="sm">
-                                    <Grid container spacing={3}>
-                                        <Grid item xs={4} md={4}>
-                                            <Typography variant="h6">
-                                                Mã hợp đồng
-                                            </Typography>
-                                            <TextField disabled value="1234567890" />
-                                        </Grid>
-                                        <Grid item xs={4} md={4}>
-                                            <Typography variant="h6">
-                                                Ngày bắt đầu
-                                            </Typography>
-                                            <TextField disabled value="12/05/2022" />
-                                        </Grid>
-                                        <Grid item xs={4} md={4}>
-                                            <Typography variant="h6">
-                                                Ngày kết thúc
-                                            </Typography>
-                                            <TextField disabled value="12/05/2022" />
-                                        </Grid>
-                                    </Grid>
+                <Scrollbar>
+                    <TableContainer sx={{ minWidth: 800 }}>
+                        <Table>
+                            <ListHead
+                                order={order}
+                                orderBy={orderBy}
+                                headLabel={TABLE_HEAD}
+                                rowCount={listContract.length}
+                                onRequestSort={handleRequestSort}
+                            />
+                            <TableBody>
+                                {filteredcontracts
+                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                    .map((row) => {
+                                        const { id, contractCode, createdAt, updatedAt, status, contractUrl } = row;
 
-                                    <Box
-                                        display="flex"
-                                        flexDirection="column"
-                                        alignItems="center"
-                                        sx={{ width: { xs: '110%', md: '100%' } }}
-                                    >
-                                        <Document
-                                            file={item.url}
-                                            onLoadSuccess={onDocumentLoadSuccess}
-                                        >
-                                            {Array.from(new Array(numPages), (el, index) => (
-                                                <>
-                                                    <Page
-                                                        key={`page_${index + 1}`}
-                                                        pageNumber={index + 1}
-                                                    />
-                                                    <Divider />
-                                                </>
-                                            ))}
-                                        </Document>
-                                    </Box>
-                                </Container>
-                            </div>
-                        )
-                    }
-                    )
-                }
-            </div>
+                                        return (
+                                            <TableRow
+                                                hover
+                                                key={id}
+                                                tabIndex={-1}
+                                                role="checkbox"
+                                            >
+                                                <TableCell
+                                                    component="th" scope="row" padding="none">
+                                                    <Stack direction="row" alignItems="center">
+                                                        <Typography style={{
+                                                            marginLeft: 15,
+                                                        }} variant="subtitle2" noWrap>
+                                                            {contractCode}
+                                                        </Typography>
+                                                    </Stack>
+                                                </TableCell>
+                                                <TableCell align="left">{fDate(createdAt)}</TableCell>
+                                                <TableCell align="left">{fDate(updatedAt)}</TableCell>
+                                                <TableCell align="left">
+                                                    <Label
+                                                        variant="ghost"
+                                                        color={(status === 'INACTIVE' && 'error') || 'success'}
+                                                    >
+                                                        {sentenceCase(status)}
+                                                    </Label>
+                                                </TableCell>
 
+                                                <TableCell align="left">
+                                                    <Link href={contractUrl} underline="hover" color="black" target="_blank" rel="noopener noreferrer">
+                                                        {getFileName(contractUrl)}
+                                                    </Link>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                {emptyRows > 0 && (
+                                    <TableRow style={{ height: 53 * emptyRows }}>
+                                        <TableCell colSpan={6} />
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                            {isContractNotFound && (
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                                            <SearchNotFound searchQuery={filterCode} />
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            )}
+                        </Table>
+                    </TableContainer>
+                </Scrollbar>
 
-        </Box>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    component="div"
+                    count={listContract.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+            </Card>
+        </>
     )
 }

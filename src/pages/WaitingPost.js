@@ -83,6 +83,7 @@ export default function WaitingPost(props) {
                 onChange={(e) => {
                   setTypeChoosen(e.target.value)
                   setType(e.target.value)
+                  setOffset(0)
                 }}
               >
                 {typeOption.map((option) => (
@@ -105,6 +106,7 @@ export default function WaitingPost(props) {
               onChange={(e) => {
                 setOptionChoosen(e.target.value)
                 setOrder(e.target.value)
+                setOffset(0)
               }}
             >
               {sortOption.map((option) => (

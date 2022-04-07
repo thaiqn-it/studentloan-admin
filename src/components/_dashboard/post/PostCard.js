@@ -12,7 +12,6 @@ import { fDate } from '../../../utils/formatTime';
 import { convertCurrencyVN } from '../../../utils/formatNumber';
 //
 import SvgIconStyle from '../../SvgIconStyle';
-import { mockImgCover } from '../../../utils/mockImages';
 
 // ----------------------------------------------------------------------
 

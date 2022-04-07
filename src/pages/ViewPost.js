@@ -45,6 +45,7 @@ import Page from "../components/Page";
 import { loadToken } from "../apis";
 import { userApi } from "../apis/user";
 import ContractPage from '../pages/ContractPage'
+import LoanSchedule from '../pages/LoanSchedule'
 
 export default function ViewPost() {
   const { id } = useParams();
@@ -542,7 +543,7 @@ export default function ViewPost() {
 
           <TabPanel
             value={3}>
-            <ContractPage />
+            <LoanSchedule loanId = {id}/>
           </TabPanel>
         </TabContext>
         <Dialog
