@@ -37,57 +37,12 @@ export const AddDialog = (props) => {
     setName(e.target.value);
   };
 
-  const handleChangeParent = (e) => {
-    if (droppable === true) {
-      setParent(null)
-      setParentId(null)
-    } else {
-      setParent(e.target.value);
-      setParentId(e.target.value);
-    }
-  };
-
-  const handleChangeDroppable = (e) => {
-    setParent(null)
-    setParentId(null)
-    setDroppable(e.target.checked);
-  };
-
   return (
     <Dialog open={true} onClose={props.onClose}>
-      <DialogTitle>Tạo ngành/nhóm ngành mới</DialogTitle>
+      <DialogTitle>Thêm ngành mới</DialogTitle>
       <DialogContent className={styles.content}>
         <div>
-          <TextField fullWidth label="Tên" type={"text"} onChange={handleChangeText} value={text} />
-        </div>
-        <div>
-          <FormControl className={styles.select}>
-            <InputLabel>Nhóm ngành</InputLabel>
-            <Select
-              disabled={droppable === true ? true : false}
-              label="Parent" onChange={handleChangeParent} value={parent}>
-              {/* <MenuItem key={firstNode.id} value={firstNode.id}>{firstNode.text}</MenuItem> */}
-              {props.tree
-                .filter((node) => node.parent === null)
-                .map((node) => (
-                  <MenuItem key={node.id} value={node.id}>
-                    {node.text}
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
-        </div>
-        <div>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={droppable}
-                onChange={handleChangeDroppable}
-                color="primary"
-              />
-            }
-            label="Là nhóm ngành?"
-          />
+          <TextField fullWidth label="Tên" type={"text"} style={{ width : 500 }} onChange={handleChangeText} value={text} />
         </div>
       </DialogContent>
       <DialogActions>
@@ -96,31 +51,13 @@ export const AddDialog = (props) => {
           endIcon={<CheckIcon />}
           disabled={text === ""}
           onClick={() => {
-            major = [{
+            major = {
               id: id,
               name,
-              parentId,
-              schoolId,
               status,
-            }]
-            majorApi.create(major);
-            parentId === null ? props.onSubmit({
-              id: id,
-              text: name,
-              parent: parentId,
-              name,
-              droppable: true,
-              parentId,
-              status,
-            }) : props.onSubmit({
-              id: id,
-              text: name,
-              parent: parentId,
-              name,
-              droppable: false,
-              parentId,
-              status,
-            })
+              schoolId
+            }
+            majorApi.create(major).finally(props.onClose);
           }
           }
         >

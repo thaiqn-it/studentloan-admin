@@ -5,6 +5,9 @@ import { alpha, styled } from '@mui/material/styles';
 import { Card, Typography } from '@mui/material';
 // utils
 import { fShortenNumber } from '../../../utils/formatNumber';
+import { useEffect, useState } from 'react';
+import { userApi } from '../../../apis/user';
+import { USER_STATUS, USER_TYPE } from '../../../constants/enum';
 
 // ----------------------------------------------------------------------
 
@@ -34,17 +37,23 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-const TOTAL = 203912;
-
 export default function BackerSession() {
+  const [total, setTotal] = useState(0)
+  useEffect(() => {
+    const fetchData = async() => {
+      const res = await userApi.count({type:USER_TYPE.INVESTOR, status:USER_STATUS.VERIFIED})
+      setTotal(res.data)
+    }
+    fetchData()
+  }, [])
   return (
     <RootStyle>
       <IconWrapperStyle>
         <Icon icon={backerOutLined} width={24} height={24} />
       </IconWrapperStyle>
-      <Typography variant="h3">{fShortenNumber(TOTAL)}</Typography>
+      <Typography variant="h3">{fShortenNumber(total)}</Typography>
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
-        Backers
+        Nhà đầu tư đã xác thực
       </Typography>
     </RootStyle>
   );

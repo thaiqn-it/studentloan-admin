@@ -22,15 +22,11 @@ import Page from '../components/Page';
 // components
 import * as React from 'react';
 import Edit from '@mui/icons-material/Edit';
-import Add from '@mui/icons-material/Add';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-//faker
-import faker from 'faker';
 //Api
 import { schoolApi } from '../apis/school';
-import { majorApi } from '../apis/major';
 import MajorHandle from '../components/major/MajorHandle';
-import { cityApi } from '../apis/city';
+import {PROVINCEVN} from '../apis/static/provinceVN'
 
 // ----------------------------------------------------------------------
 
@@ -58,8 +54,6 @@ export default function DetailSchool() {
   const [district, setdistrict] = useState('')
   const [status, setstatus] = useState('')
   const [open, setOpen] = React.useState(false);
-  //init data for major
-  const [majorSchool, setmajorSchool] = useState([])
   //message out for user
   const [message, setmessage] = React.useState('')
   //option autocomplete
@@ -70,22 +64,16 @@ export default function DetailSchool() {
   const horizontal = 'right'
   const [tab, settab] = React.useState(1);
   //action ischange
-  const [isChange, setisChange] = useState()
   const [listCity, setListCity] = useState([])
   const [listDistrict, setListDistrict] = useState([])
 
   const handleChangeTabs = (event, newValue) => {
     settab(newValue);
-    setisChange(faker.datatype.number({
-      'min': 1,
-      'max': 10000,
-    }))
   };
 
-  const getAllDistrict = (code) => {
-    cityApi.getAllDistrict(code).then(res => {
-      setListDistrict(res.data.districts)
-    })
+  const getAllDistrictInit = (id) =>{
+    var district = PROVINCEVN.district.filter(item=>item.idProvince===id)
+    setListDistrict(district)
   }
 
   useEffect(() => {
@@ -97,17 +85,10 @@ export default function DetailSchool() {
       setdistrict(school.district)
       setstatus(school.status)
 
-      const majorsRes = await majorApi.getAll(id)
-      const majors = majorsRes.data
-      setmajorSchool(majors)
-
-      const listCitiesRes = await cityApi.getAllCity()
-      const listCities = listCitiesRes.data
+      const listCities = PROVINCEVN.province
       setListCity(listCities)
 
-      const listDistrictsRes = await cityApi.getAllDistrictInit(school.city)
-      const listDistricts = listDistrictsRes.data
-      listDistricts.map(item => item.name === school.city ? getAllDistrict(item.code) : "")
+      PROVINCEVN.province.map(item => item.name === school.city ? getAllDistrictInit(item.idProvince) : "")
     }
     fetchData()
   }, [])
@@ -123,10 +104,10 @@ export default function DetailSchool() {
   const getListCity = (list) => {
     return list.map(item =>
       <MenuItem onClick={() => {
-        getAllDistrict(item.code)
+        getAllDistrictInit(item.idProvince)
         setcity(item.name)
       }
-      } key={item.code} value={item.name}>{item.name}</MenuItem>
+      } key={item.name} value={item.name}>{item.name}</MenuItem>
     )
   }
 
@@ -135,7 +116,7 @@ export default function DetailSchool() {
       <MenuItem onClick={() => {
         setdistrict(item.name)
       }
-      } key={item.code} value={item.name}>{item.name}</MenuItem>
+      } key={item.name} value={item.name}>{item.name}</MenuItem>
     )
   }
 
@@ -262,7 +243,7 @@ export default function DetailSchool() {
 
             <TabPanel
               value={2}>
-              <MajorHandle majorSchool={majorSchool} schoolId={id} />
+              <MajorHandle schoolId={id} />
             </TabPanel>
           </TabContext>
           <Snackbar open={open} anchorOrigin={{ vertical, horizontal }} autoHideDuration={3000} onClose={handleClose}>

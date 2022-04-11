@@ -36,9 +36,7 @@ export default function StudentProfile(props) {
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    // const [student, setStudent] = useState({});
     const [user, setUser] = useState({});
-    // const [userStatus, setUserStatus] = useState([]);
     const [openConfirmUnBan, setOpenConfirmUnBan] = useState(false);
     const handleOpenConfirmUnBan = () => setOpenConfirmUnBan(true);
     const handleCloseConfirmUnBan = () => setOpenConfirmUnBan(false);
@@ -49,7 +47,8 @@ export default function StudentProfile(props) {
     const handleOpenBanConfirm = () => setOpenBanConfirm(true);
     const handleCloseBanConfirm = () => setOpenBanConfirm(false);
 
-
+    // const userContext = useAuthState();
+    // console.log(userContext)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -63,20 +62,20 @@ export default function StudentProfile(props) {
     const appoveUser = (user) => {
         setIsChange("approve user")
         handleCloseConfirmApprove()
-        userApi.update({...user, status:USER_STATUS.VERIFIED})
+        userApi.update({ ...user, status: USER_STATUS.VERIFIED })
     }
 
     const confirmDeny = (user) => {
         setIsChange("deny user")
         handleClose()
         setReason("")
-        userApi.update({...user, status:USER_STATUS.UNVERIFIED, reason:reason})
+        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason })
     }
 
     const confirmBan = (user) => {
         setIsChange("ban user")
         handleCloseBanConfirm()
-        userApi.update({...user, status:USER_STATUS.BAN, reason:reason})
+        userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason })
         setReason("")
     }
 
@@ -84,7 +83,7 @@ export default function StudentProfile(props) {
     const confirmUnBan = (user) => {
         setIsChange("unban user")
         handleCloseConfirmUnBan()
-        userApi.update({...user, status:USER_STATUS.UNVERIFIED})
+        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED })
     }
 
     const buttonBaseOnStatus = (user) => {
@@ -93,7 +92,7 @@ export default function StudentProfile(props) {
                 <Grid
                     sx={{
                         marginTop: 1,
-                        marginLeft:1,
+                        marginLeft: 1,
                     }}>
                     <Button
                         size="medium"
@@ -107,12 +106,12 @@ export default function StudentProfile(props) {
                     </Button>
                 </Grid>
             )
-        }else{
+        } else {
             return (
                 <Grid
                     sx={{
                         marginTop: 1,
-                        marginLeft:1,
+                        marginLeft: 1,
                     }}>
                     <Button
                         size="medium"
@@ -382,7 +381,7 @@ export default function StudentProfile(props) {
                 </DialogContent>
                 <DialogActions>
                     <Button color='error' onClick={handleCloseConfirmUnBan}>Từ bỏ</Button>
-                    <Button onClick={()=>confirmUnBan(user)} autoFocus>
+                    <Button onClick={() => confirmUnBan(user)} autoFocus>
                         Đồng ý
                     </Button>
                 </DialogActions>
@@ -405,7 +404,7 @@ export default function StudentProfile(props) {
                 </DialogContent>
                 <DialogActions>
                     <Button color='error' onClick={handleCloseConfirmApprove}>Từ bỏ</Button>
-                    <Button onClick={()=>appoveUser(user)} autoFocus>
+                    <Button onClick={() => appoveUser(user)} autoFocus>
                         Đồng ý
                     </Button>
                 </DialogActions>

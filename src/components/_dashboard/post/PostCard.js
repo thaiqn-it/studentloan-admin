@@ -6,13 +6,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import moneyFill from '@iconify/icons-fa-solid/money-bill-wave';
 // material
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Link, Card, Grid, Avatar, Typography, CardContent } from '@mui/material';
+import { Box, Link, Card, Grid, Avatar, Typography, CardContent, Stack } from '@mui/material';
 // utils
 import { fDate } from '../../../utils/formatTime';
 import { convertCurrencyVN } from '../../../utils/formatNumber';
 //
 import SvgIconStyle from '../../SvgIconStyle';
-import { mockImgCover } from '../../../utils/mockImages';
 
 // ----------------------------------------------------------------------
 
@@ -30,12 +29,8 @@ const TitleStyle = styled(Link)({
 });
 
 const AvatarStyle = styled(Avatar)(({ theme }) => ({
-  zIndex: 9,
   width: 32,
   height: 32,
-  position: 'absolute',
-  left: theme.spacing(3),
-  bottom: theme.spacing(-2)
 }));
 
 const InfoStyle = styled('div')(({ theme }) => ({
@@ -62,10 +57,15 @@ BlogPostCard.propTypes = {
 };
 
 export default function BlogPostCard({ post, index }) {
-  const { totalMoney, id, title, postCreatedAt, Student } = post;
-  const latestPostLarge = index === 0;
-  const latestPost = index === 1 || index === 2;
+  const { totalMoney, id, title, postCreatedAt, Student, LoanHistories } = post;
 
+  const getIcon = (type) => {
+    if (type === 'WAITING') {
+      return 'https://media.istockphoto.com/vectors/flip-hourglass-icon-to-keep-track-of-the-elapsed-time-vector-id1322169400?b=1&k=20&m=1322169400&s=170667a&w=0&h=qkub6UGQNWBWvC2GdIXKHVMfgif5ahag3_3iZ0Mj56I='
+    } else if (type === 'ONGOING') {
+      return 'https://www.pngkit.com/png/detail/302-3023079_progress-icon.png'
+    }
+  }
 
   const POST_INFO = [
     { name: totalMoney, icon: moneyFill },
@@ -92,28 +92,9 @@ export default function BlogPostCard({ post, index }) {
   }
 
   return (
-    <Grid item xs={12} sm={latestPostLarge ? 12 : 6} md={latestPostLarge ? 6 : 3}>
+    <Grid item xs={12} sm={6} md={3}>
       <Card sx={{ position: 'relative' }}>
         <CardMediaStyle
-          sx={{
-            ...((latestPostLarge || latestPost) && {
-              pt: 'calc(100% * 4 / 3)',
-              '&:after': {
-                top: 0,
-                content: "''",
-                width: '100%',
-                height: '100%',
-                position: 'absolute',
-                bgcolor: (theme) => alpha(theme.palette.grey[900], 0.72)
-              }
-            }),
-            ...(latestPostLarge && {
-              pt: {
-                xs: 'calc(100% * 4 / 3)',
-                sm: 'calc(100% * 3 / 4.66)'
-              }
-            })
-          }}
         >
           <SvgIconStyle
             color="paper"
@@ -124,33 +105,17 @@ export default function BlogPostCard({ post, index }) {
               zIndex: 9,
               bottom: -15,
               position: 'absolute',
-              ...((latestPostLarge || latestPost) && { display: 'none' })
             }}
           />
-          <AvatarStyle
-            alt={Student.User.firstName}
+
+          <CoverImgStyle alt={title}
             src={Student.User.profileUrl}
-            sx={{
-              ...((latestPostLarge || latestPost) && {
-                zIndex: 9,
-                top: 24,
-                left: 24,
-                width: 80,
-                height: 80
-              })
-            }}
           />
-          <CoverImgStyle alt={title} src={mockImgCover(index + 1)} />
         </CardMediaStyle>
 
         <CardContent
           sx={{
             pt: 4,
-            ...((latestPostLarge || latestPost) && {
-              bottom: 0,
-              width: '100%',
-              position: 'absolute'
-            })
           }}
         >
           <Grid
@@ -189,33 +154,43 @@ export default function BlogPostCard({ post, index }) {
             variant="subtitle2"
             underline="hover"
             component={RouterLink}
-            sx={{
-              ...(latestPostLarge && { typography: 'h5', height: 60 }),
-              ...((latestPostLarge || latestPost) && {
-                color: 'common.white'
-              })
-            }}
           >
             {title}
           </TitleStyle>
 
-          <InfoStyle>
-            {POST_INFO.map((info, index) => (
-              <Box
-                key={index}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  ml: index === 0 ? 0 : 1.5,
-                  ...((latestPostLarge || latestPost) && {
-                    color: 'grey.500'
-                  })
-                }}
+          <Stack
+            direction='row'
+            justifyContent='space-between'
+            alignItems='center'
+          >
+            <div
               >
-                {getPost_Infor(info)}
-              </Box>
-            ))}
-          </InfoStyle>
+              <AvatarStyle
+                alt={Student.User.firstName}
+                src={getIcon(LoanHistories[0]?.type)}
+              />
+            </div>
+
+            <div>
+              <InfoStyle>
+                {POST_INFO.map((info, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      ml: index === 0 ? 0 : 1.5,
+                    }}
+                  >
+                    {getPost_Infor(info)}
+                  </Box>
+                ))}
+              </InfoStyle>
+            </div>
+
+          </Stack>
+
+
         </CardContent>
       </Card>
     </Grid>

@@ -5,6 +5,9 @@ import { alpha, styled } from '@mui/material/styles';
 import { Card, Typography } from '@mui/material';
 // utils
 import { fShortenNumber } from '../../../utils/formatNumber';
+import { LOAN_STATUS } from '../../../constants/enum';
+import { useEffect, useState } from 'react';
+import { loanApi } from '../../../apis/loan';
 
 // ----------------------------------------------------------------------
 
@@ -34,17 +37,23 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-const TOTAL = 27396;
-
 export default function WaitingPost() {
+  const [total, setTotal] = useState(0)
+  useEffect(() => {
+    const fetchData = async() => {
+      const res = await loanApi.countLoan(LOAN_STATUS.WAITING)
+      setTotal(res.data)
+    }
+    fetchData()
+  }, [])
   return (
     <RootStyle>
       <IconWrapperStyle>
         <Icon icon={waitingOutLined} width={24} height={24} />
       </IconWrapperStyle>
-      <Typography variant="h3">{fShortenNumber(TOTAL)}</Typography>
+      <Typography variant="h3">{fShortenNumber(total)}</Typography>
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
-        Waiting Post
+        Bài xin vay đang chờ duyệt
       </Typography>
     </RootStyle>
   );

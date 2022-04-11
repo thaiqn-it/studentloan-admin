@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link as RouterLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
 import { Box, Link, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
@@ -11,7 +11,9 @@ import NavSection from '../../components/NavSection';
 import { MHidden } from '../../components/@material-extend';
 //
 import sidebarConfig from './SidebarConfig';
-import account from '../../_mocks_/account';
+import { userApi } from '../../apis/user';
+import { loadToken } from '../../apis';
+import { useAuthState } from '../../context/AuthContext';
 
 // ----------------------------------------------------------------------
 
@@ -40,8 +42,10 @@ DashboardSidebar.propTypes = {
 };
 
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
+  let navigate = useNavigate()
   const { pathname } = useLocation();
-
+  const context = useAuthState()
+  const admin = context.admin
   useEffect(() => {
     if (isOpenSidebar) {
       onCloseSidebar();
@@ -65,13 +69,13 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none" component={RouterLink} to="#">
           <AccountStyle>
-            <Avatar src={account.photoURL} alt="photoURL" />
+            <Avatar src={admin.profileUrl} alt="photoURL" />
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {admin.firstName} {admin.lastName}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
+                Quản lý
               </Typography>
             </Box>
           </AccountStyle>
@@ -81,44 +85,6 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       <NavSection navConfig={sidebarConfig} />
 
       <Box sx={{ flexGrow: 1 }} />
-
-      {/* <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>
-        <Stack
-          alignItems="center"
-          spacing={3}
-          sx={{
-            p: 2.5,
-            pt: 5,
-            borderRadius: 2,
-            position: 'relative',
-            bgcolor: 'grey.200'
-          }}
-        >
-          <Box
-            component="img"
-            src="/static/illustrations/illustration_avatar.png"
-            sx={{ width: 100, position: 'absolute', top: -50 }}
-          />
-
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography gutterBottom variant="h6">
-              Get more?
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              From only $69
-            </Typography>
-          </Box>
-
-          <Button
-            fullWidth
-            href="https://material-ui.com/store/items/minimal-dashboard/"
-            target="_blank"
-            variant="contained"
-          >
-            Upgrade to Pro
-          </Button>
-        </Stack>
-      </Box> */}
     </Scrollbar>
   );
 

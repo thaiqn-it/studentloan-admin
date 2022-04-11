@@ -20,6 +20,7 @@ import { visuallyHidden } from '@mui/utils';
 import { tutorApi } from '../../../../apis/tutor';
 import { studentApi } from '../../../../apis/student';
 import ModalDetailTutor from '../ModalDetailTutor'
+import {TUTOR_STATUS} from '../../../../constants/enum/index'
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -77,6 +78,12 @@ const headCells = [
     label: 'Quan hệ',
   },
   {
+    id: 'status',
+    numeric: true,
+    disablePadding: false,
+    label: 'Trạng thái',
+  },
+  {
     id: 'button',
     numeric: true,
     disablePadding: false,
@@ -124,9 +131,7 @@ function EnhancedTableHead(props) {
 }
 
 EnhancedTableHead.propTypes = {
-  numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
@@ -176,10 +181,6 @@ EnhancedTableToolbar.propTypes = {
 
 export default function EnhancedTable(props) {
   const userId = props.userId;
-
-  // const [open, setOpen] = React.useState(false);
-  // const handleOpen = () => setOpen(true);
-  // const handleClose = () => setOpen(false);
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
@@ -194,7 +195,7 @@ export default function EnhancedTable(props) {
   React.useEffect(() => {
     const fetchData = async () => {
       const res = await studentApi.getStudentByUserId(userId)
-      const res1 = await tutorApi.getListTutorByStudentId(res.data.student.id)
+      const res1 = await tutorApi.getListTutorByStudentId(res.data.student.parentId)
       const listTutor = res1.data
       setListutor(listTutor)
     }
@@ -278,11 +279,8 @@ export default function EnhancedTable(props) {
                       <TableCell align="right">{row.phone}</TableCell>
                       <TableCell align="right">{formatAddress(row.address)}</TableCell>
                       <TableCell align="right">{row.relation}</TableCell>
+                      <TableCell align="right">{row.status===TUTOR_STATUS.VERIFIED?'Đã xác thực':'Chưa xác thực'}</TableCell>
                       <TableCell align="right">
-                        {/* <Button
-                          onClick={() => handleClick(row.id)}>
-                          View
-                        </Button> */}
                         <Button
                           onClick={() => handleClick(row.id)}
                           size="small"

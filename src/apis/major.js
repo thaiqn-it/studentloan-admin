@@ -18,8 +18,8 @@ const create = (data) => {
     );
 };
 
-const update = (data) =>{
-    return defaultInstance.put("/major/updateMajors", 
+const update = (id,data) =>{
+    return defaultInstance.put("/major/updateMajors/" + id, 
         data
     );
 }

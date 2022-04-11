@@ -1,7 +1,7 @@
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // material
 import {
   Card,
@@ -28,6 +28,7 @@ import SearchNotFound from '../components/SearchNotFound';
 import { ListHead, ListToolbar } from '../components/_dashboard/user';
 //api
 import { schoolApi } from '../apis/school';
+import { SCHOOL_STATUS } from '../constants/enum';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -70,6 +71,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function ManageSchool() {
+  const navigate = useNavigate()
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
@@ -108,7 +110,7 @@ export default function ManageSchool() {
   const isschoolNotFound = filteredschools.length === 0;
 
   return (
-    <Page title="Quản lý | Trường Đại Học">
+    <Page title="Quản lý các trường đại học">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
@@ -169,9 +171,9 @@ export default function ManageSchool() {
                           <TableCell align="left">
                             <Label
                               variant="ghost"
-                              color={(status === 'INACTIVE' && 'error') || 'success'}
+                              color={(status === SCHOOL_STATUS.INACTIVE && 'error') || 'success'}
                             >
-                              {sentenceCase(status)}
+                              {status === SCHOOL_STATUS.INACTIVE?'Không kích hoạt':'Đang kích hoạt'}
                             </Label>
                           </TableCell>
 
@@ -180,7 +182,10 @@ export default function ManageSchool() {
                               fullWidth
                               size="small"
                               type="submit"
-                              href={`/dashboard/detailschool/${id}`}
+                              onClick={(e)=>{
+                                e.preventDefault()
+                                navigate(`../detailschool/${id}`)
+                              }}
                               variant="contained"
                               endIcon={<Edit />}
                             >

@@ -5,98 +5,48 @@ import { Card, CardHeader, Box, Grid, Autocomplete, TextField } from '@mui/mater
 //
 import { BaseOptionChart } from '../../charts';
 import { useEffect, useState } from 'react';
+import moment from "moment";
+import { transactionApi } from '../../../apis/transactionApi';
 
 // ----------------------------------------------------------------------
 
-
-
-const CHART_DATA = [
-  {
-    name: 'Students',
-    type: 'column',
-    data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 11]
-  },
-  {
-    name: 'Backers',
-    type: 'area',
-    data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43, 98]
-  },
-  // {
-  //   name: 'Guests',
-  //   type: 'line',
-  //   data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 63]
-  // }
-];
-
-const YEAR_DATA = ["2020", "2021", "2022"];
-
-
+//Type of chart line/area/column
 
 export default function TransactionDashBoard() {
+  const [listYear, setListYear] = useState([])
+  const [listChartData, setListChartData] = useState([])
+  useEffect(() => {
+    const currentYear = new Date().getFullYear()
+    var arrYear = []
+    for (let index = 0; index < 10; index++) {
+      arrYear.push((currentYear - index).toString())
+    }
+    setListYear(arrYear)
+    
+    getListChartData((currentYear + 1).toString())
+  }, [])
 
-
-
-  const [data, setdata] = useState([
-    {
-      name: 'Students',
+  const getListChartData = async (year) => {
+    var data = []
+    for (let index = 1; index <= 4; index++) {
+      let res = await transactionApi.count(
+        {
+          startDate: moment(year).subtract(1, 'ms').quarter(index - 1).format().toString(),
+          endDate: moment(year).subtract(1, 'ms').quarter(index).format().toString()
+        }
+      )
+      data.push(res.data)
+    }
+    setListChartData([{
+      name: 'Tổng có',
       type: 'column',
-      data: [23, 11, 22, 27]
-    },
-    {
-      name: 'Backers',
-      type: 'area',
-      data: [44, 55, 41, 67]
-    },
-  ])
-
-  // useEffect(() => {
-  //   alert("data change")
-  // }, [data])
+      data: data
+    }])
+  }
 
   const changeYear = (e, v) => {
-    if (v === '2020') {
-      setdata([
-        {
-          name: 'Students',
-          type: 'column',
-          data: [23, 10, 23, 27]
-        },
-        {
-          name: 'Backers',
-          type: 'area',
-          data: [44, 37, 41, 67]
-        },
-      ]
-      )
-    }
-    if (v === '2021') {
-      setdata([
-        {
-          name: 'Students',
-          type: 'column',
-          data: [23, 11, 22, 27]
-        },
-        {
-          name: 'Backers',
-          type: 'area',
-          data: [44, 55, 41, 67]
-        },
-      ])
-    }
-    else {
-      setdata([
-        {
-          name: 'Students',
-          type: 'column',
-          data: [10, 31, 21, 78]
-        },
-        {
-          name: 'Backers',
-          type: 'area',
-          data: [19, 55, 60, 51]
-        },
-      ])
-    }
+    var convertYear = Number.parseInt(v)
+    getListChartData((convertYear+1).toString())
   }
 
   const chartOptions = merge(BaseOptionChart(), {
@@ -116,7 +66,7 @@ export default function TransactionDashBoard() {
       y: {
         formatter: (y) => {
           if (typeof y !== 'undefined') {
-            return `${y.toFixed(0)} transacions`;
+            return `${y.toFixed(0)} giao dịch`;
           }
           return y;
         }
@@ -132,19 +82,19 @@ export default function TransactionDashBoard() {
         justifyContent="flex-start"
         alignItems="center"
       >
-        <CardHeader title="Transactions" sx={{ marginBottom: 1.8 }} subheader="(+43%) than last year" />
+        <CardHeader title="Số liệu về các giao dịch" sx={{ marginBottom: 1.8 }} subheader="của năm" />
         <Autocomplete
           disablePortal
           id="combo-box-demo"
           disableClearable={true}
-          options={YEAR_DATA}
+          options={listYear}
           defaultValue={new Date().getFullYear()}
           onChange={changeYear}
           renderInput={(params) => <TextField {...params} style={{ width: 100 }} />}
         />
       </Grid>
       <Box sx={{ p: 3, pb: 1 }} dir="ltr">
-        <ReactApexChart type="line" series={data} options={chartOptions} height={364} />
+        <ReactApexChart type="line" series={listChartData} options={chartOptions} height={364} />
       </Box>
     </Card>
   );

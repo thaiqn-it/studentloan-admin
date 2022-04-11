@@ -12,6 +12,9 @@ import * as React from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import Edit from '@mui/icons-material/Edit';
 import ArrowBack from '@mui/icons-material/ArrowBack';
+import { useAuthState } from '../context/AuthContext';
+import { userApi } from '../apis/user';
+import { loadToken } from '../apis';
 
 // ----------------------------------------------------------------------
 
@@ -21,14 +24,6 @@ const RootStyle = styled(Page)(({ theme }) => ({
   }
 }));
 
-const SectionStyle = styled(Card)(({ theme }) => ({
-  width: '100%',
-  maxWidth: 464,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  margin: theme.spacing(2, 0, 2, 2)
-}));
 
 const ContentStyle = styled('div')(({ theme }) => ({
   maxWidth: "85%",
@@ -40,65 +35,31 @@ const ContentStyle = styled('div')(({ theme }) => ({
   padding: theme.spacing(12, 0)
 }));
 
-const ColoredLine = ({ color }) => (
-  <hr
-    style={{
-      color: color,
-      backgroundColor: color,
-      margin: 30,
-      height: 1.5
-    }}
-  />
-);
-
 // ----------------------------------------------------------------------
 
-export default function Profile(props) {
+export default function Profile() {
   const navigate = useNavigate()
-  // const admin = props.admin
+  const [admin, setAdmin] = React.useState({})
 
-  const [admin, setAdmin] = React.useState({
-    id: "c07f1b26-7f46-4f23-b4f8-4f99524e0b55",
-    userId: "c07f1b26-7f46-4f23-b4f8-4f99524e0b55",
-    status: "ACTIVE",
-    firstName: "Nguyễn Trường",
-    profileUrl: "https://haycafe.vn/wp-content/uploads/2022/01/Anh-meo-FF-cute-ngau.jpg",
-    lastName: "Phi",
-    User: {
-      email: "phint.1002@gmail.com",
-      phoneNumber: "0981253505",
-      password: "123456",
-      userType: "ADMIN",
+  const user = useAuthState()
+  console.log(user)
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        loadToken()
+        const resData = await userApi.getAdminInfo()
+        setAdmin(resData.data)
+      }
+      catch (e) {
+        console.log(e)
+      }
     }
-  });
-
-  const [date, setDate] = React.useState(new Date());
-
-  const handleChangeDate = (newValue) => {
-    setDate(newValue);
-  };
-
-  const [values, setValues] = React.useState({
-    password: '123456',
-  });
-
-  const handleChange = (prop) => (event) => {
-    setValues({ ...values, [prop]: event.target.value });
-  };
-
-  const handleClickShowPassword = () => {
-    setValues({
-      ...values,
-      showPassword: !values.showPassword,
-    });
-  };
-
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
+    fetchData()
+  }, [])
 
   const onBack = () => {
-    navigate('/')
+    navigate('/dashboard')
   }
 
   return (
@@ -134,88 +95,27 @@ export default function Profile(props) {
                 xs={6}
               >
                 <Typography>Họ & tên đệm</Typography>
-                <TextField fullWidth value={admin.firstName} />
+                <TextField disabled fullWidth value={admin.firstName} />
               </Grid>
               <Grid
                 item
                 xs={6}
               >
                 <Typography>Tên</Typography>
-                <TextField fullWidth value={admin.lastName} />
+                <TextField disabled fullWidth value={admin.lastName} />
               </Grid>
             </Grid>
 
             <Typography style={{
               marginTop: 30
             }}>Email</Typography>
-            <TextField fullWidth value={admin.User.email} />
+            <TextField disabled fullWidth value={admin.email} />
 
             <Typography style={{
               marginTop: 30
             }}>Số điện thoại</Typography>
-            <TextField fullWidth value={admin.User.phoneNumber} />
-
-            <Typography style={{
-              marginTop: 30
-            }}>Mật Khẩu</Typography>
-            <Grid
-              container
-              justifyContent="center"
-              alignItems="center"
-              spacing={1}>
-              <Grid
-                item
-                xs={9}>
-                <FormControl fullWidth variant="outlined">
-                  <OutlinedInput
-                    id="outlined-adornment-password"
-                    type={values.showPassword ? 'text' : 'password'}
-                    disabled
-                    value={values.password}
-                    onChange={handleChange('password')}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          onMouseDown={handleMouseDownPassword}
-                          edge="end"
-                        >
-                          {values.showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                  />
-                </FormControl>
-              </Grid>
-              <Grid
-                item
-                xs={3}>
-                <Button
-                  fullWidth
-                  size="large"
-                  type="submit"
-                  variant="contained"
-                >
-                  Thay mật khẩu
-                </Button>
-              </Grid>
-            </Grid>
-
-
+            <TextField disabled fullWidth value={admin.phoneNumber} />
           </Card>
-
-          <Button
-            sx={{
-              margin:2,
-            }}
-            size="large"
-            type="submit"
-            variant="contained"
-            endIcon={<Edit />}
-          >
-            Chỉnh sửa
-          </Button>
         </ContentStyle>
       </Container>
     </RootStyle>
