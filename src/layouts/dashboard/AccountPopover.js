@@ -12,6 +12,7 @@ import MenuPopover from '../../components/MenuPopover';
 import { loadToken } from '../../apis';
 import { userApi } from '../../apis/user';
 import { logOut } from '../../context/AdminAction'
+import { useAuthDispatch, useAuthState, isAuthenticated } from '../../context/AuthContext';
 
 
 // ----------------------------------------------------------------------
@@ -20,7 +21,7 @@ const MENU_OPTIONS = [
   {
     label: 'Trang chính',
     icon: homeFill,
-    linkTo: '/'
+    linkTo: '/dashboard'
   },
   {
     label: 'Hồ sơ',
@@ -35,21 +36,8 @@ export default function AccountPopover() {
   const anchorRef = useRef(null);
   const navigate = useNavigate()
   const [open, setOpen] = useState(false);
-  const [admin, setAdmin] = useState({})
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        loadToken()
-        const resData = await userApi.getAdminInfo()
-        setAdmin(resData.data)
-      }
-      catch (e) {
-        console.log(e)
-      }
-    }
-    fetchData()
-  }, [])
+  const context = useAuthState()
+  const admin = context.admin
 
   const handleOpen = () => {
     setOpen(true);
@@ -58,11 +46,12 @@ export default function AccountPopover() {
     setOpen(false);
   };
 
-  const handleLogout = (e) => {
-    e.preventDefault()
-    logOut()
-    navigate('/login')    
-  }
+  const handleMenuClick = (link) => {
+    navigate(link);
+    setOpen(false);
+  };
+
+  const dispatch = useAuthDispatch()
 
   return (
     <>
@@ -111,10 +100,9 @@ export default function AccountPopover() {
 
         {MENU_OPTIONS.map((option) => (
           <MenuItem
-            key={option.label}
-            to={option.linkTo}
-            component={RouterLink}
-            onClick={handleClose}
+            onClick={() => {
+              handleMenuClick(option.linkTo)
+            }}
             sx={{ typography: 'body2', py: 1, px: 2.5 }}
           >
             <Box
@@ -131,7 +119,11 @@ export default function AccountPopover() {
         ))}
 
         <Box sx={{ p: 2, pt: 1.5 }}>
-          <Button onClick={handleLogout} fullWidth color="inherit" variant="outlined">
+          <Button onClick={(e) => {
+            e.preventDefault()
+            logOut(dispatch)
+            window.location.href = '/login'
+          }} fullWidth color="inherit" variant="outlined">
             Đăng xuất
           </Button>
         </Box>

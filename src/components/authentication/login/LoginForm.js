@@ -18,6 +18,7 @@ import {
   Typography
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { useAuthDispatch } from '../../../context/AuthContext';
 
 // ----------------------------------------------------------------------
 
@@ -28,10 +29,12 @@ export default function LoginForm() {
   const [password, setPassword] = useState('')
   const [isErr,setIsErr] = useState(false)
 
+  const dispatch = useAuthDispatch()
+
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      const userRes = await loginUser(email, password)
+      const userRes = await loginUser(dispatch,email, password)
       if (userRes.status === 200 || userRes.data) {
         navigate('/dashboard')
       }

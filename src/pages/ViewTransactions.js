@@ -1,5 +1,5 @@
 import { filter } from 'lodash';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // material
 import {
   Card,
@@ -13,7 +13,11 @@ import {
   Typography,
   TableContainer,
   TablePagination,
-  Grid
+  Grid,
+  CardHeader,
+  Autocomplete,
+  TextField,
+  Button,
 } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -22,18 +26,23 @@ import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
 import { ListHead, ListToolbar } from '../components/_dashboard/user';
 //
-import TRANSACTIONLIST from '../_mocks_/transaction';
+import { transactionApi } from '../apis/transactionApi';
+import { sentenceCase } from 'change-case';
+import { TRANSACTION_STATUS } from '../constants/enum';
+import { convertCurrencyVN } from '../utils/formatNumber';
+import { fDate } from '../utils/formatTime';
+import PriceCheckIcon from '@mui/icons-material/PriceCheck';
 
+import moment from "moment";
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Tên', alignRight: false },
-  { id: 'role', label: 'Vai trò', alignRight: false },
-  { id: 'to', label: 'Đến', alignRight: false },
+  { id: 'id', label: 'Mã giao dịch', alignRight: false },
   { id: 'money', label: 'Số Tiền', alignRight: false },
-  { id: 'time', label: 'Vào', alignRight: false },
-  { id: 'isSuccessful', label: 'Thành Công', alignRight: false },
-  { id: 'status', label: 'Loại', alignRight: false },
+  { id: 'transactionFee', label: 'Phí', alignRight: false },
+  { id: 'createdAt', label: 'Vào lúc', alignRight: false },
+  { id: 'type', label: 'Loại', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
 ];
 
 // ----------------------------------------------------------------------
@@ -62,8 +71,8 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+
+    return filter(array, (_trans) => _trans.id.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -72,9 +81,51 @@ export default function ViewTransactions() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('name');
-  const [filterName, setFilterName] = useState('');
+  const [orderBy, setOrderBy] = useState('createdAt');
+  const [filterId, setFilterId] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [listYear, setListYear] = useState([])
+  const [listTrans, setListTrans] = useState([])
+  const [income, setIncome] = useState(0)
+  const [isChange, setIsChange] = useState(moment().format())
+  useEffect(() => {
+    const fetchData = async () => {
+      const currentYear = new Date().getFullYear()
+
+      var arrYear = []
+      for (let index = 0; index < 10; index++) {
+        arrYear.push((currentYear - index).toString())
+      }
+      setListYear(arrYear)
+      getListTransBaseYear(currentYear.toString())
+
+    }
+    fetchData()
+  }, [])
+
+  const changeYear = (e, v) => {
+    getListTransBaseYear(v)
+  }
+
+  const calIncome = (listTrans) => {
+    let income = 0
+    for (let index = 0; index < listTrans.length; index++) {
+      const element = listTrans[index];
+      income = income + element.transactionFee
+    }
+    setIncome(income)
+  }
+
+  const getListTransBaseYear = async (year) => {
+    transactionApi.getAll({
+      startDate: moment(year).startOf('year').format(),
+      endDate: moment(year).endOf('year').format(),
+    }).then(resTrans => {
+      setListTrans(resTrans.data)
+      calIncome(resTrans.data)
+    })
+  }
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -91,133 +142,133 @@ export default function ViewTransactions() {
     setPage(0);
   };
 
-  const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
+  const handleFilterById = (event) => {
+    setFilterId(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - TRANSACTIONLIST.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listTrans.length) : 0;
 
-  const filteredUsers = applySortFilter(TRANSACTIONLIST, getComparator(order, orderBy), filterName);
+  const filteredTrans = applySortFilter(listTrans, getComparator(order, orderBy), filterId);
 
-  const isUserNotFound = filteredUsers.length === 0;
+  const isTranNotFound = filteredTrans.length === 0;
 
   return (
     <Page title="Các Giao Dịch">
-      <Container>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h4" gutterBottom>
-            Danh Sách Giao Dịch
-          </Typography>
-        </Stack>
+      <Card>
         <Grid
-          contrainer
-          spacing={2}
+          container
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
         >
           <Grid
-            item
-            xs={12} md={9}>
-            <Card>
+            item>
+            <Grid
+              container
+              direction="row"
+              justifyContent="flex-start"
+              alignItems="center"
+            >
+              <CardHeader title="Tất cả giao dịch" sx={{ marginBottom: 1.8 }} subheader="của năm" />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                disableClearable={true}
+                options={listYear}
+                onChange={changeYear}
+                defaultValue={new Date().getFullYear()}
+                renderInput={(params) => <TextField {...params} style={{ width: 100 }} />}
+              />
               <ListToolbar
-                target={"Tên người gửi"}
-                filterName={filterName}
-                onFilterName={handleFilterByName}
+                target={"Mã giao dịch"}
+                filterName={filterId}
+                onFilterName={handleFilterById}
               />
-
-              <Scrollbar>
-                <TableContainer sx={{ minWidth: 800 }}>
-                  <Table>
-                    <ListHead
-                      order={order}
-                      orderBy={orderBy}
-                      headLabel={TABLE_HEAD}
-                      rowCount={TRANSACTIONLIST.length}
-                      numSelected={selected.length}
-                      onRequestSort={handleRequestSort}
-                    />
-                    <TableBody>
-                      {filteredUsers
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map((row) => {
-                          //   name, role, to, time, is, status
-                          const { id, name, to, money, time, isSuccessful, role, status, avatarUrl } = row;
-                          const isItemSelected = selected.indexOf(name) !== -1;
-
-                          return (
-                            <TableRow
-                              hover
-                              key={id}
-                              onClick={()=>console.log(row)}
-                              tabIndex={-1}
-                              role="checkbox"
-                              selected={isItemSelected}
-                              aria-checked={isItemSelected}
-                            >
-                              <TableCell sx={{
-                                paddingLeft: "15px",
-                              }} component="th" scope="row" padding="none" marginStart="2">
-                                <Stack direction="row" alignItems="center" spacing={2}>
-                                  <Avatar alt={name} src={avatarUrl} />
-                                  <Typography variant="subtitle2" noWrap>
-                                    {name}
-                                  </Typography>
-                                </Stack>
-                              </TableCell>
-                              <TableCell align="left">{role}</TableCell>
-                              <TableCell align="left">{to}</TableCell>
-                              <TableCell align="left">{money}</TableCell>
-                              <TableCell align="left">{time}</TableCell>
-                              <TableCell align="left">
-                                <Label
-                                  variant="ghost"
-                                  color={(isSuccessful === 'Không' && 'error') || 'success'}
-                                >
-                                  {isSuccessful}
-                                </Label>
-                              </TableCell>
-                              <TableCell align="left">{status}</TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      {emptyRows > 0 && (
-                        <TableRow style={{ height: 53 * emptyRows }}>
-                          <TableCell colSpan={6} />
-                        </TableRow>
-                      )}
-                    </TableBody>
-                    {isUserNotFound && (
-                      <TableBody>
-                        <TableRow>
-                          <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                            <SearchNotFound searchQuery={filterName} />
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    )}
-                  </Table>
-                </TableContainer>
-              </Scrollbar>
-
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={TRANSACTIONLIST.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            </Card>
+            </Grid>
           </Grid>
-
           <Grid
-            item
-            xs={12} md={3}>
-              <Card>
-                <Typography></Typography>
-              </Card>
+            item>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Button
+                startIcon={<PriceCheckIcon />}>
+                Tổng danh thu năm nay: {convertCurrencyVN(income)}
+              </Button>
+            </div>
           </Grid>
         </Grid>
-      </Container>
+
+        <Scrollbar>
+          <TableContainer sx={{ minWidth: 800 }}>
+            <Table>
+              <ListHead
+                order={order}
+                orderBy={orderBy}
+                headLabel={TABLE_HEAD}
+                rowCount={listTrans.length}
+                numSelected={selected.length}
+                onRequestSort={handleRequestSort}
+              />
+              <TableBody>
+                {filteredTrans
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row) => {
+                    const { id, money, transactionFee, createdAt, type, status } = row;
+                    return (
+                      <TableRow
+                        hover
+                        key={id}
+                        tabIndex={-1}
+                        role="checkbox"
+                      >
+                        <TableCell align="left" >
+                          {id}
+                        </TableCell>
+                        <TableCell align="left">{convertCurrencyVN(money)}</TableCell>
+                        <TableCell align="left">{convertCurrencyVN(transactionFee)}</TableCell>
+                        <TableCell align="left">{fDate(createdAt)}</TableCell>
+                        <TableCell align="left">{type}</TableCell>
+                        <TableCell align="left">
+                          <Label
+                            variant="ghost"
+                            color={(status === TRANSACTION_STATUS.FAIL && 'error') || 'success'}
+                          >
+                            {sentenceCase(status)}
+                          </Label>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                {emptyRows > 0 && (
+                  <TableRow style={{ height: 53 * emptyRows }}>
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
+              </TableBody>
+              {isTranNotFound && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <SearchNotFound searchQuery={filterId} />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
+        </Scrollbar>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={listTrans.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Card>
+
+
+
     </Page>
   );
 }

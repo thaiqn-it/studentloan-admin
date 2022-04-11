@@ -20,6 +20,7 @@ import { visuallyHidden } from '@mui/utils';
 import { tutorApi } from '../../../../apis/tutor';
 import { studentApi } from '../../../../apis/student';
 import ModalDetailTutor from '../ModalDetailTutor'
+import {TUTOR_STATUS} from '../../../../constants/enum/index'
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -75,6 +76,12 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: 'Quan hệ',
+  },
+  {
+    id: 'status',
+    numeric: true,
+    disablePadding: false,
+    label: 'Trạng thái',
   },
   {
     id: 'button',
@@ -174,10 +181,6 @@ EnhancedTableToolbar.propTypes = {
 
 export default function EnhancedTable(props) {
   const userId = props.userId;
-
-  // const [open, setOpen] = React.useState(false);
-  // const handleOpen = () => setOpen(true);
-  // const handleClose = () => setOpen(false);
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
@@ -276,6 +279,7 @@ export default function EnhancedTable(props) {
                       <TableCell align="right">{row.phone}</TableCell>
                       <TableCell align="right">{formatAddress(row.address)}</TableCell>
                       <TableCell align="right">{row.relation}</TableCell>
+                      <TableCell align="right">{row.status===TUTOR_STATUS.VERIFIED?'Đã xác thực':'Chưa xác thực'}</TableCell>
                       <TableCell align="right">
                         <Button
                           onClick={() => handleClick(row.id)}

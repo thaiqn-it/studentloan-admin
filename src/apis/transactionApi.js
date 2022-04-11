@@ -6,6 +6,15 @@ const count = (data) => {
     );
 }
 
+const getAll = (data) => {
+    return defaultInstance.get("/transaction/",{
+        params:{
+            ...data
+        }
+    });
+}
+
 export const transactionApi = {
-    count
+    count,
+    getAll,
 };

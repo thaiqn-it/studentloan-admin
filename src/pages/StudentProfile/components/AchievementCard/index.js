@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
-import { Box, Grid, Typography, CardMedia, Card } from '@mui/material'
+import { Box, Grid, Typography, Card } from '@mui/material'
 import { studentApi } from '../../../../apis/student';
+import ImageModal from '../../../../components/imagemodal';
 
 
 export default function AchievementCard(props) {
@@ -33,7 +34,7 @@ export default function AchievementCard(props) {
                                     >
                                         {item.description}
                                     </Typography>
-                                    <CardMedia
+                                    <ImageModal
                                         sx={{
                                             borderRadius: 2
                                         }}

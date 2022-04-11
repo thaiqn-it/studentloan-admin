@@ -24,7 +24,7 @@ import SearchNotFound from '../components/SearchNotFound';
 import { ListHead, ListToolbar } from '../components/_dashboard/user';
 //
 import { userApi } from '../apis/user';
-import { USER_STATUS } from '../constants/enum';
+import { USER_STATUS, USER_TYPE } from '../constants/enum';
 import { useNavigate } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
@@ -62,6 +62,21 @@ const color = (status) =>{
   }
   if(status === USER_STATUS.PENDING){
     return 'warning'
+  }
+}
+
+const vietSubStatus = (status) =>{
+  if(status === USER_STATUS.BAN){
+    return 'Bị cấm'
+  }
+  if(status === USER_STATUS.UNVERIFIED){
+    return 'Chưa xác thực'
+  }
+  if(status === USER_STATUS.VERIFIED){
+    return 'Đã xác thực'
+  }
+  if(status === USER_STATUS.PENDING){
+    return 'Chờ xác thực'
   }
 }
 
@@ -229,13 +244,13 @@ export default function User() {
                             </Stack>
                           </TableCell>
                           <TableCell align="left">{email}</TableCell>
-                          <TableCell align="left">{type}</TableCell>
+                          <TableCell align="left">{type===USER_TYPE.STUDENT?'Sinh viên':'Nhà đầu tư'}</TableCell>
                           <TableCell align="left">
                             <Label
                               variant="ghost"
                               color={color(status)}
                             >
-                              {sentenceCase(status)}
+                              {vietSubStatus(status)}
                             </Label>
                           </TableCell>
 

@@ -4,10 +4,11 @@ const getAll = () => {
     return defaultInstance.get("/school");
 };
 
+const getAllName = () => {
+    return defaultInstance.get("/school/name");
+};
+
 const getOne = (id) =>{
-    //C1
-    // return defaultInstance.get("/school"+id)
-    //C2
     return defaultInstance.get(`/school/${id}`)
 }
 
@@ -28,4 +29,5 @@ export const schoolApi = {
     getOne,
     create,
     update,
+    getAllName
 };

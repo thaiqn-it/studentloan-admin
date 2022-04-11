@@ -13,6 +13,7 @@ import { MHidden } from '../../components/@material-extend';
 import sidebarConfig from './SidebarConfig';
 import { userApi } from '../../apis/user';
 import { loadToken } from '../../apis';
+import { useAuthState } from '../../context/AuthContext';
 
 // ----------------------------------------------------------------------
 
@@ -43,23 +44,9 @@ DashboardSidebar.propTypes = {
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   let navigate = useNavigate()
   const { pathname } = useLocation();
-  const [admin, setAdmin] = useState({})
-
+  const context = useAuthState()
+  const admin = context.admin
   useEffect(() => {
-
-  }, [])
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        loadToken()
-        const resData = await userApi.getAdminInfo()
-        setAdmin(resData.data)
-      }
-      catch (e) {
-        console.log(e)
-      }
-    }
-    fetchData()
     if (isOpenSidebar) {
       onCloseSidebar();
     }

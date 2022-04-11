@@ -60,17 +60,30 @@ export default function ViewPost() {
   const [loanMedia, setLoanMedia] = useState([]);
   const [reason, setReason] = useState("");
   const [adminId, setAdminId] = useState('')
+  const [title, setTitle] = useState({
+    caption: '',
+    titleButton: '',
+  })
 
-  const [isOpenApproveDialog, setIsOpenAprroveDialog] = useState(false);
-  const handleCloseApproveDialog = () => {
-    setIsOpenAprroveDialog(false);
+  const [isOpenDialog, setIsOpenDialog] = useState(false);
+  const handleCloseDialog = () => {
+    setIsOpenDialog(false);
     setImgURL(null);
   };
-  const handleOpenApproveDialog = () => setIsOpenAprroveDialog(true);
-
-  const [isOpenDeniedDialog, setIsOpenDeniedDialog] = useState(false);
-  const handleCloseDeniedDialog = () => setIsOpenDeniedDialog(false);
-  const handleOpenDeniedDialog = () => setIsOpenDeniedDialog(true);
+  const handleOpenDialog = (type) => {
+    setIsOpenDialog(true)
+    if (type === 'Approve') {
+      setTitle({
+        caption: 'Mô tả: ',
+        titleButton: 'Duyệt',
+      })
+    } else if (type === 'Deny') {
+      setTitle({
+        caption: 'Lý do từ chối: ',
+        titleButton: 'Từ chối',
+      })
+    }
+  };
 
   const [message, setMessage] = useState("");
   const [openSnackBar, setOpenSnackBar] = useState(false);
@@ -112,7 +125,7 @@ export default function ViewPost() {
   };
 
   const onBack = () => {
-    navigate("/dashboard/waitingpost");
+    navigate("/dashboard/posts");
   };
 
   const generateDuration = (date, duration) => {
@@ -144,41 +157,45 @@ export default function ViewPost() {
     setImgURL(null);
   };
 
-  const appropvePost = (history, url) => {
+  const actionButton = (history, url, type) => {
     const clone = (({ id, createdAt, updatedAt, adminId, ...o }) => o)(history);
-    const newHistory = {
-      ...clone,
-      type: LOAN_STATUS.FUNDING,
-      adminId: adminId,
-    };
+    let newHistory = {};
+    if (type === 'Approve') {
+      newHistory = {
+        ...clone,
+        description: reason,
+        type: LOAN_STATUS.FUNDING,
+        adminId: adminId,
+      };
+    } else if (type === 'Deny') {
+      newHistory = {
+        ...clone,
+        description: reason,
+        type: LOAN_STATUS.REJECTED,
+        adminId: adminId,
+      };
+    }
     loanHistoryApi
       .update(history.id, { ...history, isActive: false })
       .then(loanHistoryApi.create(newHistory));
-    url.map(item => {
-      return loanHistoryImageApi.create({
-        loanHistoryId: history.id,
-        imageUrl: item.url,
-        status: LOANHISTORYIMAGE_STATUS.ACTIVE
+    if (url !== null) {
+      url.map(item => {
+        return loanHistoryImageApi.create({
+          loanHistoryId: history.id,
+          imageUrl: item.url,
+          status: LOANHISTORYIMAGE_STATUS.ACTIVE
+        })
       })
-    })
-    handleCloseApproveDialog();
-    getMsg("Duyệt bài thành công!", "success", true);
-  };
-
-  const denyPost = (history) => {
-    const clone = (({ id, createdAt, updatedAt, adminId, ...o }) => o)(history);
-    const newHistory = {
-      ...clone,
-      description: reason,
-      type: LOAN_STATUS.DRAFT,
-      adminId: adminId,
-    };
-    loanHistoryApi
-      .update(history.id, { ...history, isActive: false })
-      .then(loanHistoryApi.create(newHistory));
-    handleCloseDeniedDialog();
-    setOpenSnackBar(false);
-    getMsg("Từ chối bài thành công!", "success", true);
+    }
+    handleCloseDialog();
+    if (type === 'Approve') {
+      getMsg("Duyệt bài thành công! (Sẽ quay về sau 3 giây)", "success", true);
+    } else if (type === 'Deny') {
+      getMsg("Từ chối bài thành công! (Sẽ quay về sau 3 giây)", "success", true);
+    }
+    setTimeout(() => {
+      onBack()
+    }, 3000)
   };
 
   function getFileName(url) {
@@ -506,7 +523,7 @@ export default function ViewPost() {
                   >
                     <Grid item xs={6}>
                       <LoadingButton
-                        onClick={handleOpenDeniedDialog}
+                        onClick={() => handleOpenDialog('Deny')}
                         fullWidth
                         size="large"
                         type="submit"
@@ -519,7 +536,7 @@ export default function ViewPost() {
                     </Grid>
                     <Grid item xs={6}>
                       <LoadingButton
-                        onClick={handleOpenApproveDialog}
+                        onClick={() => handleOpenDialog('Approve')}
                         fullWidth
                         size="large"
                         type="submit"
@@ -538,18 +555,18 @@ export default function ViewPost() {
 
           <TabPanel
             value={2}>
-              <ContractPage loanId = {id}/>
+            <ContractPage loanId={id} />
           </TabPanel>
 
           <TabPanel
             value={3}>
-            <LoanSchedule loanId = {id}/>
+            <LoanSchedule loanId={id} />
           </TabPanel>
         </TabContext>
         <Dialog
           maxWidth="xl"
-          open={isOpenApproveDialog}
-          onClose={handleCloseApproveDialog}
+          open={isOpenDialog}
+          onClose={handleCloseDialog}
           scroll="body"
           aria-labelledby="scroll-dialog-title"
           aria-describedby="scroll-dialog-description"
@@ -560,14 +577,31 @@ export default function ViewPost() {
               width: 800,
             }}
           >
+
             <Typography
-              sx={{ mt: 2 }}
               id="modal-modal-title"
               color="secondary"
               variant="h6"
               component="h2"
             >
-              Chọn 1 hoặc nhiều tệp đính kèm (.pdf, .png, .jpg) để giúp cho việc xác thực sinh viên! (nếu có)
+              {title?.caption}
+            </Typography>
+            <TextField
+              multiline
+              onChange={(event) => setReason(event.target.value)}
+              value={reason}
+              fullWidth
+              id="modal-modal-description"
+              sx={{ mt: 2 }}
+            />
+            <Typography
+              sx={{ mt: 2 }}
+              id="modal-modal-title"
+              color="error"
+              variant="h6"
+              component="h2"
+            >
+              *Chọn ít nhất 1 tệp để đính kèm
             </Typography>
             <Box sx={{ mt: 2 }}>
               <Box
@@ -604,52 +638,11 @@ export default function ViewPost() {
             </Box>
             <Button
               fullWidth
-              onClick={() => appropvePost(loanHistories[0], imgURL)}
+              onClick={() => title?.titleButton === 'Duyệt' ? actionButton(loanHistories[0], imgURL, 'Approve') : actionButton(loanHistories[0], imgURL, 'Deny')}
               sx={{ mt: 2 }}
               variant="contained"
             >
-              Duyệt bài
-            </Button>
-          </Box>
-        </Dialog>
-
-        <Dialog
-          maxWidth="xl"
-          open={isOpenDeniedDialog}
-          onClose={handleCloseDeniedDialog}
-          scroll="body"
-          aria-labelledby="scroll-dialog-title"
-          aria-describedby="scroll-dialog-description"
-        >
-          <Box
-            sx={{
-              padding: 2,
-              width: 800,
-            }}
-          >
-            <Typography
-              id="modal-modal-title"
-              color="secondary"
-              variant="h6"
-              component="h2"
-            >
-              Lý do:
-            </Typography>
-            <TextField
-              multiline
-              onChange={(event) => setReason(event.target.value)}
-              value={reason}
-              fullWidth
-              id="modal-modal-description"
-              sx={{ mt: 2 }}
-            />
-            <Button
-              fullWidth
-              onClick={() => denyPost(loanHistories[0])}
-              sx={{ mt: 2 }}
-              variant="contained"
-            >
-              Từ chối
+              {title?.titleButton}
             </Button>
           </Box>
         </Dialog>

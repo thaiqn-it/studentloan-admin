@@ -38,11 +38,11 @@ export default function DetailAccountCard(props) {
         return data;
     }
 
-    function formatAddress(address) {
-        var data = "";
-        data = address.replaceAll("-", ", ");
-        return data;
-    }
+    // function formatAddress(address) {
+    //     console.log(address)
+    //     console.log(typeof(address))
+    //     typeof address === 'string' ? address.toString().replaceAll("-", ", ") : address.replaceAll("-", ", ");
+    // }
     return (
         <>
             <Paper elevation={3} sx={{ borderRadius: "10px" }}>
@@ -84,7 +84,7 @@ export default function DetailAccountCard(props) {
                                 value={user.email}
                             />
                         </Grid>
-                        
+
                         <Grid item xs={12} md={6}>
                             <Typography variant="h6" fontWeight="regular">
                                 Ngày sinh
@@ -92,9 +92,21 @@ export default function DetailAccountCard(props) {
                             <TextField
                                 fullWidth
                                 disabled
-                                value={formatDate(student.birthDate)}
+                                value={formatDate(user.birthDate)}
                             />
                         </Grid>
+
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="h6" fontWeight="regular">
+                                Địa chỉ
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                disabled
+                                value={user.address}
+                            />
+                        </Grid>
+
                         <Grid item xs={12} md={6}>
                             <Typography variant="h6" fontWeight="regular">
                                 Số điện thoại

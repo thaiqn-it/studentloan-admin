@@ -1,7 +1,8 @@
-import { Card, CardMedia, Grid, TextField, Typography } from '@mui/material'
+import { Card, Grid, TextField, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import moment from "moment";
 import { studentApi } from '../../../../apis/student';
+import ImageModal from '../../../../components/imagemodal';
 
 
 export default function PaperCard(props) {
@@ -83,7 +84,7 @@ export default function PaperCard(props) {
                         >
                             Mặt trước CMND/CCCD
                         </Typography>
-                        <CardMedia
+                        <ImageModal
                             sx={{
                                 borderRadius: 2
                             }}
@@ -101,7 +102,7 @@ export default function PaperCard(props) {
                         >
                             Mặt sau CMND/CCCD
                         </Typography>
-                        <CardMedia
+                        <ImageModal
                             sx={{
                                 borderRadius: 2
                             }}
@@ -139,7 +140,7 @@ export default function PaperCard(props) {
                         >
                             Mặt trước thẻ sinh viên
                         </Typography>
-                        <CardMedia
+                        <ImageModal
                             sx={{
                                 borderRadius: 2
                             }}
@@ -157,7 +158,7 @@ export default function PaperCard(props) {
                         >
                             Mặt sau thẻ sinh viên
                         </Typography>
-                        <CardMedia
+                        <ImageModal
                             sx={{
                                 borderRadius: 2
                             }}

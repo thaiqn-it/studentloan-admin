@@ -28,6 +28,7 @@ import SearchNotFound from '../components/SearchNotFound';
 import { ListHead, ListToolbar } from '../components/_dashboard/user';
 //api
 import { schoolApi } from '../apis/school';
+import { SCHOOL_STATUS } from '../constants/enum';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -170,9 +171,9 @@ export default function ManageSchool() {
                           <TableCell align="left">
                             <Label
                               variant="ghost"
-                              color={(status === 'INACTIVE' && 'error') || 'success'}
+                              color={(status === SCHOOL_STATUS.INACTIVE && 'error') || 'success'}
                             >
-                              {sentenceCase(status)}
+                              {status === SCHOOL_STATUS.INACTIVE?'Không kích hoạt':'Đang kích hoạt'}
                             </Label>
                           </TableCell>
 

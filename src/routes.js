@@ -8,7 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardApp from './pages/DashboardApp';
 import Profile from './pages/Profile';
-import WaitingPost from './pages/WaitingPost';
+import Posts from './pages/Posts';
 import User from './pages/User';
 import NotFound from './pages/Page404';
 import ManageSchool from './pages/ManageSchool';
@@ -22,23 +22,22 @@ import DetailInvestor from './pages/DetailInvestor';
 import Systemconfig from './pages/SystemConfig';
 import ContractPage from './pages/ContractPage';
 import { LOAN_STATUS } from './constants/enum';
-import { userApi } from './apis/user';
-import { getJWToken } from './constants';
-import { loadToken } from '../src/apis/index';
+import {useAuthState} from '../src/context/AuthContext'
+import ViewAllNoti from './pages/ViewAllNoti';
 
 // ----------------------------------------------------------------------
 
-const routes = (isLogin) => [
+const routes = (admin) => [
   {
     path: '/dashboard',
-    element: isLogin?<DashboardLayout />:<Navigate to='../login'/>,
+    element: admin?<DashboardLayout />:<Navigate to='../login'/>,
     children: [
       { element: <Navigate to="/dashboard/app" replace /> },
       { path: 'app', element: <DashboardApp /> },
       { path: 'user', element: <User /> },
       { path: 'student/:id', element: <DetailStudent /> },
       { path: 'investor/:id', element: <DetailInvestor /> },
-      { path: 'waitingpost', element: <WaitingPost initalType={LOAN_STATUS.WAITING} orderByLastest='DESC' initalLimit={8} initalOffset={0} /> },
+      { path: 'posts', element: <Posts initalType={LOAN_STATUS.WAITING} orderByLastest='DESC' initalLimit={8} initalOffset={0} /> },
       { path: 'manageschool', element: <ManageSchool /> },
       { path: 'viewlistcontract', element: <ViewListContract /> },
       { path: 'viewtransactions', element: <ViewTransactions /> },
@@ -48,40 +47,24 @@ const routes = (isLogin) => [
       { path: 'profile', element: <Profile /> },
       { path: 'systemconfig', element: <Systemconfig /> },
       { path: 'contract', element: <ContractPage /> },
+      { path: 'viewallnoti', element: <ViewAllNoti /> },
       { path: '', element: <DashboardApp /> },
     ]
   },
   {
     path: '/',
-    element: isLogin?<LogoOnlyLayout />:<Navigate to ='./login' replace/>,
+    element: admin?<LogoOnlyLayout />:<Navigate to ='./login' replace/>,
     children: [
       { path: 'register', element: <Register /> },
       { path: '404', element: <NotFound /> },
     ]
   },
-  { path: '/login', element: isLogin?<Navigate to ='../dashboard' replace/> :<Login/> },
-  { path: '', element: isLogin?<Navigate to ='../dashboard' replace/> :<Login/> },
+  { path: '/login', element: admin?<Navigate to ='../dashboard' replace/> :<Login/> },
+  { path: '', element: admin?<Navigate to ='../dashboard' replace/> :<Login/> },
 ]
 
 export default function Router() {
-  const [isLogin, setIsLogin] = useState(false)
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (!getJWToken()) { return }
-        loadToken()
-        const resData = await userApi.getAdminInfo()
-        if (resData.data) {
-          setIsLogin(true)
-        }
-      }
-      catch (e) {
-        console.log(e)
-      }
-    }
-    fetchData()
-  })
-
-  return useRoutes(routes(isLogin));
+  const context = useAuthState()
+  const admin = context.admin
+  return useRoutes(routes(admin));
 }

@@ -15,8 +15,6 @@ import { studentApi } from '../../apis/student'
 import { userApi } from '../../apis/user'
 import { USER_STATUS } from '../../constants/enum'
 
-import { useAuthState } from '../../context/AuthContext'
-
 const styleModal = {
     position: 'absolute',
     top: '50%',
@@ -55,7 +53,6 @@ export default function StudentProfile(props) {
     useEffect(() => {
         const fetchData = async () => {
             const res = await studentApi.getStudentByUserId(userId)
-            console.log(res);
             const user = res.data.student.User
             setUser(user)
         }

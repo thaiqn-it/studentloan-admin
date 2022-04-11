@@ -14,7 +14,7 @@ import { LOAN_STATUS } from '../constants/enum';
 
 // ----------------------------------------------------------------------
 
-export default function WaitingPost(props) {
+export default function Posts(props) {
   const { orderByLastest, initalLimit, initalOffset, initalType } = props
   const [lastPage, setLastPage] = useState(0)
   const [limit, setLimit] = useState(initalLimit)

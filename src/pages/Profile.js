@@ -41,6 +41,9 @@ export default function Profile() {
   const navigate = useNavigate()
   const [admin, setAdmin] = React.useState({})
 
+  const user = useAuthState()
+  console.log(user)
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -55,34 +58,8 @@ export default function Profile() {
     fetchData()
   }, [])
 
-
-  const [date, setDate] = React.useState(new Date());
-
-  const handleChangeDate = (newValue) => {
-    setDate(newValue);
-  };
-
-  const [values, setValues] = React.useState({
-    password: '123456',
-  });
-
-  const handleChange = (prop) => (event) => {
-    setValues({ ...values, [prop]: event.target.value });
-  };
-
-  const handleClickShowPassword = () => {
-    setValues({
-      ...values,
-      showPassword: !values.showPassword,
-    });
-  };
-
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
-
   const onBack = () => {
-    navigate('/')
+    navigate('/dashboard')
   }
 
   return (
