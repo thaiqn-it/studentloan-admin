@@ -41,8 +41,9 @@ export default function Reports() {
   const [total, setTotal] = useState(0)
   useEffect(() => {
     const fetchData = async() => {
-      const res = await userApi.count({type:USER_TYPE.STUDENT || USER_TYPE.STUDENT, status:USER_STATUS.PENDING})
-      setTotal(res.data)
+      const resStudent = await userApi.count({type:USER_TYPE.STUDENT, status:USER_STATUS.PENDING})
+      const resInvestor = await userApi.count({type:USER_TYPE.INVESTOR, status:USER_STATUS.PENDING})
+      setTotal(Number.parseInt(resStudent.data)+Number.parseInt(resInvestor.data))
     }
     fetchData()
   }, [])

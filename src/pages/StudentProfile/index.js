@@ -102,7 +102,7 @@ export default function StudentProfile(props) {
                         variant="contained"
                         endIcon={<LockOpenIcon />}
                     >
-                        Bỏ chặn
+                        Bỏ cấm
                     </Button>
                 </Grid>
             )
@@ -121,7 +121,7 @@ export default function StudentProfile(props) {
                         variant="contained"
                         endIcon={<BlockIcon />}
                     >
-                        Chặn
+                        Cấm
                     </Button>
                     <Modal
                         open={openBanConfirm}
@@ -131,7 +131,7 @@ export default function StudentProfile(props) {
                     >
                         <Box sx={styleModal}>
                             <Typography id="modal-modal-title" variant="h6" component="h2">
-                                Lý do chặn
+                                Lý do cấm
                             </Typography>
                             <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
                             <Button
@@ -262,7 +262,7 @@ export default function StudentProfile(props) {
                         display="flex"
                         color="error"
                     >
-                        <CloseIcon color="error" /> Bị chặn
+                        <CloseIcon color="error" /> Bị cấm
                     </Typography>
 
                     <Typography

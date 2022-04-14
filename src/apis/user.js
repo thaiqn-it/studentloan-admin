@@ -11,10 +11,11 @@ const getOne = (id) =>{
     return defaultInstance.get(`/user/${id}`)
 }
 
-const login = (email,password) =>{
+const login = (email,password,type) =>{
     return defaultInstance.post('/user/login',{
         email,
-        password
+        password,
+        type
     })
 }
 

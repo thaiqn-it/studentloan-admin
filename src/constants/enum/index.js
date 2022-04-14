@@ -25,6 +25,7 @@ exports.LOAN_SCHEDULE_TYPE = {
 exports.USER_TYPE = {
   STUDENT: "STUDENT",
   INVESTOR: "INVESTOR",
+  ADMIN: "ADMIN",
 };
 
 exports.USER_STATUS = {
@@ -115,6 +116,11 @@ exports.SYSTEM_CONFIG_TYPE = {
   FF : "FIXED_FEE",
   INTEREST : "INTEREST"
 }
+
+exports.CONTRACT_STATUS = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+};
 
 exports.NOTIFICATION_STATUS = {
   ACTIVE: "ACTIVE",

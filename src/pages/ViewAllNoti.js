@@ -15,9 +15,9 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useNavigate } from 'react-router-dom';
 
 const TABLE_HEAD = [
-    { id: 'type', label: 'Tiến độ', alignRight: false },
-    { id: 'description', label: 'Số tiền cần trả', alignRight: false },
-    { id: 'createdAt', label: 'Ngày bắt đầu', alignRight: false },
+    { id: 'type', label: 'Loại', alignRight: false },
+    { id: 'description', label: 'Mô tả', alignRight: false },
+    { id: 'createdAt', label: 'Vào ngày', alignRight: false },
     { id: 'isRead', label: 'Trạng thái', alignRight: false },
     { id: '', label: '', alignRight: false },
 ];

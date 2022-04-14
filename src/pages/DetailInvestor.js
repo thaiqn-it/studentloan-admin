@@ -401,7 +401,17 @@ export default function DetailStudent() {
                                 <LocalPhoneIcon sx={{ marginRight: 0.5, color: "#00e68a" }} /> {user.phoneNumber}
                             </Typography>
 
-                            
+                            <Typography sx={{ margin: 2 }}
+                                variant="h6" display="flex" alignItems="center">
+                                <LocationOnIcon sx={{ marginRight: 0.5, color: "#FF0000" }} /> {user.address}
+                            </Typography>
+
+                            <Typography sx={{ margin: 2 }}
+                                variant="h6" display="flex" alignItems="center">
+                                <EventIcon sx={{ marginRight: 0.5, color: "#0021FF" }} /> {moment(user.birthDate).format("DD/MM/YYYY")}
+                            </Typography>
+
+
 
 
                         </Card>
@@ -420,7 +430,7 @@ export default function DetailStudent() {
                         <Grid
                             item
                             xs={3}>
-                            <Typography 
+                            <Typography
                                 variant="h6" display="flex" alignItems="center">
                                 <CreditScoreIcon sx={{ marginRight: 0.5, color: "#F0DB5D" }} /> {investor.citizenId}
                             </Typography>
@@ -428,7 +438,7 @@ export default function DetailStudent() {
                         <Grid
                             item
                             xs={3}>
-                            <Typography 
+                            <Typography
                                 variant="h6" display="flex" alignItems="center">
                                 <LocationOnIcon sx={{ marginRight: 0.5, color: "#FF0000" }} /> {investor.citizenCardCreatedPlace}
                             </Typography>
@@ -436,15 +446,15 @@ export default function DetailStudent() {
                         <Grid
                             item
                             xs={3}>
-                            <Typography 
+                            <Typography
                                 variant="h6" display="flex" alignItems="center">
                                 <EventIcon sx={{ marginRight: 0.5, color: "#0021FF" }} /> {moment(investor.citizenCardCreatedDate).format("DD/MM/YYYY")}
                             </Typography>
                         </Grid>
                     </Grid>
                     <Divider sx={{
-                                margin: 1,
-                            }} color="primary.main" />
+                        margin: 1,
+                    }} color="primary.main" />
                     <Grid
                         container
                         spacing={4}>
