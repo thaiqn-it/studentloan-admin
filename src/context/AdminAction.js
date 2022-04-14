@@ -1,12 +1,13 @@
 import { loadToken } from '../apis/index'
 import { userApi } from '../apis/user'
 import { USER_ID, JWT_TOKEN } from '../constants/index'
+import { USER_TYPE} from '../constants/enum/index'
 const { USER_REDUCER_ACTION } = require('./AuthContext')
 
 export const loginUser = async (dispatch, email, password) => {
     try {
         dispatch({ type: USER_REDUCER_ACTION.REQUEST_LOGIN })
-        const tokenRes = await userApi.login(email, password)
+        const tokenRes = await userApi.login(email, password,USER_TYPE.ADMIN)
         if (tokenRes.status !== 200 || !tokenRes.data.token)
             throw new Error(tokenRes.data.msg)
         const token = tokenRes.data.token

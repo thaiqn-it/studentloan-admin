@@ -1,7 +1,7 @@
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 // material
 import {
   Card,
@@ -17,7 +17,6 @@ import {
   Button,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import Edit from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 
 // components
@@ -32,7 +31,7 @@ import { SCHOOL_STATUS } from '../constants/enum';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
+  { id: 'name', label: 'Tên', alignRight: false },
   { id: 'city', label: 'Thành phố/Tỉnh', alignRight: false },
   { id: 'district', label: 'Quận/Huyện', alignRight: false },
   { id: 'isVerified', label: 'Trạng thái', alignRight: false },
@@ -187,9 +186,9 @@ export default function ManageSchool() {
                                 navigate(`../detailschool/${id}`)
                               }}
                               variant="contained"
-                              endIcon={<Edit />}
+                              endIcon={<VisibilityIcon />}
                             >
-                              Chỉnh sửa
+                              Xem
                             </LoadingButton>
                           </TableCell>
                         </TableRow>

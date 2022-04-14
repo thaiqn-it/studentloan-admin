@@ -11,6 +11,7 @@ import Scrollbar from '../components/Scrollbar';
 import Label from '../components/Label';
 import SearchNotFound from '../components/SearchNotFound';
 import { filter } from 'lodash';
+import { CONTRACT_STATUS } from '../constants/enum';
 
 const TABLE_HEAD = [
     { id: 'contractCode', label: 'Mã hợp đồng', alignRight: false },
@@ -179,7 +180,7 @@ export default function App(props) {
                                                         variant="ghost"
                                                         color={(status === 'INACTIVE' && 'error') || 'success'}
                                                     >
-                                                        {sentenceCase(status)}
+                                                        {status === CONTRACT_STATUS.INACTIVE?'Không kích hoạt':'Đang kích hoạt'}
                                                     </Label>
                                                 </TableCell>
 

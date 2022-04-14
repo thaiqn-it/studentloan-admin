@@ -88,7 +88,6 @@ export default function ViewTransactions() {
   const [listYear, setListYear] = useState([])
   const [listTrans, setListTrans] = useState([])
   const [income, setIncome] = useState(0)
-  const [isChange, setIsChange] = useState(moment().format())
   useEffect(() => {
     const fetchData = async () => {
       const currentYear = new Date().getFullYear()
@@ -112,7 +111,7 @@ export default function ViewTransactions() {
     let income = 0
     for (let index = 0; index < listTrans.length; index++) {
       const element = listTrans[index];
-      income = income + element.transactionFee
+      income = income + Number.parseInt(element.transactionFee)
     }
     setIncome(income)
   }
