@@ -100,8 +100,8 @@ export default function ViewPost() {
       try {
         const res = await loanApi.getOne(id);
         setLoan(res.data.loan);
-        setSchool(res.data.loan.Student.SchoolMajor.School);
-        setMajor(res.data.loan.Student.SchoolMajor.Major);
+        setSchool(res.data.loan.Student.Information.SchoolMajor.School);
+        setMajor(res.data.loan.Student.Information.SchoolMajor.Major);
         setUser(res.data.loan.Student.User);
         setArchievements(res.data.loan.Student.Archievements);
         setLoanHistories(res.data.loan.LoanHistories);
@@ -177,16 +177,19 @@ export default function ViewPost() {
     }
     loanHistoryApi
       .update(history.id, { ...history, isActive: false })
-      .then(loanHistoryApi.create(newHistory));
-    if (url !== null) {
-      url.map(item => {
-        return loanHistoryImageApi.create({
-          loanHistoryId: history.id,
-          imageUrl: item.url,
-          status: LOANHISTORYIMAGE_STATUS.ACTIVE
-        })
-      })
-    }
+      .then(loanHistoryApi.create(newHistory).then(
+        res => {
+          if (url !== null) {
+            url.map(item => {
+              return loanHistoryImageApi.create({
+                loanHistoryId: res.data.id,
+                imageUrl: item.url,
+                status: LOANHISTORYIMAGE_STATUS.ACTIVE
+              })
+            })
+          }
+        }
+      ));
     handleCloseDialog();
     if (type === 'Approve') {
       getMsg("Duyệt bài thành công! (Sẽ quay về sau 3 giây)", "success", true);

@@ -1,5 +1,4 @@
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 // material
@@ -13,6 +12,7 @@ import {
   Container,
   Typography,
   TableContainer,
+  Avatar,
   TablePagination
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -30,10 +30,12 @@ import { useNavigate } from 'react-router-dom';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
+  { id: 'name', label: 'Tên người dùng', alignRight: false },
   { id: 'phoneNum', label: 'Số điện thoại người dùng', alignRight: false },
   { id: 'email', label: 'Thư điện tử', alignRight: false },
   { id: 'type', label: 'Loại', alignRight: false },
   { id: 'status', label: 'Trạng thái', alignRight: false },
+  { id: '' },
 ];
 
 // ----------------------------------------------------------------------
@@ -50,32 +52,32 @@ function descendingComparator(a, b, orderBy) {
   return 0;
 }
 
-const color = (status) =>{
-  if(status === USER_STATUS.BAN){
+const color = (status) => {
+  if (status === USER_STATUS.BAN) {
     return 'error'
   }
-  if(status === USER_STATUS.UNVERIFIED){
+  if (status === USER_STATUS.UNVERIFIED) {
     return 'default'
   }
-  if(status === USER_STATUS.VERIFIED){
+  if (status === USER_STATUS.VERIFIED) {
     return 'success'
   }
-  if(status === USER_STATUS.PENDING){
+  if (status === USER_STATUS.PENDING) {
     return 'warning'
   }
 }
 
-const vietSubStatus = (status) =>{
-  if(status === USER_STATUS.BAN){
+const vietSubStatus = (status) => {
+  if (status === USER_STATUS.BAN) {
     return 'Bị cấm'
   }
-  if(status === USER_STATUS.UNVERIFIED){
+  if (status === USER_STATUS.UNVERIFIED) {
     return 'Chưa xác thực'
   }
-  if(status === USER_STATUS.VERIFIED){
+  if (status === USER_STATUS.VERIFIED) {
     return 'Đã xác thực'
   }
-  if(status === USER_STATUS.PENDING){
+  if (status === USER_STATUS.PENDING) {
     return 'Chờ xác thực'
   }
 }
@@ -95,8 +97,8 @@ function applySortFilter(array, comparator, query) {
   });
   if (query) {
     return filter(array, (_user) => {
-      var phoneNumber = _user.phoneNumber
-      return phoneNumber.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      var name = _user.firstName + " " + _user.lastName
+      return name.toLowerCase().indexOf(query.toLowerCase()) !== -1
     }
     );
   }
@@ -106,9 +108,8 @@ function applySortFilter(array, comparator, query) {
 export default function User() {
   let navigate = useNavigate();
   const [page, setPage] = useState(0);
-  const [order, setOrder] = useState('asc');
-  const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('');
+  const [order, setOrder] = useState('desc');
+  const [orderBy, setOrderBy] = useState('type');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [userList, setUserList] = useState([]);
@@ -123,15 +124,6 @@ export default function User() {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-  };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = userList.map((n) => n.name);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
   };
 
   const isStudent = (type, id) => {
@@ -221,9 +213,12 @@ export default function User() {
                     .map((row) => {
                       const {
                         id,
+                        firstName,
+                        lastName,
                         phoneNumber,
                         type,
                         email,
+                        profileUrl,
                         status } = row;
 
                       return (
@@ -235,16 +230,25 @@ export default function User() {
                         >
                           <TableCell
                             component="th" scope="row" padding="none">
-                            <Stack direction="row" alignItems="center">
+                            <Stack direction="row" alignItems="center" spacing={0.5}>
+                              <Avatar alt={lastName} src={profileUrl} style={{
+                                marginLeft: 10,
+                              }}/>
+                              <Typography variant="subtitle2" noWrap>
+                              {firstName} {lastName}
+                              </Typography>
+                            </Stack>
+                            {/* <Stack direction="row" alignItems="center">
                               <Typography style={{
                                 marginLeft: 15,
                               }} variant="subtitle2" noWrap>
-                                {phoneNumber}
+                                
                               </Typography>
-                            </Stack>
+                            </Stack> */}
                           </TableCell>
+                          <TableCell align="left">{phoneNumber}</TableCell>
                           <TableCell align="left">{email}</TableCell>
-                          <TableCell align="left">{type===USER_TYPE.STUDENT?'Sinh viên':'Nhà đầu tư'}</TableCell>
+                          <TableCell align="left">{type === USER_TYPE.STUDENT ? 'Sinh viên' : 'Nhà đầu tư'}</TableCell>
                           <TableCell align="left">
                             <Label
                               variant="ghost"

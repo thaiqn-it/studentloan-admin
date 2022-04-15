@@ -74,7 +74,7 @@ export default function BlogPostCard({ post, index }) {
 
   const getPost_Infor = (info) => {
     if (typeof info.name === 'object') {
-      var nameGet = info.name.SchoolMajor.Major.name
+      var nameGet = info.name.Information.SchoolMajor.Major.name
       return (
         <>
           <Box component={Icon} icon={info.icon} sx={{ width: 16, height: 16, mr: 0.5 }} />
@@ -129,14 +129,14 @@ export default function BlogPostCard({ post, index }) {
               variant="caption"
               sx={{ color: 'text.disabled', display: 'block' }}
             >
-              {Student.User.firstName} {Student.User.lastName}
+              {Student?.User.firstName} {Student?.User.lastName}
             </Typography>
             <Typography
               gutterBottom
               variant="caption"
               sx={{ color: 'text.disabled', display: 'block' }}
             >
-              {Student.SchoolMajor.School.name}
+              {Student?.Information.SchoolMajor.School.name}
             </Typography>
           </Grid>
 

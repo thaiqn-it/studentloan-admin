@@ -4,13 +4,9 @@ import { useEffect, useState } from 'react';
 import {
   Card,
   Table,
-  Stack,
-  Avatar,
   TableRow,
   TableBody,
   TableCell,
-  Container,
-  Typography,
   TableContainer,
   TablePagination,
   Grid,
@@ -28,7 +24,7 @@ import { ListHead, ListToolbar } from '../components/_dashboard/user';
 //
 import { transactionApi } from '../apis/transactionApi';
 import { sentenceCase } from 'change-case';
-import { TRANSACTION_STATUS } from '../constants/enum';
+import { TRANSACTION_STATUS, WALLET_TYPE } from '../constants/enum';
 import { convertCurrencyVN } from '../utils/formatNumber';
 import { fDate } from '../utils/formatTime';
 import PriceCheckIcon from '@mui/icons-material/PriceCheck';
@@ -88,6 +84,21 @@ export default function ViewTransactions() {
   const [listYear, setListYear] = useState([])
   const [listTrans, setListTrans] = useState([])
   const [income, setIncome] = useState(0)
+
+  const vietsubType = (type) =>{
+    if (type===WALLET_TYPE.RECEIVE){
+      return 'Nhận tiền'
+    }
+    else if (type===WALLET_TYPE.TOPUP){
+      return 'Nạp tiền'
+    }
+    else if (type===WALLET_TYPE.TRANSFER){
+      return 'Chuyển tiền'
+    }
+    else if (type===WALLET_TYPE.WITHDRAW){
+      return 'Rút tiền'
+    }
+  }
   useEffect(() => {
     const fetchData = async () => {
       const currentYear = new Date().getFullYear()
@@ -225,13 +236,13 @@ export default function ViewTransactions() {
                         <TableCell align="left">{convertCurrencyVN(money)}</TableCell>
                         <TableCell align="left">{convertCurrencyVN(transactionFee)}</TableCell>
                         <TableCell align="left">{fDate(createdAt)}</TableCell>
-                        <TableCell align="left">{type}</TableCell>
+                        <TableCell align="left">{vietsubType(type)}</TableCell>
                         <TableCell align="left">
                           <Label
                             variant="ghost"
                             color={(status === TRANSACTION_STATUS.FAIL && 'error') || 'success'}
                           >
-                            {sentenceCase(status)}
+                            {status ===TRANSACTION_STATUS.FAIL?'Thất bại':'Thành công'}
                           </Label>
                         </TableCell>
                       </TableRow>
