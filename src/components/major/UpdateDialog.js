@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import {
-  Select,
   TextField,
-  MenuItem,
-  FormControl,
-  FormControlLabel,
-  InputLabel,
-  Checkbox,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -16,21 +10,12 @@ import Button from '@mui/material/Button';
 import styles from "./UpdateDialog.module.css";
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
-import faker from 'faker';
 import { majorApi } from "../../apis/major";
 
 export const UpdateDialog = (props) => {
   const [text, setText] = useState(props.major.name);
-  const [parentId, setParentId] = useState(null);
   const [name, setName] = useState("");
-  const status = 'ACTIVE'
-  const [parent, setParent] = useState(null);
-  const [droppable, setDroppable] = useState(false);
-  var major = {};
-  const id = faker.datatype.uuid();
   const majorUpdate = props.major
-  // const firstNode = props.firstNode;
-  // console.log(firstNode.id)
 
   const handleChangeText = (e) => {
     setText(e.target.value);

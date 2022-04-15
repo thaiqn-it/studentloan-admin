@@ -114,7 +114,6 @@ export default function ViewPost() {
         navigate('/404')
       }
     };
-
     fetchData();
   }, [id]);
 

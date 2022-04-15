@@ -13,6 +13,7 @@ import { LoadingButton } from '@mui/lab';
 import AddIcon from '@mui/icons-material/Add';
 // components
 import Page from '../components/Page';
+import moment from 'moment';
 //api
 import { systemConfigApi } from '../apis/systemConfig';
 // ----------------------------------------------------------------------
@@ -40,6 +41,7 @@ export default function SystemConfig() {
     const [transactionFee, setTransactionFee] = React.useState()
     const [penaltyFee, setPenaltyFee] = React.useState()
     const [systemConfig, setSystemConfig] = React.useState({})
+    // const [isChange, setIsChange] = React.useState(moment().format())
 
     const [open, setOpen] = React.useState(false);
     const handleClose = () => setOpen(false)
@@ -49,7 +51,7 @@ export default function SystemConfig() {
     const vertical = 'bottom'
     const horizontal = 'right'
 
-    const createNewSystemConfig = () => {
+    const createNewSystemConfig = (systemConfig) => {
         const clone = (({ id, createdAt, updatedAt, ...o }) => o)(systemConfig)
         const newConfig = { ...clone, interest: interest / 100, fixedMoney: fixedMoney, transactionFee: transactionFee / 100, penaltyFee: penaltyFee / 100 }
         if (interest <= 0 || fixedMoney <= 0 || transactionFee <= 0 || penaltyFee <= 0) {
@@ -58,11 +60,20 @@ export default function SystemConfig() {
             setMessage('Một vài thông tin nhập sai yêu cầu!')
         } else {
             systemConfigApi.update(systemConfig.id, { ...systemConfig, status: false }).then(
-                systemConfigApi.create(newConfig)
+                systemConfigApi.create(newConfig).then(res=>{
+                    setSystemConfig({
+                        id:res.data.id,
+                        createdAt: res.data.createdAt,
+                        updatedAt: res.data.updatedAt,
+                        ...newConfig
+                    })
+                })
             )
             setColorSB('success')
             handleOpen()
             setMessage('Cập nhật hệ thống thành công')
+            
+            // setIsChange(moment().format())
         }
 
     }
@@ -161,7 +172,7 @@ export default function SystemConfig() {
                         </Grid>
 
                         <LoadingButton
-                            onClick={createNewSystemConfig}
+                            onClick={()=>createNewSystemConfig(systemConfig)}
                             size="large"
                             style={{
                                 marginTop: 30,

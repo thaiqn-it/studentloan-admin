@@ -24,7 +24,6 @@ export const loginUser = async (dispatch, email, password) => {
         })
         return userRes
     } catch (err) {
-        console.log(err)
         dispatch({
             type: USER_REDUCER_ACTION.LOGIN_FAILED,
             payload: { error: err },

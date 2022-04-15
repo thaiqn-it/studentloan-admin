@@ -14,6 +14,8 @@ import BlockIcon from '@mui/icons-material/Block';
 import { studentApi } from '../../apis/student'
 import { userApi } from '../../apis/user'
 import { USER_STATUS } from '../../constants/enum'
+import moment from "moment";
+import { useNavigate } from 'react-router-dom'
 
 const styleModal = {
     position: 'absolute',
@@ -30,8 +32,8 @@ const styleModal = {
 
 export default function StudentProfile(props) {
     var userId = props.userId
-
-    const [isChange, setIsChange] = useState("");
+    const navigate = useNavigate()
+    const [isChange, setIsChange] = useState(moment().format());
     const [reason, setReason] = useState("");
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
@@ -47,33 +49,34 @@ export default function StudentProfile(props) {
     const handleOpenBanConfirm = () => setOpenBanConfirm(true);
     const handleCloseBanConfirm = () => setOpenBanConfirm(false);
 
-    // const userContext = useAuthState();
-    // console.log(userContext)
-
     useEffect(() => {
         const fetchData = async () => {
-            const res = await studentApi.getStudentByUserId(userId)
-            const user = res.data.student.User
-            setUser(user)
+            try {
+                const res = await studentApi.getStudentByUserId(userId)
+                const user = res.data.student.User
+                setUser(user)
+            } catch (e) {
+                navigate('/404')
+            }
         }
         fetchData()
     }, [isChange])
 
     const appoveUser = (user) => {
-        setIsChange("approve user")
+        setIsChange(moment().format())
         handleCloseConfirmApprove()
         userApi.update({ ...user, status: USER_STATUS.VERIFIED })
     }
 
     const confirmDeny = (user) => {
-        setIsChange("deny user")
+        setIsChange(moment().format())
         handleClose()
         setReason("")
         userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason })
     }
 
     const confirmBan = (user) => {
-        setIsChange("ban user")
+        setIsChange(moment().format())
         handleCloseBanConfirm()
         userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason })
         setReason("")
@@ -81,7 +84,7 @@ export default function StudentProfile(props) {
 
 
     const confirmUnBan = (user) => {
-        setIsChange("unban user")
+        setIsChange(moment().format())
         handleCloseConfirmUnBan()
         userApi.update({ ...user, status: USER_STATUS.UNVERIFIED })
     }

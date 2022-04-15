@@ -12,20 +12,17 @@ import { studentApi } from '../../../../apis/student';
 
 export default function DetailAccountCard(props) {
     var userId = props.userId
-    const [student, setStudent] = useState({});
     const [user, setUser] = useState({});
     const [major, setMajor] = useState({});
     const [school, setSchool] = useState({});
     useEffect(() => {
         const fetchData = async () => {
             const res = await studentApi.getStudentByUserId(userId)
-            const student = res.data.student
             const user = res.data.student.User
             const major = res.data.student.SchoolMajor.Major
             const school = res.data.student.SchoolMajor.School
             setMajor(major)
             setSchool(school)
-            setStudent(student)
             setUser(user)
         }
         fetchData()
@@ -38,11 +35,6 @@ export default function DetailAccountCard(props) {
         return data;
     }
 
-    // function formatAddress(address) {
-    //     console.log(address)
-    //     console.log(typeof(address))
-    //     typeof address === 'string' ? address.toString().replaceAll("-", ", ") : address.replaceAll("-", ", ");
-    // }
     return (
         <>
             <Paper elevation={3} sx={{ borderRadius: "10px" }}>

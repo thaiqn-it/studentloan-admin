@@ -69,7 +69,7 @@ const styleModal = {
 export default function DetailStudent() {
     const navigate = useNavigate()
     const [open, setOpen] = useState(false);
-    const [isChange, setIsChange] = useState("");
+    const [isChange, setIsChange] = useState(moment().format());
     const [reason, setReason] = useState("");
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -92,30 +92,34 @@ export default function DetailStudent() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await investorApi.getInvestorByUserId(id)
-            const investor = res.data
-            const user = res.data.User
-            setInvestor(investor)
-            setUser(user)
+            try {
+                const res = await investorApi.getInvestorByUserId(id)
+                const investor = res.data
+                const user = res.data.User
+                setInvestor(investor)
+                setUser(user)
+            } catch (e) {
+                navigate('/404')
+            }
         }
         fetchData()
     }, [isChange])
 
     const appoveUser = (user) => {
-        setIsChange("approve user")
+        setIsChange(moment().format())
         handleCloseConfirmApprove()
         userApi.update({ ...user, status: USER_STATUS.VERIFIED })
     }
 
     const confirmDeny = (user) => {
-        setIsChange("deny user")
+        setIsChange(moment().format())
         handleClose()
         setReason("")
         userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason })
     }
 
     const confirmBan = (user) => {
-        setIsChange("ban user")
+        setIsChange(moment().format())
         handleCloseBanConfirm()
         userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason })
         setReason("")
@@ -123,7 +127,7 @@ export default function DetailStudent() {
 
 
     const confirmUnBan = (user) => {
-        setIsChange("unban user")
+        setIsChange(moment().format())
         handleCloseConfirmUnBan()
         userApi.update({ ...user, status: USER_STATUS.UNVERIFIED })
     }

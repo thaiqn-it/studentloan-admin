@@ -192,7 +192,7 @@ export default function User() {
 
         <Card>
           <ListToolbar
-            target={"Số điện thoại"}
+            target={"Tên người dùng"}
             filterName={filterName}
             onFilterName={handleFilterByName}
           />
@@ -238,13 +238,6 @@ export default function User() {
                               {firstName} {lastName}
                               </Typography>
                             </Stack>
-                            {/* <Stack direction="row" alignItems="center">
-                              <Typography style={{
-                                marginLeft: 15,
-                              }} variant="subtitle2" noWrap>
-                                
-                              </Typography>
-                            </Stack> */}
                           </TableCell>
                           <TableCell align="left">{phoneNumber}</TableCell>
                           <TableCell align="left">{email}</TableCell>

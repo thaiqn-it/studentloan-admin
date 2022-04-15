@@ -40,7 +40,6 @@ export default function LoginForm() {
       }
     }
     catch (e) {
-      console.log(e)
       setIsErr(true)
     }
   }

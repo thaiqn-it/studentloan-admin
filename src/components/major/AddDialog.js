@@ -29,8 +29,6 @@ export const AddDialog = (props) => {
   var major = {};
   const id = faker.datatype.uuid();
   const schoolId = props.schoolId
-  // const firstNode = props.firstNode;
-  // console.log(firstNode.id)
 
   const handleChangeText = (e) => {
     setText(e.target.value);

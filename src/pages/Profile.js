@@ -39,24 +39,22 @@ const ContentStyle = styled('div')(({ theme }) => ({
 
 export default function Profile() {
   const navigate = useNavigate()
-  const [admin, setAdmin] = React.useState({})
+  // const [admin, setAdmin] = React.useState({})
+  const context = useAuthState()
+  const admin = context.admin
 
-  const user = useAuthState()
-  console.log(user)
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        loadToken()
-        const resData = await userApi.getAdminInfo()
-        setAdmin(resData.data)
-      }
-      catch (e) {
-        console.log(e)
-      }
-    }
-    fetchData()
-  }, [])
+  // React.useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       loadToken()
+  //       const resData = await userApi.getAdminInfo()
+  //       setAdmin(resData.data)
+  //     }
+  //     catch (e) {
+  //     }
+  //   }
+  //   fetchData()
+  // }, [])
 
   const onBack = () => {
     navigate('/dashboard')

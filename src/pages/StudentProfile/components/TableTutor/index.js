@@ -15,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import { Button } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import moment from 'moment';
 
 import { visuallyHidden } from '@mui/utils';
 import { tutorApi } from '../../../../apis/tutor';
@@ -188,6 +189,7 @@ export default function EnhancedTable(props) {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [listTutor, setListutor] = React.useState([]);
+  const [isChange,setIsChange] = React.useState(moment().format());
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [tutorId, setTutorId] = React.useState("");
@@ -200,7 +202,7 @@ export default function EnhancedTable(props) {
       setListutor(listTutor)
     }
     fetchData()
-  }, [])
+  }, [isChange])
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -316,7 +318,7 @@ export default function EnhancedTable(props) {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <ModalDetailTutor onClose={handleClose} tutorId={tutorId} isOpen={isOpen} />
+      <ModalDetailTutor setIsChange = {setIsChange} onClose={handleClose} tutorId={tutorId} isOpen={isOpen} />
     </Box>
   );
 }

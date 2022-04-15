@@ -7,7 +7,7 @@ import { TUTOR_STATUS } from '../../../../constants/enum';
 
 
 export default function ModalDetailTutor(props) {
-    const { onClose, isOpen, tutorId } = props
+    const { onClose, isOpen, tutorId, setIsChange } = props
     const handleClose = () => { onClose() };
     const [tutor, setTutor] = useState({})
     const [openBanConfirm, setOpenBanConfirm] = useState(false);
@@ -32,6 +32,7 @@ export default function ModalDetailTutor(props) {
     const actionButton = () => {
         tutorApi.update(tutorId, { ...tutor, status: TUTOR_STATUS.UNVERIFIED })
         handleClose()
+        setIsChange(moment().format())
     };
 
     return (
