@@ -22,7 +22,8 @@ import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import EventIcon from '@mui/icons-material/Event';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import { userApi } from "../apis/user";
-import { USER_STATUS } from "../constants/enum";
+import { NOTIFICATION_STATUS, NOTIFICATION_TYPE, USER_STATUS } from "../constants/enum";
+import { notificationApi } from "../apis/notificationApi";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -95,12 +96,14 @@ export default function DetailStudent() {
         setOpenConfirmApprove(false)
     };
 
+
     const onBack = () => {
         navigate("/dashboard/user")
     }
 
     useEffect(() => {
         const fetchData = async () => {
+            console.log(isChange)
             try {
                 const res = await investorApi.getInvestorByUserId(id)
                 const investor = res.data
@@ -117,20 +120,44 @@ export default function DetailStudent() {
     const appoveUser = (user) => {
         setIsChange(moment().format())
         handleCloseConfirmApprove()
-        userApi.update({ ...user, status: USER_STATUS.VERIFIED })
+        userApi.update({ ...user, status: USER_STATUS.VERIFIED }).then(
+            notificationApi.create({
+                userId: user.id,
+                isRead: false,
+                type: NOTIFICATION_TYPE.USER,
+                status: NOTIFICATION_STATUS.ACTIVE,
+                redirectUrl: '/trang-chu/thong-tin',
+                description: "Admin đã đồng ý xác thực cho bạn",
+            }))
     }
 
     const confirmDeny = (user) => {
         setIsChange(moment().format())
         handleClose()
         setReason("")
-        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason })
+        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason }).then(
+            notificationApi.create({
+                userId: user.id,
+                isRead: false,
+                type: NOTIFICATION_TYPE.USER,
+                status: NOTIFICATION_STATUS.ACTIVE,
+                redirectUrl: '/trang-chu/thong-tin',
+                description: `Admin từ chối xác thực vì lí do: ${reason}`,
+            }))
     }
 
     const confirmBan = (user) => {
         setIsChange(moment().format())
         handleCloseBanConfirm()
-        userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason })
+        userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason }).then(
+            notificationApi.create({
+                userId: user.id,
+                isRead: false,
+                type: NOTIFICATION_TYPE.USER,
+                status: NOTIFICATION_STATUS.ACTIVE,
+                redirectUrl: `/trang-chu/thong-tin`,
+                description: `Bạn bị cấm vì lí do: ${reason}`,
+            }))
         setReason("")
     }
 
@@ -138,7 +165,15 @@ export default function DetailStudent() {
     const confirmUnBan = (user) => {
         setIsChange(moment().format())
         handleCloseConfirmUnBan()
-        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED })
+        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED }).then(
+            notificationApi.create({
+                userId: user.id,
+                isRead: false,
+                type: NOTIFICATION_TYPE.USER,
+                status: NOTIFICATION_STATUS.ACTIVE,
+                redirectUrl: '/trang-chu/thong-tin',
+                description: "Bạn đã được bỏ cấm",
+            }))
     }
 
     const buttonBaseOnStatus = (user) => {

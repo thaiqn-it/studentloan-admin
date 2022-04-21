@@ -13,9 +13,11 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import BlockIcon from '@mui/icons-material/Block';
 import { studentApi } from '../../apis/student'
 import { userApi } from '../../apis/user'
-import { USER_STATUS } from '../../constants/enum'
+import { NOTIFICATION_STATUS,NOTIFICATION_TYPE, USER_STATUS } from '../../constants/enum'
 import moment from "moment";
 import { useNavigate } from 'react-router-dom'
+import EditIcon from '@mui/icons-material/Edit';
+import { notificationApi } from '../../apis/notificationApi'
 
 const styleModal = {
     position: 'absolute',
@@ -58,6 +60,8 @@ export default function StudentProfile(props) {
         setOpenBanConfirm(false)
     };
 
+    const [isEditable, setIsEditable] = useState(false)
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -74,28 +78,72 @@ export default function StudentProfile(props) {
     const appoveUser = (user) => {
         setIsChange(moment().format())
         handleCloseConfirmApprove()
-        userApi.update({ ...user, status: USER_STATUS.VERIFIED })
+        userApi.update({ ...user, status: USER_STATUS.VERIFIED }).then(
+            notificationApi.create({
+                userId: user.id,
+                isRead: false,
+                type: NOTIFICATION_TYPE.USER,
+                status: NOTIFICATION_STATUS.ACTIVE,
+                redirectUrl: '/trang-chu/thong-tin',
+                description: "Admin đã đồng ý xác thực cho bạn",
+            }))
     }
 
     const confirmDeny = (user) => {
         setIsChange(moment().format())
         handleClose()
         setReason("")
-        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason })
+        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason }).then(
+            notificationApi.create({
+                userId: user.id,
+                isRead: false,
+                type: NOTIFICATION_TYPE.USER,
+                status: NOTIFICATION_STATUS.ACTIVE,
+                redirectUrl: '/trang-chu/thong-tin',
+                description: `Admin từ chối xác thực vì lí do: ${reason}`,
+            }))
     }
 
     const confirmBan = (user) => {
         setIsChange(moment().format())
         handleCloseBanConfirm()
-        userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason })
+        userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason }).then(
+            notificationApi.create({
+                userId: user.id,
+                isRead: false,
+                type: NOTIFICATION_TYPE.USER,
+                status: NOTIFICATION_STATUS.ACTIVE,
+                redirectUrl: `/trang-chu/thong-tin`,
+                description: `Bạn bị cấm vì lí do: ${reason}`,
+            }))
         setReason("")
     }
-
 
     const confirmUnBan = (user) => {
         setIsChange(moment().format())
         handleCloseConfirmUnBan()
-        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED })
+        if (isEditable === false) {
+            userApi.update({ ...user, status: USER_STATUS.UNVERIFIED }).then(
+                notificationApi.create({
+                    userId: user.id,
+                    isRead: false,
+                    type: NOTIFICATION_TYPE.USER,
+                    status: NOTIFICATION_STATUS.ACTIVE,
+                    redirectUrl: '/trang-chu/thong-tin',
+                    description: "Bạn đã được bỏ cấm",
+                }))
+        } else {
+            userApi.update({ ...user, status: USER_STATUS.UNVERIFIED }).then(
+                notificationApi.create({
+                    userId: user.id,
+                    isRead: false,
+                    type: NOTIFICATION_TYPE.USER,
+                    status: NOTIFICATION_STATUS.ACTIVE,
+                    redirectUrl: '/trang-chu/thong-tin',
+                    description: "Bạn được phép chỉnh sửa thông tin",
+                }))
+        }
+
     }
 
     const buttonBaseOnStatus = (user) => {
@@ -108,7 +156,8 @@ export default function StudentProfile(props) {
                     }}>
                     <Button
                         size="medium"
-                        onClick={handleOpenConfirmUnBan}
+                        onClick={()=>{handleOpenConfirmUnBan()
+                        setIsEditable(false)}}
                         type="submit"
                         color="primary"
                         variant="contained"
@@ -135,6 +184,23 @@ export default function StudentProfile(props) {
                     >
                         Cấm
                     </Button>
+
+                    {user.status === USER_STATUS.VERIFIED ? (
+                        <Button
+                            sx={{ marginLeft: 1 }}
+                            size="medium"
+                            onClick={() => {
+                                handleOpenConfirmUnBan()
+                                setIsEditable(true)
+                            }}
+                            type="submit"
+                            variant="contained"
+                            endIcon={<EditIcon />}
+                        >
+                            Cho phép chỉnh sửa
+                        </Button>
+                    ) : (<></>)}
+
                     <Modal
                         open={openBanConfirm}
                         onClose={handleCloseBanConfirm}
