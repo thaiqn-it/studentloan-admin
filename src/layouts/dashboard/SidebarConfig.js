@@ -5,6 +5,7 @@ import settingsFill from '@iconify/icons-eva/settings-fill';
 import bellFill from '@iconify/icons-eva/bell-fill';
 import schoolFill from '@iconify/icons-ion/school';
 import fileFill from '@iconify/icons-eva/file-text-fill'
+import bookFill from '@iconify/icons-eva/book-fill'
 
 // ----------------------------------------------------------------------
 
@@ -22,7 +23,7 @@ const sidebarConfig = [
     icon: getIcon(peopleFill)
   },
   {
-    title: 'quản lý các bài xin vay',
+    title: 'quản lý các hồ sơ vay',
     path: '/dashboard/posts',
     icon: getIcon(fileFill)
   },
@@ -30,6 +31,11 @@ const sidebarConfig = [
     title: 'quản lý trường đại học',
     path: '/dashboard/manageschool',
     icon: getIcon(schoolFill)
+  },
+  {
+    title: 'quản lý ngành học',
+    path: '/dashboard/managemajor',
+    icon: getIcon(bookFill)
   },
   {
     title: 'Thông báo',

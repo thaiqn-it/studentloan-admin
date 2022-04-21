@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 // components
+import DeleteIcon from '@mui/icons-material/Delete';
 import Page from '../components/Page';
 // components
 import * as React from 'react';
@@ -26,7 +27,8 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 //Api
 import { schoolApi } from '../apis/school';
 import MajorHandle from '../components/major/MajorHandle';
-import {PROVINCEVN} from '../apis/static/provinceVN'
+import { PROVINCEVN } from '../apis/static/provinceVN'
+import { SCHOOL_STATUS } from '../constants/enum';
 
 // ----------------------------------------------------------------------
 
@@ -67,12 +69,14 @@ export default function DetailSchool() {
   const [listCity, setListCity] = useState([])
   const [listDistrict, setListDistrict] = useState([])
 
+  const [isDuplicated, setIsDuplicated] = useState(false)
+
   const handleChangeTabs = (event, newValue) => {
     settab(newValue);
   };
 
-  const getAllDistrictInit = (id) =>{
-    var district = PROVINCEVN.district.filter(item=>item.idProvince===id)
+  const getAllDistrictInit = (id) => {
+    var district = PROVINCEVN.district.filter(item => item.idProvince === id)
     setListDistrict(district)
   }
 
@@ -99,12 +103,20 @@ export default function DetailSchool() {
 
   const onChangeName = (event) => {
     setname(event.target.value)
+    schoolApi.checkDuplicate(event.target.value).then(res => {
+      if (res.data === null) {
+        setIsDuplicated(false)
+      } else {
+        setIsDuplicated(true)
+      }
+    })
   }
 
   const getListCity = (list) => {
     return list.map(item =>
       <MenuItem onClick={() => {
         getAllDistrictInit(item.idProvince)
+        setdistrict("")
         setcity(item.name)
       }
       } key={item.name} value={item.name}>{item.name}</MenuItem>
@@ -128,22 +140,34 @@ export default function DetailSchool() {
   };
 
   function updateSchool(id) {
-    schoolApi.update(id, {
-      name,
-      city,
-      district,
-      status,
-    }
-    ).then(res => {
-      setOpen(true);
-      setcolorMessage('success')
-      setmessage('Chỉnh sửa thành công!')
-    }).catch(
-      (e) => {
+    if (isDuplicated==false) {
+      if (name.length > 500 || name.length < 1 || city.length < 1 || district < 1) {
         setcolorMessage('error')
+        setOpen(true);
         setmessage('Chỉnh sửa thất bại!')
+      } else {
+        schoolApi.update(id, {
+          name,
+          city,
+          district,
+        }
+        ).then(res => {
+          setOpen(true);
+          setcolorMessage('success')
+          setmessage('Chỉnh sửa thành công!')
+        }).catch(
+          (e) => {
+            setOpen(true);
+            setcolorMessage('error')
+            setmessage('Chỉnh sửa thất bại!')
+          }
+        )
       }
-    )
+    } else {
+      setcolorMessage('error')
+      setOpen(true);
+      setmessage('Trùng tên!')
+    }
   }
 
   return (
@@ -156,7 +180,7 @@ export default function DetailSchool() {
           <TabContext value={tab}>
             <TabList value={tab} onChange={handleChangeTabs} centered>
               <Tab label="Thông tin cơ bản" value={1} />
-              <Tab label="Chỉnh sửa ngành/chuyên ngành" value={2} />
+              <Tab label="Chỉnh sửa ngành" value={2} />
             </TabList>
             <TabPanel value={1}>
               <Typography sx={{
@@ -166,12 +190,7 @@ export default function DetailSchool() {
                 style={{
                   padding: 30,
                 }}>
-                <Typography>ID</Typography>
-                <TextField fullWidth defaultValue={id} disabled />
-
-                <Typography style={{
-                  marginTop: 30
-                }}>Tên</Typography>
+                <Typography>Tên</Typography>
                 <TextField fullWidth onChange={onChangeName} value={name} />
 
                 <Grid
@@ -208,22 +227,6 @@ export default function DetailSchool() {
                     </Select>
                   </Grid>
                 </Grid>
-                <Typography style={{
-                  marginTop: 30
-                }}>Trạng Thái</Typography>
-                <Autocomplete
-                  value={status}
-                  onChange={(event, newValue) => {
-                    setstatus(newValue);
-                  }}
-                  inputValue={status}
-                  id="controllable-states-demo"
-                  disableClearable={true}
-                  options={option}
-                  sx={{ width: "50%" }}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-
                 <Button
                   fullWidth
                   onClick={() => updateSchool(id)}
@@ -237,6 +240,31 @@ export default function DetailSchool() {
                   endIcon={<Edit />}
                 >
                   Chỉnh sửa
+                </Button>
+                <Button
+                  fullWidth
+                  onClick={() => {
+                    schoolApi.update(id, {
+                      name,
+                      city,
+                      district,
+                      status: SCHOOL_STATUS.INACTIVE
+                    }).then(res => {
+                      onBack()
+                    })
+                  }}
+                  size="large"
+                  style={{
+                    marginTop: 30,
+                    marginLeft: 5,
+                    width: "29%",
+                  }}
+                  type="submit"
+                  color='error'
+                  variant="contained"
+                  endIcon={<DeleteIcon />}
+                >
+                  Xóa
                 </Button>
               </Card>
             </TabPanel>

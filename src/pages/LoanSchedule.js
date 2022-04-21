@@ -60,6 +60,16 @@ function getColorBaseStatus(status) {
     }
 }
 
+function vietsubStatus(status) {
+    if(status===LOAN_SCHEDULE_STATUS.ONGOING){
+        return 'đang trả'
+    }else if(status===LOAN_SCHEDULE_STATUS.COMPLETED){
+        return 'đã trả'
+    }else{
+        return 'đã trễ'
+    }
+}
+
 export default function App(props) {
     const { loanId } = props
     const [listSchedule, setSchedule] = useState([])
@@ -160,7 +170,7 @@ export default function App(props) {
                                                     variant="ghost"
                                                     color={getColorBaseStatus(status)}
                                                 >
-                                                    {sentenceCase(status)}
+                                                    {vietsubStatus(status)}
                                                 </Label>
                                             </TableCell>
                                         </TableRow>

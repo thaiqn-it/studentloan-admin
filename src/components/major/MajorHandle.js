@@ -26,6 +26,8 @@ import { sentenceCase } from 'change-case';
 import { LoadingButton } from "@mui/lab";
 import { Edit, Clear } from "@mui/icons-material";
 import { filter } from "lodash";
+import { schoolMajorApi } from "../../apis/schoolmajorApi";
+import { SCHOOL_STATUS } from "../../constants/enum";
 
 function MajorHandle(props) {
   const schoolId = props.schoolId
@@ -37,6 +39,7 @@ function MajorHandle(props) {
   const [message, setmessage] = React.useState('')
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -48,6 +51,7 @@ function MajorHandle(props) {
   const TABLE_HEAD = [
     { id: 'name', label: 'Tên ngành', alignRight: false },
     { id: 'isVerified', label: 'Trạng thái', alignRight: false },
+    { id: '' },
     { id: '' }
   ];
 
@@ -57,10 +61,11 @@ function MajorHandle(props) {
   const [openSb, setOpenSb] = useState(false);
   const [filterName, setFilterName] = useState('');
   const [dataMajor, setDataMajor] = useState([])
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+
   const [page, setPage] = useState(0);
   const [majorDelete,setMajorDelete] = useState(null)
   const [majorUpdate,setMajorUpdate] = useState({})
+
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -79,7 +84,7 @@ function MajorHandle(props) {
       return a[1] - b[1];
     });
     if (query) {
-      return filter(array, (_major) => _major.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+      return filter(array, (_major) => _major.Major.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
     }
     return stabilizedThis.map((el) => el[0]);
   }
@@ -107,9 +112,10 @@ function MajorHandle(props) {
   };
 
   useEffect(() => {
-    majorApi.getAllBySchool(schoolId).then(res => {
+    schoolMajorApi.getAllBySchool(schoolId).then(res => {
       setDataMajor(res.data)
     })
+    console.log(getNameMajor('2578fd55-ed42-49cd-a45a-92fa6d8b2c6e'))
   }, [open,disable,update])
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - dataMajor.length) : 0;
@@ -117,39 +123,27 @@ function MajorHandle(props) {
   const filteredMajor = applySortFilter(dataMajor, getComparator(order, orderBy), filterName);
   const isMajorNotFound = filteredMajor.length === 0;
 
-  const handleDelete = (id, value) => {
-    const newTree = treeData.map((node) => {
-      if (node.id === id) {
-        return {
-          ...node,
-          status: "INACTIVE"
-        };
-      }
-      if (node.parent !== null && node.parent === id) {
-        return {
-          ...node,
-          status: "INACTIVE"
-        };
-      }
-      return node;
-    });
-    
-    setTreeData(newTree);
-  };
-
   const deleteBtnHandler = (id) => {
-    setMajorDelete(id)
+    setMajorDelete({
+      id
+    })
     setDisable(!disable) 
   }
 
-  const updateBtnHandler = (id,name) => {
+  const updateBtnHandler = (id) => {
     setMajorUpdate({
-      id,
-      name
+      id
     })
     setUpdate(!update) 
   }
-
+  
+  const getNameMajor = async (id) =>{
+    var name = ''
+    await majorApi.getOne(id).then(res=>{
+      name = res.data.name
+    })
+    return name
+  }
 
   const handleOpenDialog = () => {
     setOpen(true);
@@ -186,7 +180,7 @@ function MajorHandle(props) {
               margin: 1
             }}
             variant="contained" onClick={handleOpenDialog} startIcon={<AddIcon />}>
-            Tạo ngành
+            Thêm ngành
           </Button>
           {open && (
             <AddDialog
@@ -199,23 +193,23 @@ function MajorHandle(props) {
             disable && (
               <DeleteDialog 
                 onClose={handleCloseDeleteDialog}
-                majorId={majorDelete}
+                majorDelete={majorDelete}
               />
             )
           }
-
           {
             update && (
               <UpdateDialog 
                 onClose={handleCloseUpdateDialog}
-                major={majorUpdate}
+                schoolId={schoolId}
+                majorUpdate={majorUpdate}
               />
             )
           }
 
             <Card>
               <ListToolbar
-                target={"Các ngành"}
+                target={"Tên ngành"}
                 filterName={filterName}
                 onFilterName={handleFilterByName}
               />
@@ -234,7 +228,7 @@ function MajorHandle(props) {
                       {filteredMajor
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row) => {
-                          const { id,name, status} = row;
+                          const { id,majorId,schoolId,createdAt,updatedAt,Major, status} = row;
                           return (                  
                             <TableRow
                               hover
@@ -248,16 +242,16 @@ function MajorHandle(props) {
                                   <Typography style={{
                                     marginLeft: 15,
                                   }} variant="subtitle2" noWrap>
-                                    {name}
+                                    {Major.name}
                                   </Typography>
                                 </Stack>
                               </TableCell>
                               <TableCell align="left">
                                 <Label
                                   variant="ghost"
-                                  color={(status === 'INACTIVE' && 'error') || 'success'}
+                                  color={(status === SCHOOL_STATUS.INACTIVE && 'error') || 'success'}
                                 >
-                                  {sentenceCase(status)}
+                                  {status === SCHOOL_STATUS.INACTIVE?'Không kích hoạt':'Đang kích hoạt'}
                                 </Label>
                               </TableCell>
                               <TableCell align="right">
@@ -265,7 +259,9 @@ function MajorHandle(props) {
                                   fullWidth
                                   size="small"
                                   type="submit"
-                                  onClick={() => updateBtnHandler(id,name)}
+                                  onClick={() => 
+                                    updateBtnHandler(id)
+                                  }
                                   variant="contained"
                                   endIcon={<Edit />}
                                 >

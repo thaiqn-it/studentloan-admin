@@ -50,6 +50,7 @@ export default function CreateSchool() {
   const [district, setdistrict] = React.useState('')
   const [open, setOpen] = React.useState(false);
   const [message, setmessage] = React.useState('')
+  const [colorMsg, setColorMsg] = React.useState('')
   const [listCity, setListCity] = React.useState([])
   const [listDistrict, setListDistrict] = React.useState([])
   const vertical = 'bottom'
@@ -78,8 +79,8 @@ export default function CreateSchool() {
     )
   }
 
-  const getAllDistrictInit = (id) =>{
-    var district = PROVINCEVN.district.filter(item=>item.idProvince===id)
+  const getAllDistrictInit = (id) => {
+    var district = PROVINCEVN.district.filter(item => item.idProvince === id)
     setListDistrict(district)
   }
 
@@ -106,26 +107,43 @@ export default function CreateSchool() {
   };
 
   const createSchool = () => {
-    schoolApi.create({
-      name,
-      city,
-      district,
-      status,
-    }).then(res => {
-      setOpen(true);
-      setmessage('Tạo mới thành công!')
-    }).catch(
-      (e) => {
-        setmessage('Tạo mới thất bại!')
+    schoolApi.checkDuplicate(name).then(res => {
+      if (res.data === null) {
+        if (name.length > 500 || name.length < 1 || city.length < 1 || district < 1) {
+          setColorMsg('error')
+          setOpen(true);
+          setmessage('Tạo mới thất bại!')
+        } else {
+          schoolApi.create({
+            name,
+            city,
+            district,
+            status,
+          }).then(res => {
+            setOpen(true);
+            setColorMsg('success')
+            setmessage('Tạo mới thành công!')
+          }).catch(
+            (e) => {
+              setOpen(true);
+              setColorMsg('error')
+              setmessage('Tạo mới thất bại!')
+            }
+          )
+        }
+      } else {
+        setOpen(true);
+        setColorMsg('error')
+        setmessage('Trùng tên!')
       }
-    )
+    })
   }
 
   return (
     <RootStyle title="Tạo trường mới">
       <Container>
         <ContentStyle>
-        <Typography variant='h4' onClick={onBack}>
+          <Typography variant='h4' onClick={onBack}>
             <ArrowBack />
           </Typography>
           <Typography variant='h3'>Thông Tin Trường</Typography>
@@ -188,7 +206,7 @@ export default function CreateSchool() {
             </LoadingButton>
           </Card>
           <Snackbar open={open} anchorOrigin={{ vertical, horizontal }} autoHideDuration={3000} onClose={handleClose}>
-            <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+            <Alert onClose={handleClose} severity={colorMsg} sx={{ width: '100%' }}>
               {message}
             </Alert>
           </Snackbar>

@@ -64,9 +64,11 @@ export default function ViewPost() {
     caption: '',
     titleButton: '',
   })
+  const [isChange, setIsChange] = useState(moment().format())
 
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const handleCloseDialog = () => {
+    setReason('')
     setIsOpenDialog(false);
     setImgURL(null);
   };
@@ -103,7 +105,7 @@ export default function ViewPost() {
         setSchool(res.data.loan.Student.Information.SchoolMajor.School);
         setMajor(res.data.loan.Student.Information.SchoolMajor.Major);
         setUser(res.data.loan.Student.User);
-        setArchievements(res.data.loan.Student.Archievements);
+        setArchievements(res.data.loan.Student.Information.Archievements);
         setLoanHistories(res.data.loan.LoanHistories);
         setLoanMedia(res.data.loan.LoanMedia);
 
@@ -115,7 +117,7 @@ export default function ViewPost() {
       }
     };
     fetchData();
-  }, [id]);
+  }, [id,isChange]);
 
   const formatDate = (date) => {
     var data = "";
@@ -134,6 +136,8 @@ export default function ViewPost() {
   const getMsg = (msg, type, open) => {
     if (type === "errorDropFile") {
       setColorSnackBar("error");
+    }else if (type === 'successAction'){
+      setColorSnackBar("success")
     }
     setMessage(msg);
     setOpenSnackBar(open);
@@ -174,30 +178,35 @@ export default function ViewPost() {
         adminId: adminId,
       };
     }
-    loanHistoryApi
-      .update(history.id, { ...history, isActive: false })
-      .then(loanHistoryApi.create(newHistory).then(
-        res => {
-          if (url !== null) {
-            url.map(item => {
-              return loanHistoryImageApi.create({
-                loanHistoryId: res.data.id,
-                imageUrl: item.url,
-                status: LOANHISTORYIMAGE_STATUS.ACTIVE
+    if (url===null || reason.length <= 0) {
+      alert("Ô nhập đang trống hoặc chưa có tệp đính kèm!");
+    } else {
+      loanHistoryApi
+        .update(history.id, { ...history, isActive: false })
+        .then(loanHistoryApi.create(newHistory).then(
+          res => {
+            if (url !== null) {
+              url.map(item => {
+                return loanHistoryImageApi.create({
+                  loanHistoryId: res.data.id,
+                  imageUrl: item.url,
+                  status: LOANHISTORYIMAGE_STATUS.ACTIVE
+                })
               })
-            })
+            }
           }
-        }
-      ));
-    handleCloseDialog();
-    if (type === 'Approve') {
-      getMsg("Duyệt bài thành công! (Sẽ quay về sau 3 giây)", "success", true);
-    } else if (type === 'Deny') {
-      getMsg("Từ chối bài thành công! (Sẽ quay về sau 3 giây)", "success", true);
+        ));
+      handleCloseDialog();
+      setIsChange(moment().format())
+      if (type === 'Approve') {
+        getMsg("Duyệt bài thành công! (Sẽ quay về trang trước sau 3 giây)", "successAction", true);
+      } else if (type === 'Deny') {
+        getMsg("Từ chối bài thành công! (Sẽ quay về trang trước sau 3 giây)", "successAction", true);
+      }
+      setTimeout(() => {
+        onBack()
+      }, 3000)
     }
-    setTimeout(() => {
-      onBack()
-    }, 3000)
   };
 
   function getFileName(url) {
@@ -273,7 +282,7 @@ export default function ViewPost() {
                             key={item.id}
                             controls={true}
                             loop
-                            url={item.imageUrl}
+                            url={`https://www.youtube.com/watch?v=${item.imageUrl}`}
                           />
                         </div>
                       ))
@@ -427,6 +436,35 @@ export default function ViewPost() {
                 {loan.description}
               </Typography>
             </Card>
+
+            <Divider sx={{ margin: "20px 0px" }} />
+
+            <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
+              Bảng điểm gần nhất
+            </Typography>
+            <Grid container spacing={2}>
+              {loanMedia.map((item) => {
+                return item.type === LOANMEDIA_TYPE.TRANSCRIPT ? (
+                  <Grid item xs={12} key={item.id} md={6}>
+                    <Card>
+                      <CardActionArea>
+                        <ImageModal
+                          component="img"
+                          height="300"
+                          image={item.imageUrl}
+                          alt={item.description}
+                        />
+                        <CardContent>
+                          <Typography variant="h5">{item.description}</Typography>
+                        </CardContent>
+                      </CardActionArea>
+                    </Card>
+                  </Grid>
+                ) : (
+                  <></>
+                );
+              })}
+            </Grid>
 
             <Divider sx={{ margin: "20px 0px" }} />
 

@@ -24,6 +24,7 @@ import ContractPage from './pages/ContractPage';
 import { LOAN_STATUS } from './constants/enum';
 import {useAuthState} from '../src/context/AuthContext'
 import ViewAllNoti from './pages/ViewAllNoti';
+import ManageMajor from './pages/ManageMajor';
 
 // ----------------------------------------------------------------------
 
@@ -39,6 +40,7 @@ const routes = (admin) => [
       { path: 'investor/:id', element: <DetailInvestor /> },
       { path: 'posts', element: <Posts initalType={LOAN_STATUS.WAITING} orderByLastest='DESC' initalLimit={8} initalOffset={0} /> },
       { path: 'manageschool', element: <ManageSchool /> },
+      { path: 'managemajor', element: <ManageMajor /> },
       { path: 'viewlistcontract', element: <ViewListContract /> },
       { path: 'viewtransactions', element: <ViewTransactions /> },
       { path: 'viewPost/:id', element: <ViewPost /> },

@@ -1,6 +1,14 @@
 import { defaultInstance } from "./index";
 
-const getAll = (id) => {
+const getAll = () => {
+    return defaultInstance.get('/major/');
+};
+
+const checkDuplicate = (name) => {
+    return defaultInstance.get(`/major/checkDuplicate/${name}`);
+};
+
+const getOne = (id) => {
     return defaultInstance.get(`/major/${id}`);
 };
 
@@ -30,4 +38,6 @@ export const majorApi = {
     update,
     getAllBySchool,
     getNameParent,
+    checkDuplicate,
+    getOne
 };

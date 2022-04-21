@@ -88,7 +88,7 @@ const DropFileZone = (props) => {
     return (
       <>
         <Box display="flex" justifyContent="flex-end">
-          <Tooltip title="Delete all">
+          <Tooltip title="Xóa hết">
             <IconButton
               aria-label="fileuploan"
               component="span"
@@ -108,7 +108,7 @@ const DropFileZone = (props) => {
               onChange={onFileDrop}
               hidden
             />
-            <Tooltip title="Add more">
+            <Tooltip title="Thêm tệp">
               <IconButton
                 aria-label="fileuploan"
                 component="span"
@@ -127,7 +127,7 @@ const DropFileZone = (props) => {
         {progress === 100 ? (
           <>
             <Box display="flex" justifyContent="flex-end">
-              <Tooltip title="Delete all">
+              <Tooltip title="Xóa hết">
                 <IconButton
                   aria-label="fileuploan"
                   component="span"
@@ -147,7 +147,7 @@ const DropFileZone = (props) => {
                   onChange={onFileDrop}
                   hidden
                 />
-                <Tooltip title="Add more">
+                <Tooltip title="Thêm tệp">
                   <IconButton
                     aria-label="fileuploan"
                     component="span"

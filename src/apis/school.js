@@ -12,6 +12,10 @@ const getOne = (id) =>{
     return defaultInstance.get(`/school/${id}`)
 }
 
+const checkDuplicate = (name) =>{
+    return defaultInstance.get(`/school/checkDuplicate/${name}`)
+}
+
 const create = (data) => {
     return defaultInstance.post("/school", 
         data
@@ -29,5 +33,6 @@ export const schoolApi = {
     getOne,
     create,
     update,
-    getAllName
+    getAllName,
+    checkDuplicate
 };

@@ -124,9 +124,10 @@ export default function NotificationsPopover() {
   useEffect(() => {
     const fetchData = async () => {
       const resNoti = await notificationApi.getTop5TodayByUserId({ startDate: moment().startOf('D').format(), endDate: moment().endOf('D').format() })
-      const resTotalUnread = await notificationApi.getAllByUserId();
+      // const resTotalUnread = await notificationApi.getAllByUserId();
+      const totalUnRead = resNoti.data.filter((item) => item.isRead === false).length;
       setNotifications(resNoti.data)
-      setTotalUnread(resTotalUnread.data.countNotRead)
+      setTotalUnread(totalUnRead)
     }
     fetchData()
   }, [onClickItem])
@@ -166,9 +167,6 @@ export default function NotificationsPopover() {
         <Box sx={{ display: 'flex', alignItems: 'center', py: 2, px: 2.5 }}>
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1">Thông báo</Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Bạn có {totalUnread} tin chưa xem
-            </Typography>
           </Box>
         </Box>
 

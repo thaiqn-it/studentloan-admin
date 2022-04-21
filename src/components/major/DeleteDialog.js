@@ -8,10 +8,11 @@ import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
 import { majorApi } from "../../apis/major";
+import { schoolMajorApi } from "../../apis/schoolmajorApi";
+import { SCHOOLMAJOR_STATUS, SCHOOL_STATUS } from "../../constants/enum";
 
 export const DeleteDialog = (props) => {
-  const majorId = props.majorId
-
+  const {majorDelete} = props
   return (
     <Dialog open={true} onClose={props.onClose}>
       <DialogTitle>Xác nhận xóa ?</DialogTitle>
@@ -20,8 +21,8 @@ export const DeleteDialog = (props) => {
         <Button
           endIcon={<CheckIcon />}
           onClick={() => {
-            majorApi.update(majorId ,{
-                status : 'INACTIVE'
+            schoolMajorApi.update(majorDelete.id,{
+                status : SCHOOLMAJOR_STATUS.INACTIVE
             }).finally(props.onClose)
           }
           }

@@ -163,8 +163,8 @@ export default function ViewTransactions() {
   const isTranNotFound = filteredTrans.length === 0;
 
   return (
-    <Page title="Các Giao Dịch">
-      <Card>
+    <Page title="Bảng Phân Tích">
+      <Card sx={{paddingBottom:15}}>
         <Grid
           container
           direction="row"

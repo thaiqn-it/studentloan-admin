@@ -41,13 +41,22 @@ export default function StudentProfile(props) {
     const [user, setUser] = useState({});
     const [openConfirmUnBan, setOpenConfirmUnBan] = useState(false);
     const handleOpenConfirmUnBan = () => setOpenConfirmUnBan(true);
-    const handleCloseConfirmUnBan = () => setOpenConfirmUnBan(false);
+    const handleCloseConfirmUnBan = () => {
+        setReason('')
+        setOpenConfirmUnBan(false)
+    };
     const [openConfirmApprove, setOpenConfirmApprove] = useState(false);
     const handleOpenConfirmApprove = () => setOpenConfirmApprove(true);
-    const handleCloseConfirmApprove = () => setOpenConfirmApprove(false);
+    const handleCloseConfirmApprove = () => {
+        setReason('')
+        setOpenConfirmApprove(false)
+    };
     const [openBanConfirm, setOpenBanConfirm] = useState(false);
     const handleOpenBanConfirm = () => setOpenBanConfirm(true);
-    const handleCloseBanConfirm = () => setOpenBanConfirm(false);
+    const handleCloseBanConfirm = () => {
+        setReason('')
+        setOpenBanConfirm(false)
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -138,6 +147,7 @@ export default function StudentProfile(props) {
                             </Typography>
                             <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
                             <Button
+                                disabled={reason.length <= 0 ? true : false}
                                 onClick={() => confirmBan(user)}
                                 size="large"
                                 sx={{ marginTop: 1 }}
@@ -213,6 +223,7 @@ export default function StudentProfile(props) {
                             </Typography>
                             <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
                             <Button
+                                disabled={reason.length <= 0 ? true : false}
                                 onClick={() => confirmDeny(user)}
                                 size="large"
                                 sx={{ marginTop: 1 }}
@@ -302,7 +313,6 @@ export default function StudentProfile(props) {
             <Typography color="secondary" variant="h4" my={2}>
                 Thông tin tài khoản
             </Typography>
-
             <Grid container spacing={4}>
                 <Grid item xs={12} md={4}>
                     <Paper elevation={3} sx={{ borderRadius: '10px' }}>

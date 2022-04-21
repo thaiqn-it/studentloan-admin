@@ -1,7 +1,5 @@
-// import { Icon } from '@iconify/react';
-// import plusFill from '@iconify/icons-eva/plus-fill';
-// import { Link as RouterLink } from 'react-router-dom';
 // material
+import { useNavigate } from 'react-router-dom';
 import { Grid, Container, Stack, Typography, Pagination, TextField, MenuItem } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { loanApi } from '../apis/loan';
@@ -15,6 +13,7 @@ import { LOAN_STATUS } from '../constants/enum';
 // ----------------------------------------------------------------------
 
 export default function Posts(props) {
+  const navigate = useNavigate()
   const { orderByLastest, initalLimit, initalOffset, initalType } = props
   const [lastPage, setLastPage] = useState(0)
   const [limit, setLimit] = useState(initalLimit)
@@ -36,16 +35,20 @@ export default function Posts(props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await loanApi.getAllWaiting({ limit, offset, order, type })
-      const loanList = res.data.rows
-      const lastPage = res.data.count / limit
-      if (Number.isInteger(lastPage)) {
-        setLastPage(lastPage)
-      } else {
-        var convertPage = Math.floor(lastPage) + 1
-        setLastPage(convertPage)
+      try {
+        const res = await loanApi.getAllWaiting({ limit, offset, order, type })
+        const loanList = res.data.rows
+        const lastPage = res.data.count / limit
+        if (Number.isInteger(lastPage)) {
+          setLastPage(lastPage)
+        } else {
+          var convertPage = Math.floor(lastPage) + 1
+          setLastPage(convertPage)
+        }
+        setLoanList(loanList)
+      } catch (e) {
+        navigate('/404')
       }
-      setLoanList(loanList)
     }
     fetchData()
   }, [limit, offset, order, loanList, type])
@@ -53,7 +56,7 @@ export default function Posts(props) {
   const checkIsEmpty = (list) => {
     if (list.length <= 0) {
       return (
-        <ErrorSection msg='Hiện tại không còn bài viết nào!' />
+        <ErrorSection msg='Hiện tại không còn hồ sơ nào!' />
       )
     } else {
       return (
@@ -63,11 +66,11 @@ export default function Posts(props) {
   }
 
   return (
-    <Page title='Danh sách các bài xin vay'>
+    <Page title='Danh sách các hồ sơ vay'>
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Danh sách các bài xin vay
+            Danh sách các hồ sơ vay
           </Typography>
         </Stack>
         <Stack mb={5} direction="row" spacing={2} justifyContent="flex-start">
@@ -95,26 +98,26 @@ export default function Posts(props) {
             </Stack>
           </div>
           <div>
-          <Stack
+            <Stack
               direction='row'
               justifyContent='space-between'
               alignItems='center'
               spacing={1}
             >
               <Typography variant='h5'>Sắp xếp theo thời gian:</Typography>
-            <TextField select size="small" value={optionChoosen}
-              onChange={(e) => {
-                setOptionChoosen(e.target.value)
-                setOrder(e.target.value)
-                setOffset(0)
-              }}
-            >
-              {sortOption.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
+              <TextField select size="small" value={optionChoosen}
+                onChange={(e) => {
+                  setOptionChoosen(e.target.value)
+                  setOrder(e.target.value)
+                  setOffset(0)
+                }}
+              >
+                {sortOption.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Stack>
           </div>
         </Stack>

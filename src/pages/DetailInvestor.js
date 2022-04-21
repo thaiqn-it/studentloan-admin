@@ -78,13 +78,22 @@ export default function DetailStudent() {
     const { id } = useParams();
     const [openBanConfirm, setOpenBanConfirm] = useState(false);
     const handleOpenBanConfirm = () => setOpenBanConfirm(true);
-    const handleCloseBanConfirm = () => setOpenBanConfirm(false);
+    const handleCloseBanConfirm = () => {
+        setReason('')
+        setOpenBanConfirm(false)
+    };
     const [openConfirmUnBan, setOpenConfirmUnBan] = useState(false);
     const handleOpenConfirmUnBan = () => setOpenConfirmUnBan(true);
-    const handleCloseConfirmUnBan = () => setOpenConfirmUnBan(false);
+    const handleCloseConfirmUnBan = () => {
+        setReason('')
+        setOpenConfirmUnBan(false)
+    };
     const [openConfirmApprove, setOpenConfirmApprove] = useState(false);
     const handleOpenConfirmApprove = () => setOpenConfirmApprove(true);
-    const handleCloseConfirmApprove = () => setOpenConfirmApprove(false);
+    const handleCloseConfirmApprove = () => {
+        setReason('')
+        setOpenConfirmApprove(false)
+    };
 
     const onBack = () => {
         navigate("/dashboard/user")
@@ -182,6 +191,7 @@ export default function DetailStudent() {
                             <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
                             <Button
                                 onClick={() => confirmBan(user)}
+                                disabled={reason.length <= 0 ? true : false}
                                 size="large"
                                 sx={{ marginTop: 1 }}
                                 type="submit"
@@ -256,6 +266,7 @@ export default function DetailStudent() {
                             </Typography>
                             <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="modal-modal-description" sx={{ mt: 2 }} />
                             <Button
+                                disabled={reason.length <= 0 ? true : false}
                                 onClick={() => confirmDeny(user)}
                                 size="large"
                                 sx={{ marginTop: 1 }}
