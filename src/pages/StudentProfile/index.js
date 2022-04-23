@@ -13,7 +13,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import BlockIcon from '@mui/icons-material/Block';
 import { studentApi } from '../../apis/student'
 import { userApi } from '../../apis/user'
-import { NOTIFICATION_STATUS,NOTIFICATION_TYPE, USER_STATUS } from '../../constants/enum'
+import { NOTIFICATION_STATUS, NOTIFICATION_TYPE, USER_STATUS } from '../../constants/enum'
 import moment from "moment";
 import { useNavigate } from 'react-router-dom'
 import EditIcon from '@mui/icons-material/Edit';
@@ -156,8 +156,10 @@ export default function StudentProfile(props) {
                     }}>
                     <Button
                         size="medium"
-                        onClick={()=>{handleOpenConfirmUnBan()
-                        setIsEditable(false)}}
+                        onClick={() => {
+                            handleOpenConfirmUnBan()
+                            setIsEditable(false)
+                        }}
                         type="submit"
                         color="primary"
                         variant="contained"

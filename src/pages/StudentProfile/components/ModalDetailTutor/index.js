@@ -4,12 +4,14 @@ import moment from "moment";
 import { tutorApi } from '../../../../apis/tutor';
 import BlockIcon from '@mui/icons-material/Block';
 import { TUTOR_STATUS } from '../../../../constants/enum';
+import ImageModal from '../../../../components/imagemodal';
 
 
 export default function ModalDetailTutor(props) {
     const { onClose, isOpen, tutorId, setIsChange } = props
     const handleClose = () => { onClose() };
     const [tutor, setTutor] = useState({})
+    const [address, setAddress] = useState('');
     const [openBanConfirm, setOpenBanConfirm] = useState(false);
     const handleOpenBanConfirm = () => setOpenBanConfirm(true);
     const handleCloseBanConfirm = () => setOpenBanConfirm(false);
@@ -18,6 +20,9 @@ export default function ModalDetailTutor(props) {
         const fetchData = async () => {
             const res = await tutorApi.getTutorByPK(tutorId)
             const tutor = res.data
+            const gettedAddress = res.data.address
+            const convertAddress = gettedAddress.replace(/-/g, ", ");
+            setAddress(convertAddress)
             setTutor(tutor)
         }
         fetchData()
@@ -104,7 +109,7 @@ export default function ModalDetailTutor(props) {
                             fullWidth
                             disabled
                             type="text"
-                            value={tutor.address}
+                            value={address}
                         />
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -176,7 +181,7 @@ export default function ModalDetailTutor(props) {
                         >
                             Mặt trước CMND/CCCD
                         </Typography>
-                        <CardMedia
+                        <ImageModal
                             sx={{
                                 borderRadius: 2
                             }}
@@ -194,7 +199,7 @@ export default function ModalDetailTutor(props) {
                         >
                             Mặt sau CMND/CCCD
                         </Typography>
-                        <CardMedia
+                        <ImageModal
                             sx={{
                                 borderRadius: 2
                             }}

@@ -42,6 +42,7 @@ export default function SystemConfig() {
     const [minRaiseMoney, setMinRaiseMoney] = React.useState()
     const [maxRaiseMoney, setMaxRaiseMoney] = React.useState()
     const [minDuration, setMinDuration] = React.useState()
+    const [maxDuration, setMaxDuration] = React.useState()
     const [postExpireTime, setPostExpireTime] = React.useState()
     const [systemConfig, setSystemConfig] = React.useState({})
     const [isInit, setIsinit] = React.useState(false)
@@ -56,7 +57,7 @@ export default function SystemConfig() {
     const horizontal = 'right'
 
     const updateSystemConfig = (systemConfig) => {
-        const clone = (({ id, createdAt, updatedAt, ...o }) => o)(systemConfig)
+        // const clone = (({ id, createdAt, updatedAt, ...o }) => o)(systemConfig)
         const newConfig = { 
             interest: interest / 100, 
             fixedMoney: fixedMoney, 
@@ -66,6 +67,7 @@ export default function SystemConfig() {
             minRaiseMoney: minRaiseMoney, 
             maxRaiseMoney: maxRaiseMoney, 
             postExpireTime: postExpireTime, 
+            maxDuration:maxDuration,
             status: true }
         if (
             interest <= 0 ||
@@ -145,7 +147,6 @@ export default function SystemConfig() {
         const fetchData = async () => {
             const res = await systemConfigApi.getOne()
             setSystemConfig(res.data)
-            console.log(res.data)
             if (res.data) {
                 setInterest(Math.round(res.data.interest * 100 * 100) / 100)
                 setFixedMoney(res.data.fixedMoney)
@@ -164,6 +165,7 @@ export default function SystemConfig() {
                 setMinRaiseMoney(0)
                 setMaxRaiseMoney(0)
                 setMinDuration(0)
+                setMaxDuration(0)
                 setPostExpireTime(0)
             }
         }
@@ -285,8 +287,21 @@ export default function SystemConfig() {
                                 }}>Kỳ hạn tối thiểu (tháng)</Typography>
                                 <TextField
                                     error={minDuration <= 0 || minDuration === ''}
-                                    helperText={minDuration <= 0 || minDuration === '' ? "Vui lòng nhập số lớn hơn 0" : ''}
+                                    helperText={minDuration <= 0 || minDuration === '' ? "Vui lòng nhập số lớn hơn 0 và bé hơn kỳ hạn tối đa" : ''}
                                     fullWidth required type={"number"} onChange={(e, v) => setMinDuration(e.target.value)} value={minDuration} />
+                            </Grid>
+
+                            <Grid
+                                item
+                                xs={12}
+                                md={6}>
+                                <Typography style={{
+                                    marginTop: 30
+                                }}>Kỳ hạn tối đa (tháng)</Typography>
+                                <TextField
+                                    error={maxDuration <= 0 || maxDuration === ''}
+                                    helperText={maxDuration <= 0 || maxDuration === '' ? "Vui lòng nhập số lớn hơn 0 và lớn hơn kỳ hạn tối thiểu" : ''}
+                                    fullWidth required type={"number"} onChange={(e, v) => setMaxDuration(e.target.value)} value={maxDuration} />
                             </Grid>
 
                             <Grid

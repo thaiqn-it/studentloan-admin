@@ -16,6 +16,9 @@ export default function ImageModal(props) {
             <CardMedia {...props} onClick={handleOpen} />
 
             <Modal
+            sx={{
+                overflow:'scroll',
+            }}
                 aria-labelledby="transition-modal-title"
                 aria-describedby="transition-modal-description"
                 open={open}

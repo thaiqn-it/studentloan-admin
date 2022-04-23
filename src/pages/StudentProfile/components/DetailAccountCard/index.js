@@ -15,12 +15,16 @@ export default function DetailAccountCard(props) {
     const [user, setUser] = useState({});
     const [major, setMajor] = useState({});
     const [school, setSchool] = useState({});
+    const [address, setAddress] = useState('');
     useEffect(() => {
         const fetchData = async () => {
             const res = await studentApi.getStudentByUserId(userId)
             const user = res.data.student.User
             const major = res.data.student.SchoolMajor.Major
             const school = res.data.student.SchoolMajor.School
+            const gettedAddress = res.data.student.User.address
+            const convertAddress = gettedAddress.replace(/-/g, ", ");
+            setAddress(convertAddress)
             setMajor(major)
             setSchool(school)
             setUser(user)
@@ -95,7 +99,7 @@ export default function DetailAccountCard(props) {
                             <TextField
                                 fullWidth
                                 disabled
-                                value={user.address}
+                                value={address}
                             />
                         </Grid>
 

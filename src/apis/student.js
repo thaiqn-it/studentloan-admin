@@ -4,6 +4,14 @@ const getStudentByUserId = (id) =>{
     return defaultInstance.get(`/student/findByUserId/${id}`)
 }
 
+const generatePDF = (data) =>{
+    return defaultInstance.get("/student/pdf",{
+        params:{
+            ...data,
+        }
+    });
+}
+
 const count = (data) =>{
     return defaultInstance.post('/student/count',data)
 }

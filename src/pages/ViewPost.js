@@ -19,6 +19,8 @@ import {
   Tab,
 } from "@mui/material";
 import { TabContext, TabList, TabPanel, LoadingButton } from '@mui/lab';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 //mui icons
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -46,6 +48,10 @@ import { loadToken } from "../apis";
 import { userApi } from "../apis/user";
 import ContractPage from '../pages/ContractPage'
 import LoanSchedule from '../pages/LoanSchedule'
+import DownloadIcon from '@mui/icons-material/Download';
+import JSZip from 'jszip'
+import { saveAs } from 'file-saver'
+import { imageApi } from "../apis/imageApi";
 
 export default function ViewPost() {
   const { id } = useParams();
@@ -60,6 +66,13 @@ export default function ViewPost() {
   const [loanMedia, setLoanMedia] = useState([]);
   const [reason, setReason] = useState("");
   const [adminId, setAdminId] = useState('')
+  const [loading, setLoading] = useState(false)
+  const handleCloseLoading = () => {
+    setLoading(false);
+  };
+  const handleToggle = () => {
+    setLoading(!open);
+  };
   const [title, setTitle] = useState({
     caption: '',
     titleButton: '',
@@ -117,7 +130,7 @@ export default function ViewPost() {
       }
     };
     fetchData();
-  }, [id,isChange]);
+  }, [id, isChange]);
 
   const formatDate = (date) => {
     var data = "";
@@ -136,7 +149,7 @@ export default function ViewPost() {
   const getMsg = (msg, type, open) => {
     if (type === "errorDropFile") {
       setColorSnackBar("error");
-    }else if (type === 'successAction'){
+    } else if (type === 'successAction') {
       setColorSnackBar("success")
     }
     setMessage(msg);
@@ -178,7 +191,7 @@ export default function ViewPost() {
         adminId: adminId,
       };
     }
-    if (url===null || reason.length <= 0) {
+    if (url === null || reason.length <= 0) {
       alert("Ô nhập đang trống hoặc chưa có tệp đính kèm!");
     } else {
       loanHistoryApi
@@ -226,12 +239,81 @@ export default function ViewPost() {
     setImgURL(returnArray);
   }
 
+  const generateZip = () => {
+    setLoading(true)
+    loanApi.generateZip(id).then(res => {
+      var loanMediaZip = []
+      var resData = res.data
+      loanMediaZip.push(resData.pdfRes.secure_url)
+      resData?.loan?.LoanMedia?.map(item => {
+        if (item.type !== LOANMEDIA_TYPE.VIDEO) {
+          loanMediaZip.push(item.imageUrl)
+        }
+      })
+      resData?.student?.Archievements?.map(item => {
+        loanMediaZip.push(item.imageUrl)
+      })
+      loanMediaZip.push(resData.student.backCitizenCardImageUrl)
+      loanMediaZip.push(resData.student.backStudentCardImageUrl)
+      loanMediaZip.push(resData.student.frontCitizenCardImageUrl)
+      loanMediaZip.push(resData.student.frontStudentCardImageUrl)
+      resData?.tutorlist?.map(item => {
+        loanMediaZip.push(item.backCitizenCardImageUrl)
+        loanMediaZip.push(item.frontCitizenCardImageUrl)
+      })
+      var zip = JSZip()
+      var requests = loanMediaZip.map((item) => {
+        return imageApi.downloadFileURL(item)
+      })
+      Promise.all(requests)
+        .then((responses) => {
+          responses.map((item) => {
+            const blob = new Blob([item.data])
+            zip.file(getFileName(item.config.url), blob, {
+              binary: true,
+            })
+          })
+
+          zip.generateAsync({ type: 'blob' }).then(function (blob) {
+            saveAs(blob, `ho-so-vay-${id}.zip`)
+          })
+          setLoading(false)
+        })
+        .catch((err) => {
+          console.log(err)
+          setLoading(false)
+        })
+    })
+  }
+
   return (
     <Page title="Chi tiết bài chờ duyệt">
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+        onClick={handleCloseLoading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <Container sx={{ padding: "3rem 3rem" }} maxWidth="xl">
-        <Typography variant="h4" onClick={onBack}>
-          <ArrowBack />
-        </Typography>
+        <Box
+          display={'flex'}
+          justifyContent='space-between'
+        >
+          <Typography variant="h4" onClick={onBack}>
+            <ArrowBack />
+          </Typography>
+          {loanHistories[0]?.type === LOAN_STATUS.WAITING ? (
+            <Button
+              size="medium"
+              onClick={() => generateZip()}
+              startIcon={<DownloadIcon />}
+              variant="contained">
+              Tải hồ sơ vay
+            </Button>
+          ) : (<></>)}
+        </Box>
+
         <TabContext value={tab}>
           {
             loanHistories[0]?.type === LOAN_STATUS.ONGOING ? (
@@ -439,24 +521,24 @@ export default function ViewPost() {
 
             <Divider sx={{ margin: "20px 0px" }} />
 
-            <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
+            {/* <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
               Bảng điểm gần nhất
-            </Typography>
+            </Typography> */}
             <Grid container spacing={2}>
               {loanMedia.map((item) => {
-                return item.type === LOANMEDIA_TYPE.TRANSCRIPT ? (
-                  <Grid item xs={12} key={item.id} md={6}>
+                return item.type !== LOANMEDIA_TYPE.VIDEO ? (
+                  <Grid item xs={12} key={item.id} md={4}>
                     <Card>
                       <CardActionArea>
+                        <CardContent>
+                          <Typography variant="h5">{item.description}</Typography>
+                        </CardContent>
                         <ImageModal
                           component="img"
                           height="300"
                           image={item.imageUrl}
                           alt={item.description}
                         />
-                        <CardContent>
-                          <Typography variant="h5">{item.description}</Typography>
-                        </CardContent>
                       </CardActionArea>
                     </Card>
                   </Grid>
@@ -466,7 +548,7 @@ export default function ViewPost() {
               })}
             </Grid>
 
-            <Divider sx={{ margin: "20px 0px" }} />
+            {/* <Divider sx={{ margin: "20px 0px" }} />
 
             <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
               Thông tin bổ sung
@@ -522,7 +604,7 @@ export default function ViewPost() {
                   <></>
                 );
               })}
-            </Grid>
+            </Grid> */}
 
             <Divider sx={{ margin: "20px 0px" }} />
 

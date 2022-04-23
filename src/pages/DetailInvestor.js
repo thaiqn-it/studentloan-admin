@@ -95,7 +95,7 @@ export default function DetailStudent() {
         setReason('')
         setOpenConfirmApprove(false)
     };
-
+    const [address, setAddress] = useState('');
 
     const onBack = () => {
         navigate("/dashboard/user")
@@ -108,6 +108,9 @@ export default function DetailStudent() {
                 const res = await investorApi.getInvestorByUserId(id)
                 const investor = res.data
                 const user = res.data.User
+                const gettedAddress = res.data.User.address
+                const convertAddress = gettedAddress.replace(/-/g, ", ");
+                setAddress(convertAddress)
                 setInvestor(investor)
                 setUser(user)
             } catch (e) {
@@ -453,17 +456,13 @@ export default function DetailStudent() {
 
                             <Typography sx={{ margin: 2 }}
                                 variant="h6" display="flex" alignItems="center">
-                                <LocationOnIcon sx={{ marginRight: 0.5, color: "#FF0000" }} /> {user.address}
+                                <LocationOnIcon sx={{ marginRight: 0.5, color: "#FF0000" }} /> {address}
                             </Typography>
 
                             <Typography sx={{ margin: 2 }}
                                 variant="h6" display="flex" alignItems="center">
                                 <EventIcon sx={{ marginRight: 0.5, color: "#0021FF" }} /> {moment(user.birthDate).format("DD/MM/YYYY")}
                             </Typography>
-
-
-
-
                         </Card>
                     </Grid>
                 </Grid>
