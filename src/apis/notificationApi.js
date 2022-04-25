@@ -8,6 +8,10 @@ const getTop5TodayByUserId = (data) => {
     return defaultInstance.post("/notification/getTop",data);
 };
 
+const pushNotifToInvestor = (data) =>{
+    return defaultInstance.post(`/notification/investor/`,data);
+}
+
 const create = (data) => {
     return defaultInstance.post("/notification", 
         data
@@ -29,5 +33,6 @@ export const notificationApi = {
     getTop5TodayByUserId,
     create,
     update,
-    getOneById
+    getOneById,
+    pushNotifToInvestor
 };

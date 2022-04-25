@@ -1,20 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Button from '@mui/material/Button';
 import AddIcon from "@material-ui/icons/Add";
-import CheckIcon from '@mui/icons-material/Check';
-import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { StylesProvider, ThemeProvider } from "@material-ui/core/styles";
 import CssBaseLine from "@material-ui/core/CssBaseline";
-import {
-  Tree,
-  getDescendants
-} from "@minoru/react-dnd-treeview";
-import { CustomNode } from "./CustomNode";
-import { CustomDragPreview } from "./CustomDragPreview";
 import { AddDialog } from "./AddDialog";
 import { DeleteDialog } from "./DeleteDialog";
 import { UpdateDialog } from "./UpdateDialog";
-import styles from "./MajorHandle.module.css";
 import { theme } from "../major/theme"
 import { Alert, Card, Snackbar, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
 import { majorApi } from "../../apis/major";
@@ -22,7 +13,6 @@ import { ListHead, ListToolbar } from "../_dashboard/user";
 import Scrollbar from "../Scrollbar";
 import SearchNotFound from "../SearchNotFound";
 import Label from "../Label";
-import { sentenceCase } from 'change-case';
 import { LoadingButton } from "@mui/lab";
 import { Edit, Clear } from "@mui/icons-material";
 import { filter } from "lodash";

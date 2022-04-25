@@ -411,6 +411,13 @@ export default function ViewPost() {
                         )}
                       </Typography>
                     </Grid>
+
+                    {loanHistories[0]?.type === LOAN_STATUS.ONGOING ? (
+                      <Grid item xs="6" md="12" sx={{ marginTop: "1rem" }}>
+                        <Typography variant="h6">Thời gian hồ sơ kết thúc</Typography>
+                        <Typography variant="h5">{moment(loan.loanEndAt).format('DD/MM/YYYY')}</Typography>
+                      </Grid>
+                    ) : (<></>)}
                   </Grid>
                 </Grid>
               </Grid>

@@ -1,9 +1,9 @@
 const API_SUCCSES = 200;
 const API_BAD_REQUEST = 400;
 const API_URL = 
-// "https://studentloanfpt.ddns.net/api"
-//  || 
- "http://localhost:3124/api";
+"https://studentloanfpt.ddns.net/api"
+// //  || 
+//  "http://localhost:3124/api";
 
 const PRIMARY_COLOR_WHITE = "#ffffff";
 const PRIMARY_COLOR_BLACK = "#000000";

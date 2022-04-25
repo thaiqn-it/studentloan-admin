@@ -61,7 +61,7 @@ export default function Profile() {
   }
 
   return (
-    <RootStyle title="Profile page">
+    <RootStyle title="Hồ sơ">
       <Container>
         <ContentStyle>
           <Typography variant='h4' onClick={onBack}>

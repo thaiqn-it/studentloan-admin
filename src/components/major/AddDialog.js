@@ -26,6 +26,7 @@ import Scrollbar from "../Scrollbar";
 import Label from "../Label";
 import SearchNotFound from "../SearchNotFound";
 import { schoolMajorApi } from "../../apis/schoolmajorApi";
+import { filter } from "lodash";
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Tên', alignRight: false },
