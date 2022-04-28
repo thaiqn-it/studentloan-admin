@@ -75,11 +75,14 @@ export default function SystemConfig() {
             transactionFee <= 0 ||
             penaltyFee <= 0 ||
             minDuration <= 0 ||
+            maxDuration <= 0 ||
             minRaiseMoney <= 0 ||
             maxRaiseMoney <= 0 ||
             postExpireTime <= 0 ||
             minRaiseMoney>=maxRaiseMoney ||
-            maxRaiseMoney<=minRaiseMoney
+            maxRaiseMoney<=minRaiseMoney ||
+            minDuration>=maxDuration ||
+            maxDuration<=minDuration
             ) {
             setColorSB('error')
             handleOpen()
@@ -108,6 +111,7 @@ export default function SystemConfig() {
         transactionFee: transactionFee / 100, 
         penaltyFee: penaltyFee / 100, 
         minDuration: minDuration, 
+        maxDuration:maxDuration,
         minRaiseMoney: minRaiseMoney, 
         maxRaiseMoney: maxRaiseMoney, 
         postExpireTime: postExpireTime, 
@@ -118,11 +122,14 @@ export default function SystemConfig() {
             transactionFee <= 0 ||
             penaltyFee <= 0 ||
             minDuration <= 0 ||
+            maxDuration <= 0 ||
             minRaiseMoney <= 0 ||
             maxRaiseMoney <= 0 ||
             postExpireTime <= 0 ||
             minRaiseMoney>=maxRaiseMoney ||
-            maxRaiseMoney<=minRaiseMoney
+            maxRaiseMoney<=minRaiseMoney ||
+            minDuration>=maxDuration ||
+            maxDuration<=minDuration
             ) {
             setColorSB('error')
             handleOpen()
