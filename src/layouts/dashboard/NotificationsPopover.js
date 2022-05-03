@@ -1,9 +1,7 @@
-import faker from 'faker';
-import PropTypes from 'prop-types';
 import { noCase } from 'change-case';
 import { useEffect, useRef, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import {formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { formatDistanceToNow } from 'date-fns';
 import { format } from 'date-fns'
 import vi from 'date-fns/locale/vi'
 import { Icon } from '@iconify/react';
@@ -17,7 +15,6 @@ import {
   Badge,
   Button,
   Avatar,
-  Tooltip,
   Divider,
   IconButton,
   Typography,
@@ -32,23 +29,30 @@ import MenuPopover from '../../components/MenuPopover';
 import moment from 'moment';
 import { notificationApi } from '../../apis/notificationApi';
 import { NOTIFICATION_TYPE } from '../../constants/enum/index';
+import { onMessageListener } from '../../firebase';
 
 // ----------------------------------------------------------------------
 
 
 
 export default function NotificationsPopover() {
+
+  onMessageListener().then(payload => {
+    console.log(payload)
+    fetchData()
+  }).catch(e => console.log(e))
+
   const navigate = useNavigate()
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [totalUnread, setTotalUnread] = useState(0)
 
-  const setRead = (notification) =>{
-    notificationApi.update(notification.id,{...notification,isRead:true})
+  const setRead = (notification) => {
+    notificationApi.update(notification.id, { ...notification, isRead: true })
   }
 
-  const renderContent = (notification)=> {
+  const renderContent = (notification) => {
     const description = (
       <Typography variant="subtitle2">
         {notification.title}
@@ -57,7 +61,7 @@ export default function NotificationsPopover() {
         </Typography>
       </Typography>
     );
-  
+
     if (notification.type === NOTIFICATION_TYPE.USER) {
       return {
         icon: <img alt={notification.description} src="/static/icons/ic_user_noti.svg" />,
@@ -73,7 +77,7 @@ export default function NotificationsPopover() {
   }
   const NotificationItem = ({ notification }) => {
     const { icon, description: description } = renderContent(notification);
-  
+
     return (
       <ListItemButton
         onClick={() => {
@@ -110,8 +114,8 @@ export default function NotificationsPopover() {
               <Box component={Icon} icon={clockFill} sx={{ mr: 0.5, width: 16, height: 16 }} />
               {formatDistanceToNow(
                 new Date(notification.createdAt),
-                {locale:vi}
-                )}
+                { locale: vi }
+              )}
             </Typography>
           }
         />
@@ -119,17 +123,25 @@ export default function NotificationsPopover() {
     );
   }
 
-  const [onClickItem,setOnClickItem] = useState(moment().format())
+  const [onClickItem, setOnClickItem] = useState(moment().format())
+
+  const fetchData = async () => {
+    const resNoti = await notificationApi.getTop5TodayByUserId({ startDate: moment().startOf('D').format(), endDate: moment().endOf('D').format() })
+    // const resTotalUnread = await notificationApi.getAllByUserId();
+    const totalUnRead = resNoti.data.filter((item) => item.isRead === false).length;
+    setNotifications(resNoti.data)
+    setTotalUnread(totalUnRead)
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      const resNoti = await notificationApi.getTop5TodayByUserId({ startDate: moment().startOf('D').format(), endDate: moment().endOf('D').format() })
-      // const resTotalUnread = await notificationApi.getAllByUserId();
-      const totalUnRead = resNoti.data.filter((item) => item.isRead === false).length;
-      setNotifications(resNoti.data)
-      setTotalUnread(totalUnRead)
-    }
+
     fetchData()
+    // const refresh = () =>{
+    //   setTimeout(() => {
+    //     setOnClickItem(moment().format())
+    //   }, 60000)
+    // }
+    // refresh()
   }, [onClickItem])
 
 

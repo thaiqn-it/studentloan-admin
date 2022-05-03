@@ -13,7 +13,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import BlockIcon from '@mui/icons-material/Block';
 import { studentApi } from '../../apis/student'
 import { userApi } from '../../apis/user'
-import { NOTIFICATION_STATUS, NOTIFICATION_TYPE, USER_STATUS } from '../../constants/enum'
+import { NOTIFICATION_STATUS, NOTIFICATION_TYPE, USER_STATUS, USER_TYPE} from '../../constants/enum'
 import moment from "moment";
 import { useNavigate } from 'react-router-dom'
 import EditIcon from '@mui/icons-material/Edit';
@@ -79,14 +79,14 @@ export default function StudentProfile(props) {
         setIsChange(moment().format())
         handleCloseConfirmApprove()
         userApi.update({ ...user, status: USER_STATUS.VERIFIED }).then(
-            notificationApi.create({
+            notificationApi.pushNotifToUser({
+                type:USER_TYPE.STUDENT,
+                notiType:NOTIFICATION_TYPE.USER,
                 userId: user.id,
-                isRead: false,
-                type: NOTIFICATION_TYPE.USER,
-                status: NOTIFICATION_STATUS.ACTIVE,
-                redirectUrl: '/trang-chu/thong-tin',
-                description: "Admin đã đồng ý xác thực cho bạn",
-            }))
+                msg: "Yêu cầu xác thực được chấp thuận!",
+                redirectUrl:'/trang-chu/thong-tin',
+            })
+            )
     }
 
     const confirmDeny = (user) => {
@@ -94,28 +94,28 @@ export default function StudentProfile(props) {
         handleClose()
         setReason("")
         userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason }).then(
-            notificationApi.create({
+            notificationApi.pushNotifToUser({
+                type:USER_TYPE.STUDENT,
+                notiType:NOTIFICATION_TYPE.USER,
                 userId: user.id,
-                isRead: false,
-                type: NOTIFICATION_TYPE.USER,
-                status: NOTIFICATION_STATUS.ACTIVE,
-                redirectUrl: '/trang-chu/thong-tin',
-                description: `Admin từ chối xác thực vì lí do: ${reason}`,
-            }))
+                msg: "Yêu cầu xác thực không được chấp thuận!",
+                redirectUrl:'/trang-chu/thong-tin',
+            })
+            )
     }
 
     const confirmBan = (user) => {
         setIsChange(moment().format())
         handleCloseBanConfirm()
         userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason }).then(
-            notificationApi.create({
+            notificationApi.pushNotifToUser({
+                type:USER_TYPE.STUDENT,
+                notiType:NOTIFICATION_TYPE.USER,
                 userId: user.id,
-                isRead: false,
-                type: NOTIFICATION_TYPE.USER,
-                status: NOTIFICATION_STATUS.ACTIVE,
-                redirectUrl: `/trang-chu/thong-tin`,
-                description: `Bạn bị cấm vì lí do: ${reason}`,
-            }))
+                msg: 'Tài khoản của bạn bị cấm!',
+                redirectUrl:'/trang-chu/thong-tin',
+            })
+            )
         setReason("")
     }
 
@@ -124,23 +124,22 @@ export default function StudentProfile(props) {
         handleCloseConfirmUnBan()
         if (isEditable === false) {
             userApi.update({ ...user, status: USER_STATUS.UNVERIFIED }).then(
-                notificationApi.create({
+                notificationApi.pushNotifToUser({
+                    type:USER_TYPE.STUDENT,
+                    notiType:NOTIFICATION_TYPE.USER,
                     userId: user.id,
-                    isRead: false,
-                    type: NOTIFICATION_TYPE.USER,
-                    status: NOTIFICATION_STATUS.ACTIVE,
-                    redirectUrl: '/trang-chu/thong-tin',
-                    description: "Bạn đã được bỏ cấm",
-                }))
+                    msg: "Tài khoản của bạn đã được kích hoạt",
+                    redirectUrl:'/trang-chu/thong-tin',
+                })
+                )
         } else {
             userApi.update({ ...user, status: USER_STATUS.UNVERIFIED }).then(
-                notificationApi.create({
+                notificationApi.pushNotifToUser({
+                    type:USER_TYPE.STUDENT,
+                    notiType:NOTIFICATION_TYPE.USER,
                     userId: user.id,
-                    isRead: false,
-                    type: NOTIFICATION_TYPE.USER,
-                    status: NOTIFICATION_STATUS.ACTIVE,
-                    redirectUrl: '/trang-chu/thong-tin',
-                    description: "Bạn được phép chỉnh sửa thông tin",
+                    msg: "Yêu cầu chỉnh sửa thông tin được chấp thuận!",
+                    redirectUrl:'/trang-chu/thong-tin',
                 }))
         }
 

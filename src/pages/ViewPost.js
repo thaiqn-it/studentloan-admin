@@ -36,6 +36,8 @@ import {
   LOANHISTORYIMAGE_STATUS,
   LOANMEDIA_TYPE,
   LOAN_STATUS,
+  NOTIFICATION_TYPE,
+  USER_TYPE,
 } from "../constants/enum";
 import ReactPlayer from "react-player";
 import imgNoVideo from "../assets/img-no-video-waiting-post.jpg";
@@ -52,6 +54,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { imageApi } from "../apis/imageApi";
+import { notificationApi } from "../apis/notificationApi";
 
 export default function ViewPost() {
   const { id } = useParams();
@@ -174,9 +177,11 @@ export default function ViewPost() {
   };
 
   const actionButton = (history, url, type) => {
+    var content = null
     const clone = (({ id, createdAt, updatedAt, adminId, ...o }) => o)(history);
     let newHistory = {};
     if (type === 'Approve') {
+      content = 'Hồ sơ của bạn đã được phê duyệt'
       newHistory = {
         ...clone,
         description: reason,
@@ -184,6 +189,7 @@ export default function ViewPost() {
         adminId: adminId,
       };
     } else if (type === 'Deny') {
+      content = 'Hồ sơ của bạn không được chấp thuận'
       newHistory = {
         ...clone,
         description: reason,
@@ -208,7 +214,14 @@ export default function ViewPost() {
               })
             }
           }
-        ));
+        )).then(
+          notificationApi.pushNotifToUser({
+            type:USER_TYPE.STUDENT,
+            notiType:NOTIFICATION_TYPE.LOAN,
+            userId: user.id,
+            msg: content,
+            redirectUrl:`/trang-chu/ho-so/xem/${id}`,
+        }));
       handleCloseDialog();
       setIsChange(moment().format())
       if (type === 'Approve') {
@@ -216,9 +229,7 @@ export default function ViewPost() {
       } else if (type === 'Deny') {
         getMsg("Từ chối bài thành công! (Sẽ quay về trang trước sau 3 giây)", "successAction", true);
       }
-      setTimeout(() => {
-        onBack()
-      }, 3000)
+l
     }
   };
 
@@ -528,9 +539,6 @@ export default function ViewPost() {
 
             <Divider sx={{ margin: "20px 0px" }} />
 
-            {/* <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
-              Bảng điểm gần nhất
-            </Typography> */}
             <Grid container spacing={2}>
               {loanMedia.map((item) => {
                 return item.type !== LOANMEDIA_TYPE.VIDEO ? (
@@ -554,64 +562,6 @@ export default function ViewPost() {
                 );
               })}
             </Grid>
-
-            {/* <Divider sx={{ margin: "20px 0px" }} />
-
-            <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
-              Thông tin bổ sung
-            </Typography>
-            <Grid container spacing={2}>
-              {loanMedia.map((item) => {
-                return item.type === LOANMEDIA_TYPE.DEMANDNOTE ? (
-                  <Grid item key={item.id} xs={12} md={6}>
-                    <Card>
-                      <CardActionArea>
-                        <ImageModal
-                          component="img"
-                          height="300"
-                          image={item.imageUrl}
-                          alt={item.description}
-                        />
-                        <CardContent>
-                          <Typography variant="h5">{item.description}</Typography>
-                        </CardContent>
-                      </CardActionArea>
-                    </Card>
-                  </Grid>
-                ) : (
-                  <></>
-                );
-              })}
-            </Grid>
-
-            <Divider sx={{ margin: "20px 0px" }} />
-
-            <Typography sx={{ margin: "1.5rem" }} variant="h4" color="secondary">
-              Chứng nhận sinh viên
-            </Typography>
-            <Grid container spacing={2}>
-              {loanMedia.map((item) => {
-                return item.type === LOANMEDIA_TYPE.STUDENTCERT ? (
-                  <Grid item xs={12} key={item.id} md={6}>
-                    <Card>
-                      <CardActionArea>
-                        <ImageModal
-                          component="img"
-                          height="300"
-                          image={item.imageUrl}
-                          alt={item.description}
-                        />
-                        <CardContent>
-                          <Typography variant="h5">{item.description}</Typography>
-                        </CardContent>
-                      </CardActionArea>
-                    </Card>
-                  </Grid>
-                ) : (
-                  <></>
-                );
-              })}
-            </Grid> */}
 
             <Divider sx={{ margin: "20px 0px" }} />
 
@@ -689,7 +639,7 @@ export default function ViewPost() {
 
           <TabPanel
             value={3}>
-            <LoanSchedule loanId={id} />
+            <LoanSchedule user={user} loanHistory = {loanHistories[0]} loanId={id} />
           </TabPanel>
         </TabContext>
         <Dialog

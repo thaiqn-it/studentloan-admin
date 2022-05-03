@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useAuthDispatch } from '../../../context/AuthContext';
+import { getFirebaseToken } from '../../../firebase';
 
 // ----------------------------------------------------------------------
 
@@ -28,13 +29,15 @@ export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isErr,setIsErr] = useState(false)
+  const [pushToken, setPushToken] = useState(null)
+  getFirebaseToken(setPushToken)
 
   const dispatch = useAuthDispatch()
 
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      const userRes = await loginUser(dispatch,email, password)
+      const userRes = await loginUser(dispatch,email, password,pushToken)
       if (userRes.status === 200 || userRes.data) {
         navigate('/dashboard')
       }

@@ -13,6 +13,7 @@ import { LOAN_SCHEDULE_STATUS, LOAN_SCHEDULE_TYPE, NOTIFICATION_TYPE } from '../
 import { filter } from 'lodash';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useNavigate } from 'react-router-dom';
+import moment from 'moment';
 
 const TABLE_HEAD = [
     { id: 'type', label: 'Loại', alignRight: false },
@@ -70,15 +71,21 @@ export default function ViewAllNoti(props) {
     const [orderBy, setOrderBy] = useState('createdAt');
     const [filterType, setFilterType] = useState('');
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [isChange,setIsChange] = useState(moment().format())
 
     useEffect(() => {
         const fetchData = async () => {
             const res = await notificationApi.getAllByUserId()
             setListNoti(res.data.notifications)
-            // setTotalUnread(res.data.countNotRead)
         }
         fetchData()
-    }, [])
+        const refresh = () => {
+            setTimeout(() => {
+                setIsChange(moment().format())
+            }, 60000)
+        }
+        refresh()
+    }, [isChange])
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';

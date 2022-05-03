@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import { Card, TableContainer, Table, TableBody, TableCell, TableRow, TablePagination } from '@mui/material'
+import { Card, TableContainer, Table, TableBody, TableCell, TableRow, TablePagination, Typography, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField } from '@mui/material'
 
 import { loanScheduleApi } from '../apis/loanScheduleApi';
 import { fDate } from '../utils/formatTime';
-import { sentenceCase } from 'change-case';
 import { ListHead, ListToolbar } from '../components/_dashboard/user';
 import Scrollbar from '../components/Scrollbar';
 import Label from '../components/Label';
 import SearchNotFound from '../components/SearchNotFound';
 import { convertCurrencyVN } from '../utils/formatNumber';
-import {LOAN_SCHEDULE_STATUS, LOAN_SCHEDULE_TYPE} from '../constants/enum/index'
+import { LOAN_SCHEDULE_STATUS, LOAN_SCHEDULE_TYPE, LOAN_STATUS, NOTIFICATION_TYPE, USER_STATUS, USER_TYPE } from '../constants/enum/index'
 import { filter } from 'lodash';
+
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
+import { loanHistoryApi } from '../apis/loanHistory';
+import { useAuthState } from '../context/AuthContext';
+import { investmentApi } from '../apis/investmentApi';
+import { Box } from '@mui/system';
+import { userApi } from '../apis/user';
+import { notificationApi } from '../apis/notificationApi';
 
 const TABLE_HEAD = [
     { id: 'type', label: 'Tiến độ', alignRight: false },
@@ -51,38 +59,64 @@ function applySortFilter(array, comparator, query) {
 }
 
 function getColorBaseStatus(status) {
-    if(status===LOAN_SCHEDULE_STATUS.ONGOING){
+    if (status === LOAN_SCHEDULE_STATUS.ONGOING) {
         return 'warning'
-    }else if(status===LOAN_SCHEDULE_STATUS.COMPLETED){
+    } else if (status === LOAN_SCHEDULE_STATUS.COMPLETED) {
         return 'success'
-    }else{
+    } else {
         return 'error'
     }
 }
 
 function vietsubStatus(status) {
-    if(status===LOAN_SCHEDULE_STATUS.ONGOING){
+    if (status === LOAN_SCHEDULE_STATUS.ONGOING) {
         return 'đang trả'
-    }else if(status===LOAN_SCHEDULE_STATUS.COMPLETED){
+    } else if (status === LOAN_SCHEDULE_STATUS.COMPLETED) {
         return 'đã trả'
-    }else{
+    } else {
         return 'đã trễ'
     }
 }
 
 export default function App(props) {
-    const { loanId } = props
+    const { loanId, loanHistory, user } = props
     const [listSchedule, setSchedule] = useState([])
     const [page, setPage] = useState(0);
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('startAt');
     const [filterType, setFilterType] = useState('');
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [isLate, setIsLate] = useState(false)
+    const [title, setTitle] = useState(null)
+    const context = useAuthState()
+    const admin = context.admin
+    const [reason, setReason] = useState(null)
+    const [action, setAction] = useState(null)
+
+    const [open, setOpen] = useState(false)
+    const handleOpen = (action) => {
+        setOpen(true)
+        setAction(action)
+    }
+    const handleClose = () => {
+        setOpen(false)
+        setReason(null)
+        setAction(null)
+    }
 
     useEffect(() => {
         const fetchData = async () => {
+            var numberScheduleLate = 0
             const res = await loanScheduleApi.getAllByLoanId(loanId)
             setSchedule(res.data)
+            res.data.map(item => {
+                if (item.status === LOAN_SCHEDULE_STATUS.INCOMPLETE) {
+                    numberScheduleLate++
+                } else {
+                    numberScheduleLate--
+                }
+            })
+            if (numberScheduleLate >= 5) setIsLate(true)
         }
         fetchData()
     }, [])
@@ -111,17 +145,146 @@ export default function App(props) {
     const filteredschedules = applySortFilter(listSchedule, getComparator(order, orderBy), filterType);
 
     const isFilterNotFound = filteredschedules.length === 0;
+
+    const actionButton = () => {
+        var clone = (({ id, createdAt, updatedAt, adminId, ...o }) => o)(loanHistory);
+        var newHistory = {
+            ...clone,
+            description: reason,
+            type: LOAN_STATUS.INCOMPLETE,
+            adminId: admin.id,
+        };
+        if (action === 'close') {
+            if (reason === null || reason.length < 1) {
+                alert('Không được để trống lí do')
+                return
+            }
+            loanHistoryApi.update(loanHistory.id, { ...loanHistory, isActive: false }).then(
+                loanHistoryApi.create(newHistory)
+            ).then(
+                userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason })
+            )
+                .then(
+                    notificationApi.pushNotifToUser({
+                        type: USER_TYPE.STUDENT,
+                        notiType: NOTIFICATION_TYPE.LOAN,
+                        userId: user.id,
+                        msg: "Hồ sơ vay của bạn đã kết thúc",
+                        redirectUrl: `/trang-chu/ho-so/xem/${loanId}`,
+                    }).then(
+                        notificationApi.pushNotifToUser({
+                            type: USER_TYPE.STUDENT,
+                            notiType: NOTIFICATION_TYPE.USER,
+                            userId: user.id,
+                            msg: reason,
+                            redirectUrl: `/trang-chu/thong-tin`,
+                        }).then(async (res) => {
+                            const resListInvesment = await investmentApi.findAllByLoanId(loanId)
+                            resListInvesment.data.map(async (item) => {
+                                await notificationApi.pushNotifToUser({
+                                    type: USER_TYPE.INVESTOR,
+                                    notiType: NOTIFICATION_TYPE.LOAN,
+                                    userId: item.Investor.User.id,
+                                    msg: `Hồ sơ vay của sinh viên ${user.firstName} ${user.lastName} không hoàn thành`,
+                                    redirectUrl: "myapp://verify",
+                                })
+                            })
+                            handleClose()
+                        })
+                    )
+                )
+        } else {
+            console.log('tiếp tục')
+        }
+    }
+
     return (
         <Card
             sx={{
                 padding: 1
             }}>
+            <Grid
+                container
+                spacing={1}
+                justifyContent='space-between'
+                alignItems='center'>
 
-            <ListToolbar
-                target={"Tiến độ"}
-                filterName={filterType}
-                onFilterName={handleFilterByType}
-            />
+                <Grid
+                    item
+                >
+                    <ListToolbar
+                        target={"Tiến độ"}
+                        filterName={filterType}
+                        onFilterName={handleFilterByType}
+                    />
+                </Grid>
+
+                {
+                    isLate ? (<>
+                        <Grid
+                            item
+                        >
+                            <Button
+                                onClick={() => handleOpen('close')}
+                                sx={{ margin: 1 }}
+                                type="submit"
+                                color="error"
+                                variant="contained"
+                                startIcon={<CloseIcon />}
+                            >
+                                Đóng hồ sơ
+                            </Button>
+
+                            <Button
+                                onClick={() => handleOpen('continue')}
+                                sx={{ margin: 1 }}
+                                type="submit"
+                                variant="contained"
+                                endIcon={<CheckIcon />}
+                            >
+                                Tiếp tục hồ sơ
+                            </Button>
+                        </Grid>
+                    </>) : (<></>)
+                }
+            </Grid>
+
+            <Dialog
+                maxWidth='md'
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <Box sx={{ width: '900px' }}>
+                    <DialogTitle id="alert-dialog-title">
+                        {action === 'close' ? 'Xác nhận đóng hồ sơ vay?' : 'Xác nhận tiếp tục hồ sơ vay?'}
+                    </DialogTitle>
+                    <DialogContent>
+                        {action === 'close' ? (<>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Xin cho biết lí do:
+                            </Typography>
+                            <TextField multiline onChange={(event) => setReason(event.target.value)} value={reason} fullWidth id="dialog-description-colse" sx={{ mt: 2 }} />
+                        </>) : (<>
+                            <DialogContentText id="alert-dialog-description-continue1">
+                                Thay đổi sẽ được cập nhật vào hệ thống!
+                            </DialogContentText>
+                            <DialogContentText id="alert-dialog-description-continue2">
+                                Bạn có chắc chắn về quyết định này không?
+                            </DialogContentText>
+                        </>)}
+
+                    </DialogContent>
+                    <DialogActions>
+                        <Button endIcon={<CloseIcon />} color='error' onClick={handleClose}>Hủy</Button>
+                        <Button endIcon={<CheckIcon />} onClick={() => actionButton()} autoFocus>
+                            Đồng ý
+                        </Button>
+                    </DialogActions>
+                </Box>
+            </Dialog>
+
             <Scrollbar>
                 <TableContainer sx={{ minWidth: 800 }}>
                     <Table>
@@ -156,9 +319,9 @@ export default function App(props) {
                                             <TableCell align="left">
                                                 <Label
                                                     variant="ghost"
-                                                    color={type===LOAN_SCHEDULE_TYPE.STP?'info':'primary'}
+                                                    color={type === LOAN_SCHEDULE_TYPE.STP ? 'info' : 'primary'}
                                                 >
-                                                    {type===LOAN_SCHEDULE_TYPE.STP?'Còn học':'Đã đi làm'}
+                                                    {type === LOAN_SCHEDULE_TYPE.STP ? 'Còn học' : 'Đã đi làm'}
                                                 </Label>
                                             </TableCell>
                                             <TableCell align="left">{convertCurrencyVN(money)}</TableCell>

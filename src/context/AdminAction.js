@@ -1,13 +1,13 @@
 import { loadToken } from '../apis/index'
 import { userApi } from '../apis/user'
-import { USER_ID, JWT_TOKEN } from '../constants/index'
-import { USER_TYPE} from '../constants/enum/index'
+import { JWT_TOKEN } from '../constants/index'
+import { USER_TYPE } from '../constants/enum/index'
 const { USER_REDUCER_ACTION } = require('./AuthContext')
 
-export const loginUser = async (dispatch, email, password) => {
+export const loginUser = async (dispatch, email, password, pushToken) => {
     try {
         dispatch({ type: USER_REDUCER_ACTION.REQUEST_LOGIN })
-        const tokenRes = await userApi.login(email, password,USER_TYPE.ADMIN)
+        const tokenRes = await userApi.login(email, password, USER_TYPE.ADMIN)
         if (tokenRes.status !== 200 || !tokenRes.data.token)
             throw new Error(tokenRes.data.msg)
         const token = tokenRes.data.token
@@ -17,6 +17,9 @@ export const loginUser = async (dispatch, email, password) => {
         const userRes = await userApi.getAdminInfo()
         if (userRes.status !== 200 || !userRes.data) throw new Error(userRes.data.msg)
         const data = userRes.data
+        if (data.pushToken === null || data.pushToken !== pushToken) {
+            await userApi.update({ id: data.id, pushToken })
+        }
         const payload = { admin: data, token: token }
         dispatch({
             type: USER_REDUCER_ACTION.LOGIN_SUCCESS,

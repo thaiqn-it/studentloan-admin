@@ -23,7 +23,7 @@ import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import EventIcon from '@mui/icons-material/Event';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import { userApi } from "../apis/user";
-import { NOTIFICATION_STATUS, NOTIFICATION_TYPE, USER_STATUS } from "../constants/enum";
+import { NOTIFICATION_STATUS, NOTIFICATION_TYPE, USER_STATUS, USER_TYPE } from "../constants/enum";
 import { notificationApi } from "../apis/notificationApi";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -124,9 +124,12 @@ export default function DetailStudent() {
         setIsChange(moment().format())
         handleCloseConfirmApprove()
         userApi.update({ ...user, status: USER_STATUS.VERIFIED }).then(
-            notificationApi.pushNotifToInvestor({
+            notificationApi.pushNotifToUser({
+                type:USER_TYPE.INVESTOR,
+                notiType:NOTIFICATION_TYPE.USER,
                 userId: user.id,
-                msg: "Tài khoản của bạn đã được xác thực!"
+                msg: "Yêu cầu xác thực được chấp thuận!",
+                redirectUrl:"myapp://verify",
             })
         )
     }
@@ -136,9 +139,12 @@ export default function DetailStudent() {
         handleClose()
         setReason("")
         userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason }).then(
-            notificationApi.pushNotifToInvestor({
+            notificationApi.pushNotifToUser({
+                type:USER_TYPE.INVESTOR,
+                notiType:NOTIFICATION_TYPE.USER,
                 userId: user.id,
-                msg: `Yêu cầu xác thực của bạn bị từ chối vì lí do: ${reason}`
+                msg: "Yêu cầu xác thực không được chấp thuận!",
+                redirectUrl:"myapp://verify",
             })
         )
     }
@@ -147,9 +153,12 @@ export default function DetailStudent() {
         setIsChange(moment().format())
         handleCloseBanConfirm()
         userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason }).then(
-            notificationApi.pushNotifToInvestor({
+            notificationApi.pushNotifToUser({
+                type:USER_TYPE.INVESTOR,
+                notiType:NOTIFICATION_TYPE.USER,
                 userId: user.id,
-                msg: `Tài khoản của bạn đã bị cấm vì lí do: ${reason}`
+                msg: 'Tài khoản của bạn bị cấm!',
+                redirectUrl:"myapp://verify",
             })
         )
         setReason("")
@@ -160,9 +169,12 @@ export default function DetailStudent() {
         setIsChange(moment().format())
         handleCloseConfirmUnBan()
         userApi.update({ ...user, status: USER_STATUS.UNVERIFIED }).then(
-            notificationApi.pushNotifToInvestor({
+            notificationApi.pushNotifToUser({
+                type:USER_TYPE.INVESTOR,
+                notiType:NOTIFICATION_TYPE.USER,
                 userId: user.id,
-                msg: "Tài khoản của bạn đã được gỡ lệnh cấm!"
+                msg: "Tài khoản của bạn đã được kích hoạt",
+                redirectUrl:"myapp://verify",
             })
         )
     }

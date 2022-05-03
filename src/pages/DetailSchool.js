@@ -54,12 +54,10 @@ export default function DetailSchool() {
   const [name, setname] = useState('')
   const [city, setcity] = useState('')
   const [district, setdistrict] = useState('')
-  const [status, setstatus] = useState('')
+  const [emailPaypal, setEmailPaypal] = useState('')
   const [open, setOpen] = React.useState(false);
   //message out for user
   const [message, setmessage] = React.useState('')
-  //option autocomplete
-  const option = ['ACTIVE', 'INACTIVE']
   //tabs
   const [colorMessage, setcolorMessage] = useState('')
   const vertical = 'bottom'
@@ -87,7 +85,7 @@ export default function DetailSchool() {
       setname(school.name)
       setcity(school.city)
       setdistrict(school.district)
-      setstatus(school.status)
+      setEmailPaypal(school.emailPaypal)
 
       const listCities = PROVINCEVN.province
       setListCity(listCities)
@@ -140,13 +138,14 @@ export default function DetailSchool() {
   };
 
   function updateSchool(id) {
-    if (isDuplicated==false) {
-      if (name.length > 500 || name.length < 1 || city.length < 1 || district < 1) {
+    if (isDuplicated == false) {
+      if (name.length > 500 || name.length < 1 || city.length < 1 || district.length < 1 || emailPaypal.length < 1) {
         setcolorMessage('error')
         setOpen(true);
         setmessage('Chỉnh sửa thất bại!')
       } else {
         schoolApi.update(id, {
+          emailPaypal,
           name,
           city,
           district,
@@ -192,6 +191,11 @@ export default function DetailSchool() {
                 }}>
                 <Typography>Tên</Typography>
                 <TextField fullWidth onChange={onChangeName} value={name} />
+
+                <Typography style={{
+                  marginTop: 30
+                }}>Email thanh toán</Typography>
+                <TextField type='email' fullWidth onChange={(e) => setEmailPaypal(e.target.value)} value={emailPaypal} />
 
                 <Grid
                   container

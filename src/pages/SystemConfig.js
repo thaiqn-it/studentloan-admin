@@ -162,6 +162,7 @@ export default function SystemConfig() {
                 setMinRaiseMoney(res.data.minRaiseMoney)
                 setMaxRaiseMoney(res.data.maxRaiseMoney)
                 setMinDuration(res.data.minDuration)
+                setMaxDuration(res.data.maxDuration)
                 setPostExpireTime(res.data.postExpireTime)
             } else {
                 setIsinit(true)
