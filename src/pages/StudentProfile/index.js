@@ -13,7 +13,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import BlockIcon from '@mui/icons-material/Block';
 import { studentApi } from '../../apis/student'
 import { userApi } from '../../apis/user'
-import { NOTIFICATION_STATUS, NOTIFICATION_TYPE, USER_STATUS, USER_TYPE} from '../../constants/enum'
+import { NOTIFICATION_STATUS, NOTIFICATION_TYPE, USER_STATUS, USER_TYPE } from '../../constants/enum'
 import moment from "moment";
 import { useNavigate } from 'react-router-dom'
 import EditIcon from '@mui/icons-material/Edit';
@@ -78,15 +78,15 @@ export default function StudentProfile(props) {
     const appoveUser = (user) => {
         setIsChange(moment().format())
         handleCloseConfirmApprove()
-        userApi.update({ ...user, status: USER_STATUS.VERIFIED,reason:null }).then(
+        userApi.update({ ...user, status: USER_STATUS.VERIFIED, reason: null }).then(
             notificationApi.pushNotifToUser({
-                type:USER_TYPE.STUDENT,
-                notiType:NOTIFICATION_TYPE.USER,
+                type: USER_TYPE.STUDENT,
+                notiType: NOTIFICATION_TYPE.USER,
                 userId: user.id,
                 msg: "Yêu cầu xác thực được chấp thuận!",
-                redirectUrl:'/trang-chu/thong-tin',
+                redirectUrl: '/trang-chu/thong-tin',
             })
-            )
+        )
     }
 
     const confirmDeny = (user) => {
@@ -95,13 +95,13 @@ export default function StudentProfile(props) {
         setReason("")
         userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason }).then(
             notificationApi.pushNotifToUser({
-                type:USER_TYPE.STUDENT,
-                notiType:NOTIFICATION_TYPE.USER,
+                type: USER_TYPE.STUDENT,
+                notiType: NOTIFICATION_TYPE.USER,
                 userId: user.id,
                 msg: "Yêu cầu xác thực không được chấp thuận!",
-                redirectUrl:'/trang-chu/thong-tin',
+                redirectUrl: '/trang-chu/thong-tin',
             })
-            )
+        )
     }
 
     const confirmBan = (user) => {
@@ -109,13 +109,13 @@ export default function StudentProfile(props) {
         handleCloseBanConfirm()
         userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason }).then(
             notificationApi.pushNotifToUser({
-                type:USER_TYPE.STUDENT,
-                notiType:NOTIFICATION_TYPE.USER,
+                type: USER_TYPE.STUDENT,
+                notiType: NOTIFICATION_TYPE.USER,
                 userId: user.id,
                 msg: 'Tài khoản của bạn bị cấm!',
-                redirectUrl:'/trang-chu/thong-tin',
+                redirectUrl: '/trang-chu/thong-tin',
             })
-            )
+        )
         setReason("")
     }
 
@@ -123,23 +123,23 @@ export default function StudentProfile(props) {
         setIsChange(moment().format())
         handleCloseConfirmUnBan()
         if (isEditable === false) {
-            userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason:null }).then(
+            userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: null }).then(
                 notificationApi.pushNotifToUser({
-                    type:USER_TYPE.STUDENT,
-                    notiType:NOTIFICATION_TYPE.USER,
+                    type: USER_TYPE.STUDENT,
+                    notiType: NOTIFICATION_TYPE.USER,
                     userId: user.id,
                     msg: "Tài khoản của bạn đã được kích hoạt",
-                    redirectUrl:'/trang-chu/thong-tin',
+                    redirectUrl: '/trang-chu/thong-tin',
                 })
-                )
+            )
         } else {
-            userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason:null }).then(
+            userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: null }).then(
                 notificationApi.pushNotifToUser({
-                    type:USER_TYPE.STUDENT,
-                    notiType:NOTIFICATION_TYPE.USER,
+                    type: USER_TYPE.STUDENT,
+                    notiType: NOTIFICATION_TYPE.USER,
                     userId: user.id,
                     msg: "Yêu cầu chỉnh sửa thông tin được chấp thuận!",
-                    redirectUrl:'/trang-chu/thong-tin',
+                    redirectUrl: '/trang-chu/thong-tin',
                 }))
         }
 
