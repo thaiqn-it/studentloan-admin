@@ -37,11 +37,6 @@ import { onMessageListener } from '../../firebase';
 
 export default function NotificationsPopover() {
 
-  onMessageListener().then(payload => {
-    console.log(payload)
-    fetchData()
-  }).catch(e => console.log(e))
-
   const navigate = useNavigate()
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -51,6 +46,11 @@ export default function NotificationsPopover() {
   const setRead = (notification) => {
     notificationApi.update(notification.id, { ...notification, isRead: true })
   }
+
+  onMessageListener().then(payload => {
+    console.log(payload)
+    fetchData()
+  }).catch(e => console.log(e))
 
   const renderContent = (notification) => {
     const description = (
@@ -83,7 +83,8 @@ export default function NotificationsPopover() {
         onClick={() => {
           navigate(notification.redirectUrl)
           setRead(notification)
-          setOnClickItem(moment().format())
+          // setOnClickItem(moment().format())
+          fetchData()
           handleClose()
         }}
         disableGutters
@@ -142,7 +143,7 @@ export default function NotificationsPopover() {
     //   }, 60000)
     // }
     // refresh()
-  }, [onClickItem])
+  }, [])
 
 
   const handleOpen = () => {
