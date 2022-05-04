@@ -297,6 +297,28 @@ export default function ViewPost() {
     })
   }
 
+  const generateStatus = (type) => {
+    if (type === LOAN_STATUS.WAITING) {
+      return (
+        <Typography color='secondary' variant="h4">
+          Đang chờ duyệt
+        </Typography>
+      )
+    } else if (type === LOAN_STATUS.INCOMPLETE) {
+      return (
+        <Typography color='error' variant="h4">
+          Không hoàn thành
+        </Typography>
+      )
+    } else if (type === LOAN_STATUS.ONGOING) {
+      return (
+        <Typography color='primary' variant="h4">
+          Đang trong quá trình trả nợ
+        </Typography>
+      )
+    }
+  }
+
   return (
     <Page title="Chi tiết bài chờ duyệt">
       <Backdrop
@@ -327,13 +349,13 @@ export default function ViewPost() {
 
         <TabContext value={tab}>
           {
-            loanHistories[0]?.type === LOAN_STATUS.ONGOING ? (
+            loanHistories[0]?.type !== LOAN_STATUS.WAITING && (
               <TabList value={tab} onChange={handleChangeTabs} centered>
                 <Tab label="Thông tin cơ bản" value={1} />
                 <Tab label="Hợp đồng" value={2} />
                 <Tab label="Lịch trình trả nợ" value={3} />
               </TabList>
-            ) : (<></>)
+            ) 
           }
 
           <TabPanel value={1}>
@@ -396,14 +418,15 @@ export default function ViewPost() {
 
                     <Grid item xs="6" md="12">
                       <Typography variant="h6">Trạng thái</Typography>
-                      {loanHistories[0]?.type === LOAN_STATUS.WAITING ?
+                      {generateStatus(loanHistories[0]?.type)}
+                      {/* {loanHistories[0]?.type === LOAN_STATUS.WAITING ?
                         (<Typography color='secondary' variant="h4">
                           Đang chờ duyệt
                         </Typography>)
                         :
                         (<Typography color='primary' variant="h4">
                           Đang trong tiến độ trả nợ
-                        </Typography>)}
+                        </Typography>)} */}
                     </Grid>
 
                     <Grid item xs="6" md="12" sx={{ marginTop: "1rem" }}>

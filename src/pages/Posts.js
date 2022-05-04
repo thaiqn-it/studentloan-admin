@@ -26,7 +26,8 @@ export default function Posts(props) {
   ])
   const [typeOption, setTypeOption] = useState([
     { value: LOAN_STATUS.WAITING, label: 'Đang chờ' },
-    { value: LOAN_STATUS.ONGOING, label: 'Đang trong tiến độ' }
+    { value: LOAN_STATUS.ONGOING, label: 'Đang trong tiến độ' },
+    { value: LOAN_STATUS.INCOMPLETE, label: 'Không hoàn thành' }
   ])
   const [optionChoosen, setOptionChoosen] = useState('DESC')
   const [typeChoosen, setTypeChoosen] = useState(LOAN_STATUS.WAITING)

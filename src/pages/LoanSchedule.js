@@ -161,12 +161,7 @@ export default function App(props) {
     const actionButton = () => {
         setLoading(true)
         var clone = (({ id, createdAt, updatedAt, adminId, ...o }) => o)(loanHistory);
-        var newHistory = {
-            ...clone,
-            description: reason,
-            type: LOAN_STATUS.INCOMPLETE,
-            adminId: admin.id,
-        };
+        var newHistory = {}
         if (action === 'close') {
             try {
                 if (reason === null || reason.length < 1) {
@@ -174,6 +169,12 @@ export default function App(props) {
                     setLoading(false)
                     return
                 }
+                newHistory = {
+                    ...clone,
+                    description: reason,
+                    type: LOAN_STATUS.INCOMPLETE,
+                    adminId: admin.id,
+                };
                 handleClose()
                 setOpenSnackBar(true)
                 setTimeout(() => {
@@ -220,7 +221,57 @@ export default function App(props) {
                 console.log(e)
             }
         } else {
-            console.log('tiếp tục')
+            try {
+                newHistory = {
+                    ...clone,
+                    description: null,
+                    type: LOAN_STATUS.ONGOING,
+                    adminId: admin.id,
+                };
+                handleClose()
+                setOpenSnackBar(true)
+                setTimeout(() => {
+                    navigate("/dashboard/posts");
+                }, 3000)
+                loanHistoryApi.update(loanHistory.id, { ...loanHistory, isActive: false }).then(
+                    loanHistoryApi.create(newHistory)
+                )
+                    .then(
+                        notificationApi.pushNotifToUser({
+                            type: USER_TYPE.STUDENT,
+                            notiType: NOTIFICATION_TYPE.LOAN,
+                            userId: user.id,
+                            msg: "Hồ sơ vay của bạn được phép tiếp tục",
+                            redirectUrl: `/trang-chu/ho-so/xem/${loanId}`,
+                        })
+                            // .then(
+                            //     notificationApi.pushNotifToUser({
+                            //         type: USER_TYPE.STUDENT,
+                            //         notiType: NOTIFICATION_TYPE.USER,
+                            //         userId: user.id,
+                            //         msg: reason,
+                            //         redirectUrl: `/trang-chu/thong-tin`,
+                            //     })
+                            .then(async (res) => {
+                                const resListInvesment = await investmentApi.findAllByLoanId(loanId)
+                                resListInvesment.data.map(async (item) => {
+                                    await notificationApi.pushNotifToUser({
+                                        type: USER_TYPE.INVESTOR,
+                                        notiType: NOTIFICATION_TYPE.LOAN,
+                                        userId: item.Investor.User.id,
+                                        msg: `Hồ sơ vay của sinh viên ${user.firstName} ${user.lastName} đã được tiếp tục`,
+                                        redirectUrl: `myapp://investmentDetail/${item.id}`,
+                                    })
+                                })
+                                setLoading(false)
+                            })
+                        // )
+                    )
+            } catch (e) {
+                setLoading(false)
+                handleClose()
+                console.log(e)
+            }
         }
     }
 
@@ -267,11 +318,12 @@ export default function App(props) {
                 </Grid>
 
                 {
-                    isLate ? (<>
+                    isLate && loanHistory.type === LOAN_STATUS.ONGOING ? (<>
                         <Grid
                             item
                         >
                             <Button
+                                sx={{ margin: 1 }}
                                 onClick={() => handleOpen('close')}
                                 type="submit"
                                 color="error"
@@ -280,15 +332,23 @@ export default function App(props) {
                             >
                                 Đóng hồ sơ
                             </Button>
-                            {/* <Button
-                                onClick={() => handleOpen('continue')}
+                        </Grid>
+                    </>) : (<></>)
+                }
+                {
+                    loanHistory.type === LOAN_STATUS.INCOMPLETE ? (<>
+                        <Grid
+                            item
+                        >
+                            <Button
                                 sx={{ margin: 1 }}
+                                onClick={() => handleOpen('continue')}
                                 type="submit"
                                 variant="contained"
                                 endIcon={<CheckIcon />}
                             >
                                 Tiếp tục hồ sơ
-                            </Button> */}
+                            </Button>
                         </Grid>
                     </>) : (<></>)
                 }
