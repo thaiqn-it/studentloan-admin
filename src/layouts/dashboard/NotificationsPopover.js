@@ -57,7 +57,8 @@ export default function NotificationsPopover() {
       <Typography variant="subtitle2">
         {notification.title}
         <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-          &nbsp; {noCase(notification.description)}
+          {/* &nbsp; {noCase(notification.description)} */}
+          {notification.description}
         </Typography>
       </Typography>
     );
@@ -77,7 +78,6 @@ export default function NotificationsPopover() {
   }
   const NotificationItem = ({ notification }) => {
     const { icon, description: description } = renderContent(notification);
-
     return (
       <ListItemButton
         onClick={() => {
