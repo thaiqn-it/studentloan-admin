@@ -18,7 +18,7 @@ export const getFirebaseToken = (setTokenFound) => {
   return getToken(messaging, { vapidKey: 'BND2LegSUf6eikqwFppHn4u8_BHcFaTjmQurixDDTwc2aJQapEotTu90h7zT3qCAmlDmV-QFt2CxSe5FIdmQ74Y' }).then((currentToken) => {
     if (currentToken) {
       console.log('current token for client: ', currentToken);
-      setTokenFound(true);
+      setTokenFound(currentToken);
       // Track the token -> client mapping, by sending to backend server
       // show on the UI that permission is secured
     } else {

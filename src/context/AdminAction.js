@@ -17,6 +17,7 @@ export const loginUser = async (dispatch, email, password, pushToken) => {
         const userRes = await userApi.getAdminInfo()
         if (userRes.status !== 200 || !userRes.data) throw new Error(userRes.data.msg)
         const data = userRes.data
+        console.log(data.pushToken,pushToken)
         if (data.pushToken === null || data.pushToken !== pushToken) {
             await userApi.update({ id: data.id, pushToken })
         }
