@@ -78,7 +78,7 @@ export default function StudentProfile(props) {
     const appoveUser = (user) => {
         setIsChange(moment().format())
         handleCloseConfirmApprove()
-        userApi.update({ ...user, status: USER_STATUS.VERIFIED }).then(
+        userApi.update({ ...user, status: USER_STATUS.VERIFIED,reason:null }).then(
             notificationApi.pushNotifToUser({
                 type:USER_TYPE.STUDENT,
                 notiType:NOTIFICATION_TYPE.USER,
@@ -123,7 +123,7 @@ export default function StudentProfile(props) {
         setIsChange(moment().format())
         handleCloseConfirmUnBan()
         if (isEditable === false) {
-            userApi.update({ ...user, status: USER_STATUS.UNVERIFIED }).then(
+            userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason:null }).then(
                 notificationApi.pushNotifToUser({
                     type:USER_TYPE.STUDENT,
                     notiType:NOTIFICATION_TYPE.USER,
@@ -133,7 +133,7 @@ export default function StudentProfile(props) {
                 })
                 )
         } else {
-            userApi.update({ ...user, status: USER_STATUS.UNVERIFIED }).then(
+            userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason:null }).then(
                 notificationApi.pushNotifToUser({
                     type:USER_TYPE.STUDENT,
                     notiType:NOTIFICATION_TYPE.USER,

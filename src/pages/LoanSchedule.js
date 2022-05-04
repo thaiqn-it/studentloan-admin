@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Card, TableContainer, Table, TableBody, TableCell, TableRow, TablePagination, Typography, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField } from '@mui/material'
+import { useNavigate } from "react-router-dom";
+import { Card, TableContainer, Table, TableBody, TableCell, Snackbar, Alert, TableRow, TablePagination, Typography, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField } from '@mui/material'
 
 import { loanScheduleApi } from '../apis/loanScheduleApi';
 import { fDate } from '../utils/formatTime';
@@ -10,6 +11,8 @@ import SearchNotFound from '../components/SearchNotFound';
 import { convertCurrencyVN } from '../utils/formatNumber';
 import { LOAN_SCHEDULE_STATUS, LOAN_SCHEDULE_TYPE, LOAN_STATUS, NOTIFICATION_TYPE, USER_STATUS, USER_TYPE } from '../constants/enum/index'
 import { filter } from 'lodash';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -80,6 +83,7 @@ function vietsubStatus(status) {
 
 export default function App(props) {
     const { loanId, loanHistory, user } = props
+    const navigate = useNavigate()
     const [listSchedule, setSchedule] = useState([])
     const [page, setPage] = useState(0);
     const [order, setOrder] = useState('asc');
@@ -93,6 +97,9 @@ export default function App(props) {
     const [reason, setReason] = useState(null)
     const [action, setAction] = useState(null)
 
+    const [openSnackBar, setOpenSnackBar] = useState(false);
+    const handleCloseSnackBar = () => setOpenSnackBar(false);
+
     const [open, setOpen] = useState(false)
     const handleOpen = (action) => {
         setOpen(true)
@@ -103,6 +110,11 @@ export default function App(props) {
         setReason(null)
         setAction(null)
     }
+
+    const [loading, setLoading] = useState(false)
+    const handleCloseLoading = () => {
+        setLoading(false);
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -147,6 +159,7 @@ export default function App(props) {
     const isFilterNotFound = filteredschedules.length === 0;
 
     const actionButton = () => {
+        setLoading(true)
         var clone = (({ id, createdAt, updatedAt, adminId, ...o }) => o)(loanHistory);
         var newHistory = {
             ...clone,
@@ -155,44 +168,57 @@ export default function App(props) {
             adminId: admin.id,
         };
         if (action === 'close') {
-            if (reason === null || reason.length < 1) {
-                alert('Không được để trống lí do')
-                return
-            }
-            loanHistoryApi.update(loanHistory.id, { ...loanHistory, isActive: false }).then(
-                loanHistoryApi.create(newHistory)
-            ).then(
-                userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason })
-            )
-                .then(
-                    notificationApi.pushNotifToUser({
-                        type: USER_TYPE.STUDENT,
-                        notiType: NOTIFICATION_TYPE.LOAN,
-                        userId: user.id,
-                        msg: "Hồ sơ vay của bạn đã kết thúc",
-                        redirectUrl: `/trang-chu/ho-so/xem/${loanId}`,
-                    }).then(
+            try {
+                if (reason === null || reason.length < 1) {
+                    alert('Không được để trống lí do')
+                    setLoading(false)
+                    return
+                }
+                handleClose()
+                setOpenSnackBar(true)
+                setTimeout(() => {
+                    navigate("/dashboard/posts");
+                }, 3000)
+                loanHistoryApi.update(loanHistory.id, { ...loanHistory, isActive: false }).then(
+                    loanHistoryApi.create(newHistory)
+                )
+                    .then(
+                        userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason })
+                    )
+                    .then(
                         notificationApi.pushNotifToUser({
                             type: USER_TYPE.STUDENT,
-                            notiType: NOTIFICATION_TYPE.USER,
+                            notiType: NOTIFICATION_TYPE.LOAN,
                             userId: user.id,
-                            msg: reason,
-                            redirectUrl: `/trang-chu/thong-tin`,
-                        }).then(async (res) => {
-                            const resListInvesment = await investmentApi.findAllByLoanId(loanId)
-                            resListInvesment.data.map(async (item) => {
-                                await notificationApi.pushNotifToUser({
-                                    type: USER_TYPE.INVESTOR,
-                                    notiType: NOTIFICATION_TYPE.LOAN,
-                                    userId: item.Investor.User.id,
-                                    msg: `Hồ sơ vay của sinh viên ${user.firstName} ${user.lastName} không hoàn thành`,
-                                    redirectUrl: "myapp://verify",
+                            msg: "Hồ sơ vay của bạn đã kết thúc",
+                            redirectUrl: `/trang-chu/ho-so/xem/${loanId}`,
+                        }).then(
+                            notificationApi.pushNotifToUser({
+                                type: USER_TYPE.STUDENT,
+                                notiType: NOTIFICATION_TYPE.USER,
+                                userId: user.id,
+                                msg: reason,
+                                redirectUrl: `/trang-chu/thong-tin`,
+                            }).then(async (res) => {
+                                const resListInvesment = await investmentApi.findAllByLoanId(loanId)
+                                resListInvesment.data.map(async (item) => {
+                                    await notificationApi.pushNotifToUser({
+                                        type: USER_TYPE.INVESTOR,
+                                        notiType: NOTIFICATION_TYPE.LOAN,
+                                        userId: item.Investor.User.id,
+                                        msg: `Hồ sơ vay của sinh viên ${user.firstName} ${user.lastName} không hoàn thành`,
+                                        redirectUrl: `myapp://investmentDetail/${item.id}`,
+                                    })
                                 })
+                                setLoading(false)
                             })
-                            handleClose()
-                        })
+                        )
                     )
-                )
+            } catch (e) {
+                setLoading(false)
+                handleClose()
+                console.log(e)
+            }
         } else {
             console.log('tiếp tục')
         }
@@ -203,6 +229,27 @@ export default function App(props) {
             sx={{
                 padding: 1
             }}>
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={loading}
+                onClick={handleCloseLoading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
+            <Snackbar
+                open={openSnackBar}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                autoHideDuration={3000}
+                onClose={handleCloseSnackBar}
+            >
+                <Alert
+                    onClose={handleCloseSnackBar}
+                    severity='success'
+                    sx={{ width: "100%" }}
+                >
+                    Đóng hồ sơ thành công! (Quay về trang trước sau 3 giây!)
+                </Alert>
+            </Snackbar>
             <Grid
                 container
                 spacing={1}
@@ -226,7 +273,6 @@ export default function App(props) {
                         >
                             <Button
                                 onClick={() => handleOpen('close')}
-                                sx={{ margin: 1 }}
                                 type="submit"
                                 color="error"
                                 variant="contained"
@@ -234,8 +280,7 @@ export default function App(props) {
                             >
                                 Đóng hồ sơ
                             </Button>
-
-                            <Button
+                            {/* <Button
                                 onClick={() => handleOpen('continue')}
                                 sx={{ margin: 1 }}
                                 type="submit"
@@ -243,7 +288,7 @@ export default function App(props) {
                                 endIcon={<CheckIcon />}
                             >
                                 Tiếp tục hồ sơ
-                            </Button>
+                            </Button> */}
                         </Grid>
                     </>) : (<></>)
                 }

@@ -48,7 +48,7 @@ export default function CreateSchool() {
   const [name, setname] = React.useState('')
   const [city, setcity] = React.useState('')
   const [district, setdistrict] = React.useState('')
-  const [emailPaypal, setEmailPaypal] = React.useState('')
+  // const [emailPaypal, setEmailPaypal] = React.useState('')
   const [open, setOpen] = React.useState(false);
   const [message, setmessage] = React.useState('')
   const [colorMsg, setColorMsg] = React.useState('')
@@ -110,13 +110,15 @@ export default function CreateSchool() {
   const createSchool = () => {
     schoolApi.checkDuplicate(name).then(res => {
       if (res.data === null) {
-        if (name.length > 500 || name.length < 1 || city.length < 1 || district.length < 1 || emailPaypal.length < 1) {
+        if (name.length > 500 || name.length < 1 || city.length < 1 || district.length < 1 
+          // || emailPaypal.length < 1
+          ) {
           setColorMsg('error')
           setOpen(true);
           setmessage('Tạo mới thất bại!')
         } else {
           schoolApi.create({
-            emailPaypal,
+            // emailPaypal,
             name,
             city,
             district,
@@ -158,10 +160,10 @@ export default function CreateSchool() {
             }}>Tên</Typography>
             <TextField fullWidth onChange={onChangeName} />
 
-            <Typography style={{
+            {/* <Typography style={{
               marginTop: 30
             }}>Email thanh toán</Typography>
-            <TextField type='email' fullWidth onChange={(e)=>setEmailPaypal(e.target.value)} />
+            <TextField type='email' fullWidth onChange={(e)=>setEmailPaypal(e.target.value)} /> */}
 
             <Grid
               container

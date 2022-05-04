@@ -1,20 +1,21 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
-var firebaseConfig = {
-  apiKey: "AIzaSyDxQ8DoH4p5R4moIB03-ErIUDcD9n2p7OQ",
-  authDomain: "studentloan-c5392.firebaseapp.com",
-  projectId: "studentloan-c5392",
-  storageBucket: "studentloan-c5392.appspot.com",
-  messagingSenderId: "843800565009",
-  appId: "1:843800565009:web:862d7fc5d6cc790b6de8b0"
+const firebaseConfig = {
+  apiKey: "AIzaSyDYsjufZklXVJSKPJ32TKxZuhJPTSEKeak",
+  authDomain: "loan-student.firebaseapp.com",
+  projectId: "loan-student",
+  storageBucket: "loan-student.appspot.com",
+  messagingSenderId: "761167549872",
+  appId: "1:761167549872:web:deb06f4c84d51c76507275",
+  measurementId: "G-3WTQ4TP3BP"
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
 const messaging = getMessaging(firebaseApp);
 
 export const getFirebaseToken = (setTokenFound) => {
-  return getToken(messaging, {vapidKey: 'BNXbmQIdvEL32dBnoT4_hmkBtrTsgaqX3nnCEgeE-dy8NZWrhwgWPLWV92PymXoAZGHct5gbULYKRqkPgxYQdVg'}).then((currentToken) => {
+  return getToken(messaging, { vapidKey: 'BND2LegSUf6eikqwFppHn4u8_BHcFaTjmQurixDDTwc2aJQapEotTu90h7zT3qCAmlDmV-QFt2CxSe5FIdmQ74Y' }).then((currentToken) => {
     if (currentToken) {
       console.log('current token for client: ', currentToken);
       setTokenFound(true);
@@ -36,4 +37,4 @@ export const onMessageListener = () =>
     onMessage(messaging, (payload) => {
       resolve(payload);
     });
-});
+  });

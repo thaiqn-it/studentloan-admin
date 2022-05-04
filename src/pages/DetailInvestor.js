@@ -123,13 +123,13 @@ export default function DetailStudent() {
     const appoveUser = (user) => {
         setIsChange(moment().format())
         handleCloseConfirmApprove()
-        userApi.update({ ...user, status: USER_STATUS.VERIFIED }).then(
+        userApi.update({ ...user, status: USER_STATUS.VERIFIED, reason: null }).then(
             notificationApi.pushNotifToUser({
-                type:USER_TYPE.INVESTOR,
-                notiType:NOTIFICATION_TYPE.USER,
+                type: USER_TYPE.INVESTOR,
+                notiType: NOTIFICATION_TYPE.USER,
                 userId: user.id,
                 msg: "Yêu cầu xác thực được chấp thuận!",
-                redirectUrl:"myapp://verify",
+                redirectUrl: "myapp://verify",
             })
         )
     }
@@ -140,11 +140,11 @@ export default function DetailStudent() {
         setReason("")
         userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: reason }).then(
             notificationApi.pushNotifToUser({
-                type:USER_TYPE.INVESTOR,
-                notiType:NOTIFICATION_TYPE.USER,
+                type: USER_TYPE.INVESTOR,
+                notiType: NOTIFICATION_TYPE.USER,
                 userId: user.id,
                 msg: "Yêu cầu xác thực không được chấp thuận!",
-                redirectUrl:"myapp://verify",
+                redirectUrl: "myapp://verify",
             })
         )
     }
@@ -154,11 +154,11 @@ export default function DetailStudent() {
         handleCloseBanConfirm()
         userApi.update({ ...user, status: USER_STATUS.BAN, reason: reason }).then(
             notificationApi.pushNotifToUser({
-                type:USER_TYPE.INVESTOR,
-                notiType:NOTIFICATION_TYPE.USER,
+                type: USER_TYPE.INVESTOR,
+                notiType: NOTIFICATION_TYPE.USER,
                 userId: user.id,
                 msg: 'Tài khoản của bạn bị cấm!',
-                redirectUrl:"myapp://verify",
+                redirectUrl: "myapp://verify",
             })
         )
         setReason("")
@@ -168,13 +168,13 @@ export default function DetailStudent() {
     const confirmUnBan = (user) => {
         setIsChange(moment().format())
         handleCloseConfirmUnBan()
-        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED }).then(
+        userApi.update({ ...user, status: USER_STATUS.UNVERIFIED, reason: null }).then(
             notificationApi.pushNotifToUser({
-                type:USER_TYPE.INVESTOR,
-                notiType:NOTIFICATION_TYPE.USER,
+                type: USER_TYPE.INVESTOR,
+                notiType: NOTIFICATION_TYPE.USER,
                 userId: user.id,
                 msg: "Tài khoản của bạn đã được kích hoạt",
-                redirectUrl:"myapp://verify",
+                redirectUrl: "myapp://verify",
             })
         )
     }

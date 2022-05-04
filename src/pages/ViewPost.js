@@ -73,9 +73,6 @@ export default function ViewPost() {
   const handleCloseLoading = () => {
     setLoading(false);
   };
-  const handleToggle = () => {
-    setLoading(!open);
-  };
   const [title, setTitle] = useState({
     caption: '',
     titleButton: '',
@@ -216,20 +213,23 @@ export default function ViewPost() {
           }
         )).then(
           notificationApi.pushNotifToUser({
-            type:USER_TYPE.STUDENT,
-            notiType:NOTIFICATION_TYPE.LOAN,
+            type: USER_TYPE.STUDENT,
+            notiType: NOTIFICATION_TYPE.LOAN,
             userId: user.id,
             msg: content,
-            redirectUrl:`/trang-chu/ho-so/xem/${id}`,
-        }));
+            redirectUrl: `/trang-chu/ho-so/xem/${id}`,
+          }));
       handleCloseDialog();
       setIsChange(moment().format())
+      setTimeout(() => {
+        onBack()
+      }, 3000)
       if (type === 'Approve') {
         getMsg("Duyệt bài thành công! (Sẽ quay về trang trước sau 3 giây)", "successAction", true);
       } else if (type === 'Deny') {
         getMsg("Từ chối bài thành công! (Sẽ quay về trang trước sau 3 giây)", "successAction", true);
       }
-l
+      l
     }
   };
 
@@ -639,7 +639,7 @@ l
 
           <TabPanel
             value={3}>
-            <LoanSchedule user={user} loanHistory = {loanHistories[0]} loanId={id} />
+            <LoanSchedule user={user} loanHistory={loanHistories[0]} loanId={id} />
           </TabPanel>
         </TabContext>
         <Dialog

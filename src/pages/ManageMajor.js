@@ -26,6 +26,7 @@ import {
     DialogActions,
     Snackbar,
     Alert,
+    Box,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import AddIcon from '@mui/icons-material/Add';
@@ -272,88 +273,102 @@ export default function ManageMajor() {
                     />
                 </Card>
             </Container>
-            <Dialog open={openAddDialog} onClose={() => {
-                setOpenAddDialog(false)
-                setNameMajor("")
-            }}>
-                <DialogTitle>Thêm ngành mới</DialogTitle>
-                <DialogContent>
-                    <div>
-                        <TextField fullWidth sx={{ margin: 1 }} label="Tên" type={"text"} onChange={(e) => setNameMajor(e.target.value)} value={nameMajor} />
-                    </div>
-                </DialogContent>
-                <DialogActions>
-                    <Button color="error" endIcon={<CloseIcon />} onClick={() => {
-                        setOpenAddDialog(false)
-                        setNameMajor("")
-                    }}>Hủy</Button>
-                    <Button
-                        endIcon={<CheckIcon />}
-                        disabled={nameMajor === ""}
-                        onClick={() => {
-                            majorApi.checkDuplicate(nameMajor).then(res => {
-                                if (res.data !== null) {
-                                    displaySB('Trùng tên', 'error')
-                                } else {
-                                    majorApi.create({
-                                        name: nameMajor,
-                                        status: MAJOR_STATUS.ACTIVE,
-                                    }).then(res => {
-                                        displaySB('Tạo mới thành công!', 'success')
-                                        setOpenAddDialog(false)
-                                        setNameMajor("")
-                                        setIsChange(moment().format())
-                                    })
-                                }
-                            })
-                        }}
-                    >
-                        Tạo
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            <Dialog open={openUpdateDialog} onClose={() => {
-                setOpenUpdateDialog(false)
-                setNameMajor("")
-            }}>
-                <DialogTitle>Chỉnh sửa ngành</DialogTitle>
-                <DialogContent>
-                    <div>
-                        <TextField fullWidth sx={{ margin: 1 }} label="Tên mới" type={"text"} onChange={(e) => setNameMajor(e.target.value)} value={nameMajor} />
-                    </div>
-                </DialogContent>
-                <DialogActions>
-                    <Button color="error" endIcon={<CloseIcon />} onClick={() => {
-                        setOpenUpdateDialog(false)
-                        setNameMajor("")
-                    }}>Hủy</Button>
-                    <Button
-                        endIcon={<CheckIcon />}
-                        disabled={nameMajor === ""}
-                        onClick={() => {
-                            majorApi.checkDuplicate(nameMajor).then(res => {
-                                if (res.data !== null) {
-                                    displaySB('Trùng tên', 'error')
-                                } else {
-                                    majorApi.update(selectedMajor.id, {
-                                        ...selectedMajor,
-                                        name: nameMajor,
-                                    }).then(res => {
-                                        setOpenUpdateDialog(false)
-                                        setNameMajor("")
-                                        displaySB('Chỉnh sửa thành công!', 'success')
-                                        setIsChange(moment().format())
+            <Dialog
+                maxWidth='sm'
+                open={openAddDialog} onClose={() => {
+                    setOpenAddDialog(false)
+                    setNameMajor("")
+                }}>
+                <Box
+                    sx={{
+                        width: '600px'
+                    }}>
+                    <DialogTitle>Thêm ngành mới</DialogTitle>
+                    <DialogContent>
+                        <div>
+                            <TextField fullWidth label="Tên" type={"text"} onChange={(e) => setNameMajor(e.target.value)} value={nameMajor} />
+                        </div>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color="error" endIcon={<CloseIcon />} onClick={() => {
+                            setOpenAddDialog(false)
+                            setNameMajor("")
+                        }}>Hủy</Button>
+                        <Button
+                            endIcon={<CheckIcon />}
+                            disabled={nameMajor === ""}
+                            onClick={() => {
+                                majorApi.checkDuplicate(nameMajor).then(res => {
+                                    if (res.data !== null) {
+                                        displaySB('Trùng tên', 'error')
+                                    } else {
+                                        majorApi.create({
+                                            name: nameMajor,
+                                            status: MAJOR_STATUS.ACTIVE,
+                                        }).then(res => {
+                                            displaySB('Tạo mới thành công!', 'success')
+                                            setOpenAddDialog(false)
+                                            setNameMajor("")
+                                            setIsChange(moment().format())
+                                        })
                                     }
-                                    );
-                                }
-                            })
-                        }
-                        }
-                    >
-                        Chỉnh sửa
-                    </Button>
-                </DialogActions>
+                                })
+                            }}
+                        >
+                            Tạo
+                        </Button>
+                    </DialogActions>
+                </Box>
+            </Dialog>
+            <Dialog
+                maxWidth='sm'
+                open={openUpdateDialog} onClose={() => {
+                    setOpenUpdateDialog(false)
+                    setNameMajor("")
+                }}>
+                <Box
+                    sx={{ width: '600px' }}
+                >
+
+                    <DialogTitle>Chỉnh sửa ngành</DialogTitle>
+                    <DialogContent>
+                        <div>
+                            <TextField fullWidth sx={{ margin: 1 }} label="Tên mới" type={"text"} onChange={(e) => setNameMajor(e.target.value)} value={nameMajor} />
+                        </div>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color="error" endIcon={<CloseIcon />} onClick={() => {
+                            setOpenUpdateDialog(false)
+                            setNameMajor("")
+                        }}>Hủy</Button>
+                        <Button
+                            endIcon={<CheckIcon />}
+                            disabled={nameMajor === ""}
+                            onClick={() => {
+                                majorApi.checkDuplicate(nameMajor).then(res => {
+                                    if (res.data !== null) {
+                                        displaySB('Trùng tên', 'error')
+                                    } else {
+                                        majorApi.update(selectedMajor.id, {
+                                            ...selectedMajor,
+                                            name: nameMajor,
+                                        }).then(res => {
+                                            setOpenUpdateDialog(false)
+                                            setNameMajor("")
+                                            displaySB('Chỉnh sửa thành công!', 'success')
+                                            setIsChange(moment().format())
+                                        }
+                                        );
+                                    }
+                                })
+                            }
+                            }
+                        >
+                            Chỉnh sửa
+                        </Button>
+                    </DialogActions>
+                </Box>
+
             </Dialog>
 
             <Dialog open={openDeleteDialog} onClose={() => {
