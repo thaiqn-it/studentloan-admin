@@ -124,8 +124,6 @@ export default function App(props) {
             res.data.map(item => {
                 if (item.status === LOAN_SCHEDULE_STATUS.INCOMPLETE) {
                     numberScheduleLate++
-                } else {
-                    numberScheduleLate--
                 }
             })
             if (numberScheduleLate >= 5) setIsLate(true)
